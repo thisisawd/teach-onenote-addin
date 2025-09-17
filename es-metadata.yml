@@ -1,0 +1,8 @@
+schemaVersion: 0.0.1
+isProduction: false
+accountableOwners:
+  service: d7975e81-b6c7-4636-9941-982acef929e7
+routing:
+  defaultAreaPath:
+    org: microsoftdesignresearch
+    path: Windows Design\Prototyping
