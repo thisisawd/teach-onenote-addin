@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teach</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+      background: #faf9f8;
+      color: #242424;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+    .header svg { flex-shrink:0; }
+    .header h1 { font-size:16px; font-weight:600; color:#6264a7; }
+    .header .badge {
+      margin-left: auto;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #e8ebfa;
+      color: #6264a7;
+      font-weight: 600;
+    }
+
+    /* ── Login overlay ── */
+    #loginOverlay {
+      position: absolute; inset:0; z-index:100;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 24px;
+      text-align: center;
+    }
+    #loginOverlay.hidden { display:none; }
+    #loginOverlay h2 { font-size:20px; font-weight:600; color:#242424; }
+    #loginOverlay p  { font-size:13px; color:#616161; max-width:280px; }
+    #loginOverlay input {
+      width: 100%; max-width:280px;
+      padding: 8px 12px;
+      border: 1px solid #d1d1d1;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    #loginOverlay input:focus { outline:none; border-color:#6264a7; }
+    .login-btn {
+      width: 100%; max-width:280px;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .login-btn.primary { background:#6264a7; color:#fff; }
+    .login-btn.primary:hover { background:#4f52b5; }
+    .login-btn.secondary { background:#f5f5f5; color:#242424; border:1px solid #d1d1d1; }
+    .login-btn.secondary:hover { background:#e8e8e8; }
+    .login-divider { font-size:12px; color:#999; }
+    .user-info { font-size:12px; color:#107c10; }
+
+    /* ── Teach iframe ── */
+    #teachFrame {
+      flex: 1;
+      width: 100%;
+      border: none;
+    }
+
+    /* ── Bottom bar ── */
+    .bottom-bar {
+      display: flex;
+      gap: 6px;
+      padding: 8px 10px;
+      background: #fff;
+      border-top: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+    .bottom-bar button {
+      flex: 1;
+      padding: 8px 4px;
+      border: 1px solid #d1d1d1;
+      border-radius: 4px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .bottom-bar button:hover { background:#f5f5f5; }
+    .bottom-bar button.primary {
+      background: #6264a7;
+      color: #fff;
+      border-color: #6264a7;
+    }
+    .bottom-bar button.primary:hover { background:#4f52b5; }
+
+    /* ── Status toast ── */
+    .toast {
+      position: fixed;
+      bottom: 56px;
+      left: 10px; right: 10px;
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 200;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast.success { background:#dff6dd; color:#107c10; border:1px solid #9ee09e; }
+    .toast.error   { background:#fde7e9; color:#a4262c; border:1px solid #eeacb2; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="4" fill="#6264a7"/>
+      <path d="M7 8h10M7 12h7M7 16h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <h1>Teach</h1>
+    <span class="badge">EDU</span>
+  </div>
+
+  <!-- Login overlay (shown if SSO fails) -->
+  <div id="loginOverlay">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="4" fill="#6264a7"/>
+      <path d="M7 8h10M7 12h7M7 16h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <h2>Sign in to Teach</h2>
+    <p>Use your EDU Microsoft account to access Copilot Teach tools.</p>
+    <button class="login-btn primary" id="ssoBtn">Sign in with Microsoft</button>
+    <span class="login-divider">— or enter your EDU email —</span>
+    <input type="email" id="emailInput" placeholder="name@school.edu"/>
+    <button class="login-btn secondary" id="emailBtn">Continue</button>
+    <div class="user-info" id="userInfo" style="display:none"></div>
+  </div>
+
+  <!-- Copilot Teach iframe -->
+  <iframe id="teachFrame"
+          src="about:blank"
+          title="M365 Copilot Teach"
+          allow="clipboard-write"
+          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation">
+  </iframe>
+
+  <!-- Bottom action bar -->
+  <div class="bottom-bar">
+    <button class="primary" id="insertBtn" title="Insert generated content into the OneNote page">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 1a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
+      </svg>
+      Insert to Page
+    </button>
+    <button id="embedBtn" title="Embed content as oEmbed rich card">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
+      </svg>
+      Embed
+    </button>
+    <button id="refreshBtn" title="Reload Copilot Teach">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 1 1 .908-.418A6 6 0 1 1 8 2v1z"/>
+        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="taskpane.js"></script>
+</body>
+</html>

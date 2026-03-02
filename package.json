@@ -1,0 +1,10 @@
+{
+  "name": "teach-onenote-addin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "M365 Copilot Teach for OneNote EDU",
+  "scripts": {
+    "start": "npx http-server . -p 3000 -c-1",
+    "deploy": "node deploy.js"
+  }
+}
