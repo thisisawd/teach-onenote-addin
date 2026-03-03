@@ -1,0 +1,20 @@
+{
+  "displayName": "Teach OneNote Add-in",
+  "signInAudience": "AzureADAndPersonalMicrosoftAccount",
+  "spa": {
+    "redirectUris": [
+      "https://thisisawd.github.io/teach-onenote-addin/taskpane.html"
+    ]
+  },
+  "requiredResourceAccess": [
+    {
+      "resourceAppId": "00000003-0000-0000-c000-000000000000",
+      "resourceAccess": [
+        { "id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope" },
+        { "id": "14dad69e-099b-42c9-810b-d002981feec1", "type": "Scope" },
+        { "id": "37f7f235-527c-4136-accd-4a02d197296e", "type": "Scope" }
+      ]
+    }
+  ],
+  "serviceManagementReference": "d698de84-7dd0-4c25-87c5-db5ac2847792"
+}
