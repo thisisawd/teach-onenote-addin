@@ -4,7 +4,10 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Teach</title>
+  <!-- Office.js – required for OneNote task pane add-ins -->
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <!-- taskpane.js – Office.js bootstrap (separated for clarity) -->
+  <script src="taskpane.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -650,7 +653,7 @@
     <span class="badge">EDU</span>
   </div>
 
-  <!-- Login overlay -->
+  <!-- Setup overlay – Azure OpenAI key entry (no SSO, no tenant secrets) -->
   <div id="loginOverlay">
     <svg width="48" height="48" viewBox="0 0 80 80" fill="none">
       <defs>
@@ -668,13 +671,13 @@
       <rect x="50" y="40" width="3" height="8" rx="1.5" fill="#8B4513"/>
       <ellipse cx="57" cy="42" rx="5" ry="3" fill="#4CAF50" transform="rotate(-30 57 42)"/>
     </svg>
-    <h2>Sign in to Teach</h2>
-    <p>Sign in with your Microsoft EDU account to continue.</p>
-    <button class="login-btn primary" id="ssoBtn">Sign in with Microsoft</button>
-    <span class="login-divider">&mdash; if SSO is blocked in your tenant &mdash;</span>
-    <input type="email" id="emailInput" placeholder="name@school.edu"/>
-    <button class="login-btn secondary" id="emailBtn">Continue with EDU email</button>
-    <p id="loginError" style="font-size:12px;color:#a4262c;max-width:320px;display:none;"></p>
+    <h2>Connect to Azure OpenAI</h2>
+    <p>Enter your Azure OpenAI endpoint and key to enable AI content generation. Keys are stored in your browser only.</p>
+    <input type="url" id="setupEndpoint" placeholder="https://your-resource.openai.azure.com" style="max-width:320px;"/>
+    <input type="password" id="setupApiKey" placeholder="API Key" style="max-width:320px;"/>
+    <input type="text" id="setupDeployment" placeholder="Deployment name (e.g. gpt-4o)" value="gpt-4o" style="max-width:320px;"/>
+    <button class="login-btn primary" id="setupSaveBtn">Connect</button>
+    <p id="setupError" style="font-size:12px;color:#a4262c;max-width:320px;display:none;"></p>
   </div>
 
   <!-- ═══════════ MAIN CONTENT AREA ═══════════ -->
@@ -820,48 +823,72 @@
 
   <script>
   /* ============================================================
-     Teach — M365 Copilot for Education · OneNote Add-in
-    Production build — Microsoft sign-in + direct M365 Copilot handoff.
+     Teach — M365 Copilot for Education · OneNote Add-in v6
+     Azure OpenAI key-based generation. No SSO. Sideloadable.
      ============================================================ */
 
-  var TEACH_URL      = 'https://m365.cloud.microsoft/chat?fromEducation=true&auth=2';
-  var TEACH_FALLBACK = 'https://copilot.microsoft.com/?fromEducation=true&auth=2';
+  var TEACH_URL = 'https://m365.cloud.microsoft/chat?fromEducation=true&auth=2';
+  var officeReady = false;
+  var lastGenHtml = '';
+  var selectedTpl = null;
 
-  var currentUser  = null;
-  var officeReady  = false;
-  var lastGenHtml  = '';
-  var selectedTpl  = null;
-  var graphToken   = null;  // Microsoft Graph access token
-  var lastSsoError = '';
+  /* ── Azure OpenAI config (persisted in localStorage) ── */
+  var aoaiConfig = loadAoaiConfig();
 
-  /* ── Microsoft Graph API calls ───────────────────────── */
-  async function callGraph(endpoint) {
-    if (!graphToken) throw new Error('No Graph token available');
-    var response = await fetch('https://graph.microsoft.com/v1.0' + endpoint, {
-      headers: { 'Authorization': 'Bearer ' + graphToken }
+  function loadAoaiConfig() {
+    try { var s = localStorage.getItem('teach_aoai'); if (s) return JSON.parse(s); } catch(e) {}
+    return { endpoint:'', apiKey:'', deployment:'gpt-4o', apiVersion:'2024-12-01-preview' };
+  }
+  function saveAoaiConfig() {
+    try { localStorage.setItem('teach_aoai', JSON.stringify(aoaiConfig)); } catch(e) {}
+  }
+  function isAoaiConfigured() { return !!(aoaiConfig.endpoint && aoaiConfig.apiKey); }
+
+  /* ── Education system prompts per template ──────────── */
+  var SYSTEM_PROMPTS = {
+    lesson: 'You are an expert K-12 curriculum designer. Create a detailed, standards-aligned lesson plan. Include: learning objectives (Bloom\'s taxonomy verbs), timed lesson flow (warm-up/instruction/guided practice/independent practice/closure), differentiation strategies, materials, and assessment ideas. If standards are provided, explicitly align to them. Format as clean HTML with <h4> headings, <ul>/<ol> lists, <table> for differentiation. No markdown.',
+    quiz: 'You are an expert K-12 assessment designer. Create a high-quality quiz with real, grade-appropriate questions and plausible distractors for MC. Include an answer key. Vary difficulty per Bloom\'s taxonomy. Format as clean HTML. No markdown.',
+    rubric: 'You are an expert rubric designer for K-12. Create a criteria-based rubric with clear, specific performance descriptors at each level. 4-6 relevant criteria. Format as HTML <table> with criteria as rows and levels as columns. No markdown.',
+    activity: 'You are an expert at designing engaging K-12 classroom activities. Include: overview, learning goals, step-by-step instructions with time estimates, materials, grouping strategy, differentiation, reflection questions. Format as clean HTML. No markdown.',
+    vocabulary: 'You are an expert vocabulary instruction specialist. For each term: word, student-friendly definition, example sentence in context, related terms. Add practice activities. Format as HTML <table> + <h4>/<ol> for practice. No markdown.',
+    reading: 'You are an expert at creating grade-appropriate reading passages. Write an original, engaging passage at the specified level. Include 5-8 comprehension questions (recall, inference, vocabulary, author\'s purpose). Include answer key. Format as clean HTML. No markdown.'
+  };
+
+  /* ── Build user prompt from form data ──────────────── */
+  function buildUserPrompt(tplKey, data) {
+    var tpl = TEMPLATES[tplKey] || TEMPLATES.lesson;
+    var labelById = {};
+    tpl.fields.forEach(function(f) { labelById[f.id] = f.label; });
+    var lines = ['Create the following education content:'];
+    Object.keys(data).forEach(function(k) {
+      if (data[k]) lines.push((labelById[k] || k) + ': ' + data[k]);
     });
-    if (!response.ok) {
-      if (response.status === 401) { graphToken = null; }
-      throw new Error('Graph API error: ' + response.status);
-    }
-    return response.json();
+    lines.push('');
+    lines.push('Provide complete, specific, educator-ready content. No placeholders.');
+    return lines.join('\n');
   }
 
-  async function fetchGraphProfile() {
-    try {
-      var profile = await callGraph('/me');
-      var user = {
-        name: profile.displayName || profile.givenName || 'Educator',
-        email: profile.mail || profile.userPrincipalName || '',
-        jobTitle: profile.jobTitle || '',
-        department: profile.department || ''
-      };
-      console.log('[Teach] Graph profile loaded:', user.name, user.email);
-      return user;
-    } catch(e) {
-      console.warn('[Teach] Graph profile failed:', e.message);
-      return null;
-    }
+  /* ── Azure OpenAI Chat Completions call ────────────── */
+  async function callAzureOpenAI(systemPrompt, userPrompt) {
+    var url = aoaiConfig.endpoint.replace(/\/+$/, '')
+      + '/openai/deployments/' + encodeURIComponent(aoaiConfig.deployment)
+      + '/chat/completions?api-version=' + aoaiConfig.apiVersion;
+    var resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'api-key': aoaiConfig.apiKey },
+      body: JSON.stringify({
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 4000
+      })
+    });
+    if (!resp.ok) { var t = await resp.text(); throw new Error('Azure OpenAI ' + resp.status + ': ' + t); }
+    var json = await resp.json();
+    var raw = json.choices[0].message.content;
+    return raw.replace(/^```html?\s*/i, '').replace(/```\s*$/i, '').trim();
   }
 
   /* ── Template definitions ─────────────────────────────
@@ -942,105 +969,17 @@
     }
   };
 
-  // ── Bootstrap ──────────────────────────────────────────
-  Office.onReady(function(info) {
+  // ── Bootstrap (called from taskpane.js Office.onReady) ──
+  // Exposed globally so taskpane.js can call it.
+  window.onTeachReady = function(info) {
     officeReady = true;
     console.log('[Teach] Office ready - host:', info.host);
-    trySSO();
+    // If Azure OpenAI is already configured, skip setup overlay
+    if (isAoaiConfigured()) {
+      document.getElementById('loginOverlay').classList.add('hidden');
+    }
     wireButtons();
-  });
-
-  async function getOfficeAccessToken(options) {
-    if (typeof OfficeRuntime !== 'undefined' && OfficeRuntime.auth && typeof OfficeRuntime.auth.getAccessToken === 'function') {
-      return OfficeRuntime.auth.getAccessToken(options || {});
-    }
-
-    if (!Office.auth || typeof Office.auth.getAccessTokenAsync !== 'function') {
-      throw new Error('Office SSO API unavailable in this host.');
-    }
-
-    var direct = Office.auth.getAccessTokenAsync(options || {});
-    if (direct && typeof direct.then === 'function') {
-      var res = await direct;
-      if (res && typeof res === 'object' && 'status' in res) {
-        var succeeded = (res.status === 'succeeded')
-          || (typeof Office !== 'undefined' && Office.AsyncResultStatus && res.status === Office.AsyncResultStatus.Succeeded);
-        if (succeeded) return res.value;
-        var errMsg = (res.error && (res.error.message || res.error.code)) || 'SSO failed.';
-        throw new Error(errMsg);
-      }
-      return res;
-    }
-
-    return new Promise(function(resolve, reject) {
-      Office.auth.getAccessTokenAsync(options || {}, function(asyncResult) {
-        var succeeded = asyncResult && (
-          asyncResult.status === 'succeeded'
-          || (typeof Office !== 'undefined' && Office.AsyncResultStatus && asyncResult.status === Office.AsyncResultStatus.Succeeded)
-        );
-        if (succeeded) {
-          resolve(asyncResult.value);
-        } else {
-          var err = (asyncResult && asyncResult.error)
-            ? (asyncResult.error.message || asyncResult.error.code || JSON.stringify(asyncResult.error))
-            : 'SSO failed.';
-          reject(new Error(err));
-        }
-      });
-    });
-  }
-
-  // ── SSO ────────────────────────────────────────────────
-  async function trySSO() {
-    try {
-      var token = await getOfficeAccessToken({
-        allowSignInPrompt: true,
-        allowConsentPrompt: true,
-        forMSGraphAccess: true
-      });
-      if (token && typeof token === 'string' && token.length > 10) {
-        lastSsoError = '';
-        graphToken = token;
-        var payload = JSON.parse(atob(token.split('.')[1]));
-        currentUser = {
-          name:  payload.name || payload.preferred_username || 'Educator',
-          email: payload.preferred_username || payload.upn || ''
-        };
-        loginSuccess(currentUser);
-
-        // Attempt Graph profile call with the SSO token
-        var graphUser = await fetchGraphProfile();
-        if (graphUser) {
-          currentUser = Object.assign(currentUser, graphUser);
-        }
-        return;
-      }
-      throw new Error('No access token was returned by Office SSO.');
-    } catch (e) {
-      lastSsoError = e && (e.message || String(e)) ? (e.message || String(e)) : 'Unknown sign-in error.';
-      if (/13001|13007|13012|IdentityAPI|WebApplicationInfo|AADSTS/i.test(lastSsoError)) {
-        lastSsoError += ' — Office SSO is not fully configured. Add a real Entra app Client ID + Resource in manifest WebApplicationInfo.';
-      }
-      console.warn('[Teach] SSO unavailable:', lastSsoError);
-    }
-    var errEl = document.getElementById('loginError');
-    if (errEl) {
-      errEl.textContent = 'SSO error: ' + lastSsoError;
-      errEl.style.display = 'block';
-    }
-    toast('Microsoft SSO failed. You can continue with EDU email fallback.', 'error');
-    document.getElementById('loginOverlay').classList.remove('hidden');
-  }
-
-  function loginSuccess(user) {
-    currentUser = user;
-    document.getElementById('loginOverlay').classList.add('hidden');
-    var errEl = document.getElementById('loginError');
-    if (errEl) {
-      errEl.textContent = '';
-      errEl.style.display = 'none';
-    }
-  }
+  };
 
   // ── View navigation ───────────────────────────────────
   function showView(viewId, direction) {
@@ -1050,7 +989,6 @@
     var el = document.getElementById(viewId);
     el.classList.add('active');
     el.classList.add(direction === 'back' ? 'view-fade-back' : 'view-fade-in');
-    // Scroll to top
     document.querySelector('.main').scrollTop = 0;
   }
 
@@ -1062,7 +1000,6 @@
     document.getElementById('createTitle').textContent = tpl.title;
     document.getElementById('createSubtitle').textContent = tpl.subtitle;
 
-    // Build form HTML
     var html = '';
     tpl.fields.forEach(function(f) {
       html += '<div class="form-group">';
@@ -1076,13 +1013,8 @@
         html += '<button class="add-btn" id="openStandardsBtn">+ Add standards</button>';
       } else if (f.type === 'text') {
         html += '<input type="text" id="field_' + f.id + '" placeholder="' + escAttr(f.placeholder || '') + '"/>';
-        if (f.addBtn) {
-          html += '<button class="add-btn" onclick="document.getElementById(\'field_' + f.id + '\').focus()">'
-            + '+ ' + escHtml(f.addBtn) + '</button>';
-        }
       } else if (f.type === 'select') {
-        html += '<select id="field_' + f.id + '">';
-        html += '<option value="">Select...</option>';
+        html += '<select id="field_' + f.id + '"><option value="">Select...</option>';
         f.options.forEach(function(opt) {
           var sel = (f.defaultVal && f.defaultVal === opt) ? ' selected' : '';
           html += '<option value="' + escAttr(opt) + '"' + sel + '>' + escHtml(opt) + '</option>';
@@ -1091,195 +1023,130 @@
       } else if (f.type === 'textarea') {
         html += '<textarea id="field_' + f.id + '" placeholder="' + escAttr(f.placeholder || '') + '"'
           + (f.maxlength ? ' maxlength="' + f.maxlength + '"' : '') + '></textarea>';
-        if (f.maxlength) {
-          html += '<div class="helper">' + f.maxlength.toLocaleString() + ' character limit</div>';
-        }
-        if (f.addContent) {
-          html += '<button class="add-btn" onclick="document.getElementById(\'field_' + f.id + '\').focus()">'
-            + '+ Add content</button>';
-        }
+        if (f.maxlength) html += '<div class="helper">' + f.maxlength.toLocaleString() + ' character limit</div>';
+        if (f.addContent) html += '<button class="add-btn" onclick="document.getElementById(\'field_' + f.id + '\').focus()">+ Add content</button>';
       }
-
       html += '</div>';
     });
 
     document.getElementById('formFields').innerHTML = html;
-
-    // Wire "Add standards" button if present
     var openStdBtn = document.getElementById('openStandardsBtn');
-    if (openStdBtn) {
-      openStdBtn.addEventListener('click', function() { openStandardsModal(); });
-    }
-
-    // Hide preview card when entering creation view
+    if (openStdBtn) openStdBtn.addEventListener('click', function() { openStandardsModal(); });
     document.getElementById('previewCard').classList.remove('visible');
-
     showView('viewCreate', 'forward');
   }
 
-  function navigateHome() {
-    showView('viewHome', 'back');
-    selectedTpl = null;
-  }
+  function navigateHome() { showView('viewHome', 'back'); selectedTpl = null; }
 
   // ── Wire buttons ──────────────────────────────────────
   function wireButtons() {
-    // SSO button
-    document.getElementById('ssoBtn').addEventListener('click', async function() {
-      await trySSO();
-    });
-
-    // EDU email fallback (or retry if empty)
-    document.getElementById('emailBtn').addEventListener('click', async function() {
-      var email = document.getElementById('emailInput').value.trim();
-      if (!email) {
-        await trySSO();
+    // Setup overlay – save AOAI config
+    document.getElementById('setupSaveBtn').addEventListener('click', async function() {
+      var ep = document.getElementById('setupEndpoint').value.trim();
+      var key = document.getElementById('setupApiKey').value.trim();
+      var dep = document.getElementById('setupDeployment').value.trim() || 'gpt-4o';
+      var errEl = document.getElementById('setupError');
+      if (!ep || !key) {
+        errEl.textContent = 'Endpoint and API Key are required.';
+        errEl.style.display = 'block';
         return;
       }
-      if (!email.includes('@')) {
-        toast('Enter a valid EDU email.', 'error');
-        return;
+      aoaiConfig.endpoint = ep;
+      aoaiConfig.apiKey = key;
+      aoaiConfig.deployment = dep;
+      saveAoaiConfig();
+      // Test connection
+      errEl.textContent = 'Testing connection…';
+      errEl.style.display = 'block';
+      errEl.style.color = '#616161';
+      try {
+        await callAzureOpenAI('You are a test assistant.', 'Reply with OK.');
+        errEl.style.display = 'none';
+        document.getElementById('loginOverlay').classList.add('hidden');
+        toast('Connected to Azure OpenAI!', 'success');
+      } catch(e) {
+        errEl.style.color = '#a4262c';
+        errEl.textContent = 'Connection failed: ' + e.message;
       }
-      loginSuccess({ name: email.split('@')[0], email: email });
-      toast('Signed in with EDU email fallback.', 'success');
     });
 
-    // Open Copilot Teach in dialog
-    document.getElementById('openCopilotBtn').addEventListener('click', openCopilotDialog);
+    // Populate saved config into fields
+    document.getElementById('setupEndpoint').value = aoaiConfig.endpoint || '';
+    document.getElementById('setupApiKey').value = aoaiConfig.apiKey || '';
+    document.getElementById('setupDeployment').value = aoaiConfig.deployment || 'gpt-4o';
 
-    // Template cards -> drill into creation form
+    // Open Copilot Teach in new tab
+    document.getElementById('openCopilotBtn').addEventListener('click', function() {
+      window.open(TEACH_URL, '_blank');
+      toast('Opened M365 Copilot in a new tab.', 'success');
+    });
+
+    // Template cards
     document.querySelectorAll('.tpl-card').forEach(function(card) {
-      card.addEventListener('click', function() {
-        navigateToCreate(card.getAttribute('data-tpl'));
-      });
+      card.addEventListener('click', function() { navigateToCreate(card.getAttribute('data-tpl')); });
     });
 
-    // Back button
     document.getElementById('backBtn').addEventListener('click', navigateHome);
-
-    // Generate button
     document.getElementById('generateBtn').addEventListener('click', generateContent);
-
-    // Preview actions
     document.getElementById('insertPreviewBtn').addEventListener('click', function() { insertHtml(lastGenHtml); });
     document.getElementById('embedPreviewBtn').addEventListener('click', function() { insertHtml(buildOEmbedCard()); });
-
-  }
-
-  function buildCopilotPrompt(tplKey, data) {
-    var tpl = TEMPLATES[tplKey] || TEMPLATES.lesson;
-    var labelById = {};
-    tpl.fields.forEach(function(f) { labelById[f.id] = f.label; });
-
-    var lines = [];
-    lines.push('You are M365 Copilot for Education. Create high-quality classroom-ready content.');
-    lines.push('Template: ' + (tpl.title || tplKey));
-    lines.push('');
-    Object.keys(data).forEach(function(key) {
-      var label = labelById[key] || key;
-      lines.push(label + ': ' + data[key]);
-    });
-    lines.push('');
-    lines.push('Output requirements:');
-    lines.push('- Provide complete, specific educator-ready content (not placeholders).');
-    lines.push('- Keep language age-appropriate and standards-aligned if standards are provided.');
-    lines.push('- Use clear sections and concise formatting suitable to paste into OneNote.');
-    return lines.join('\n');
-  }
-
-  // ── Open Copilot Teach ─────────────────────────────────
-  // Opens M365 Copilot in a new browser tab (Dialog API can't
-  // reliably embed third-party Copilot pages due to X-Frame-Options).
-  function openCopilotDialog() {
-    var url = TEACH_URL;
-    if (currentUser && currentUser.email) {
-      url += '&login_hint=' + encodeURIComponent(currentUser.email);
-    }
-    window.open(url, '_blank');
-    toast('Opened M365 Copilot in a new browser tab.', 'success');
   }
 
   // ── Collect form data ─────────────────────────────────
   function collectFormData() {
     var tpl = TEMPLATES[selectedTpl];
     if (!tpl) return null;
-    var data = {};
-    var valid = true;
+    var data = {}, valid = true;
     tpl.fields.forEach(function(f) {
       var el = document.getElementById('field_' + f.id);
       if (!el) return;
       var val = el.value.trim();
       data[f.id] = val;
       if (f.required && !val) {
-        el.style.borderColor = '#a4262c';
-        el.style.boxShadow = '0 0 0 1px #a4262c';
-        valid = false;
-      } else {
-        el.style.borderColor = '';
-        el.style.boxShadow = '';
-      }
+        el.style.borderColor = '#a4262c'; el.style.boxShadow = '0 0 0 1px #a4262c'; valid = false;
+      } else { el.style.borderColor = ''; el.style.boxShadow = ''; }
     });
-    if (!valid) {
-      toast('Please fill in all required fields.', 'error');
-      return null;
-    }
+    if (!valid) { toast('Please fill in all required fields.', 'error'); return null; }
     return data;
   }
 
-  // ── Generate content from form ────────────────────────
-  // Uses direct authenticated Copilot web handoff (no custom API keys).
+  // ── Generate content ──────────────────────────────────
   async function generateContent() {
-    if (!currentUser) {
+    if (!isAoaiConfigured()) {
       document.getElementById('loginOverlay').classList.remove('hidden');
-      toast('Please sign in with Microsoft first.', 'error');
+      toast('Set up Azure OpenAI first.', 'error');
       return;
     }
-
     var data = collectFormData();
     if (!data) return;
 
     var tpl = selectedTpl || 'lesson';
     var btn = document.getElementById('generateBtn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Opening Copilot…';
+    btn.innerHTML = '<span class="spinner"></span> Generating with AI\u2026';
 
     try {
-      var prompt = buildCopilotPrompt(tpl, data);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(prompt);
-      }
-
-      var url = TEACH_URL;
-      if (currentUser && currentUser.email) {
-        url += '&login_hint=' + encodeURIComponent(currentUser.email);
-      }
-      window.open(url, '_blank');
-
-      var html = '<h4>Copilot opened</h4>'
-        + '<p>Your request has been prepared and copied to clipboard. Paste it into Copilot chat to generate the content.</p>'
-        + '<h4>Prompt</h4>'
-        + '<pre style="white-space:pre-wrap;background:#f5f5f5;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">'
-        + escHtml(prompt) + '</pre>';
-
+      var sysPrompt = SYSTEM_PROMPTS[tpl] || SYSTEM_PROMPTS.lesson;
+      var userPrompt = buildUserPrompt(tpl, data);
+      var html = await callAzureOpenAI(sysPrompt, userPrompt);
       lastGenHtml = html;
 
-      // Show preview
       var card = document.getElementById('previewCard');
-      var titleText = TEMPLATES[tpl] ? TEMPLATES[tpl].title.replace('Create ','') : 'Teaching Content';
+      var titleText = TEMPLATES[tpl] ? TEMPLATES[tpl].title.replace('Create ','') : 'Content';
       titleText = titleText.charAt(0).toUpperCase() + titleText.slice(1);
       document.getElementById('previewTitle').textContent = '\uD83C\uDF93 ' + titleText;
-      var metaHtml = 'Signed in as '
-        + escHtml(currentUser ? currentUser.name : 'Teacher')
-        + ' \u00B7 ' + new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
-        + ' <span class="ai-badge live">\u2728 M365 Copilot</span>';
-      document.getElementById('previewMeta').innerHTML = metaHtml;
+      document.getElementById('previewMeta').innerHTML = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+        + ' <span class="ai-badge live">\u2728 Azure OpenAI</span>';
       document.getElementById('previewContent').innerHTML = html;
       card.classList.add('visible');
       card.scrollIntoView({ behavior: 'smooth' });
-      toast('Copilot opened. Prompt copied to clipboard.', 'success');
-    } catch (err) {
-      console.error('[Teach] Generation error:', err);
-      toast('Could not launch Copilot: ' + (err.message || err), 'error');
+      toast('Content generated!', 'success');
+
+      // Auto-insert into OneNote page
+      insertHtml(wrapForOneNote(titleText, html));
+    } catch(err) {
+      console.error('[Teach] AI error:', err);
+      toast('AI error: ' + err.message, 'error');
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<svg class="sparkle-svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">'
@@ -1288,204 +1155,31 @@
     }
   }
 
-  // ── Template builders (data-driven) ───────────────────
-  function buildTemplate(tpl, data) {
-    switch (tpl) {
-      case 'lesson':     return buildLesson(data);
-      case 'quiz':       return buildQuiz(data);
-      case 'rubric':     return buildRubric(data);
-      case 'activity':   return buildActivity(data);
-      case 'vocabulary': return buildVocabulary(data);
-      case 'reading':    return buildReading(data);
-      default:           return buildLesson(data);
-    }
-  }
-
-  function buildLesson(d) {
-    return '<h4>' + escHtml(d.subject) + ' \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
-      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
-      + ' &middot; Duration: ' + escHtml(d.duration)
-      + (d.standards ? ' &middot; Standards: ' + escHtml(d.standards) : '') + '</p>'
-      + '<h4>Topic &amp; Description</h4>'
-      + '<p><em>' + escHtml(d.description) + '</em></p>'
-      + '<h4>Learning Objectives</h4>'
-      + '<ul><li>Students will be able to identify and explain key concepts in ' + escHtml(d.subject) + '</li>'
-      + '<li>Students will analyze and apply knowledge through guided and independent practice</li>'
-      + '<li>Students will demonstrate understanding through formative assessment</li></ul>'
-      + '<h4>Lesson Flow (' + escHtml(d.duration) + ')</h4>'
-      + '<ol><li><strong>Warm-Up</strong> (5 min) \u2014 Activating prior knowledge with a discussion prompt</li>'
-      + '<li><strong>Direct Instruction</strong> (15 min) \u2014 Introduce core concepts with examples</li>'
-      + '<li><strong>Guided Practice</strong> (10 min) \u2014 Work through problems together as a class</li>'
-      + '<li><strong>Independent Practice</strong> (10 min) \u2014 Students apply learning individually</li>'
-      + '<li><strong>Closure</strong> (5 min) \u2014 Exit ticket and reflection</li></ol>'
-      + '<h4>Materials</h4>'
-      + '<ul><li>Whiteboard / projector</li><li>Student handouts</li><li>Assessment worksheet</li></ul>'
-      + '<h4>Differentiation</h4>'
-      + '<table><tr><th>Group</th><th>Strategy</th></tr>'
-      + '<tr><td>Advanced</td><td>Extension challenges &amp; peer tutoring</td></tr>'
-      + '<tr><td>On Level</td><td>Standard lesson sequence</td></tr>'
-      + '<tr><td>Approaching</td><td>Graphic organizers &amp; scaffolded notes</td></tr>'
-      + '<tr><td>ELL</td><td>Visual aids, sentence frames, vocabulary pre-teach</td></tr></table>'
-      + '<h4>Assessment</h4>'
-      + '<p><strong>Formative:</strong> Exit ticket &middot; <strong>Summative:</strong> End-of-unit test</p>';
-  }
-
-  function buildQuiz(d) {
-    var numQ = parseInt(d.numQuestions) || 10;
-    var mcCount = Math.ceil(numQ * 0.7);
-    var saCount = numQ - mcCount;
-    if (d.questionTypes && d.questionTypes.indexOf('Multiple choice only') !== -1) { mcCount = numQ; saCount = 0; }
-    if (d.questionTypes && d.questionTypes.indexOf('Short answer only') !== -1)    { mcCount = 0; saCount = numQ; }
-
-    var html = '<h4>' + escHtml(d.subject) + ' Quiz \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
-      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
-      + ' &middot; ' + numQ + ' questions (' + escHtml(d.questionTypes) + ')</p>'
-      + '<p><em>' + escHtml(d.description) + '</em></p>';
-
-    if (mcCount > 0) {
-      html += '<h4>Multiple Choice</h4><ol>';
-      for (var i = 1; i <= Math.min(mcCount, 5); i++) {
-        html += '<li>Question ' + i + ' about ' + escHtml(d.subject) + '<br/>'
-          + '  a) Option A&ensp; b) Option B&ensp; <strong>c) Option C \u2713</strong>&ensp; d) Option D</li>';
-      }
-      if (mcCount > 5) html += '<li><em>(' + (mcCount - 5) + ' more questions\u2026)</em></li>';
-      html += '</ol>';
-    }
-    if (saCount > 0) {
-      html += '<h4>Short Answer</h4><ol>';
-      for (var j = 1; j <= Math.min(saCount, 3); j++) {
-        html += '<li>Explain ' + escHtml(d.subject) + ' concept ' + j + ' in your own words. (3-4 sentences)<br/><em>[answer space]</em></li>';
-      }
-      html += '</ol>';
-    }
-    return html;
-  }
-
-  function buildRubric(d) {
-    var levels = d.rubricLevels || '4 levels';
-    var cols;
-    if (levels.indexOf('3 levels') !== -1) {
-      cols = ['Meets (3)','Approaching (2)','Below (1)'];
-    } else if (levels.indexOf('5 levels') !== -1) {
-      cols = ['Exemplary (5)','Proficient (4)','Developing (3)','Beginning (2)','Incomplete (1)'];
-    } else {
-      cols = ['Exceeds (4)','Meets (3)','Approaching (2)','Below (1)'];
-    }
-
-    var html = '<h4>' + escHtml(d.subject) + ' ' + escHtml(d.assignmentType) + ' Rubric \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
-      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
-      + ' &middot; ' + escHtml(d.rubricLevels) + '</p>'
-      + '<p><em>' + escHtml(d.description) + '</em></p>'
-      + '<table><tr><th>Criteria</th>';
-    cols.forEach(function(c) { html += '<th>' + escHtml(c) + '</th>'; });
-    html += '</tr>';
-
-    var criteria = ['Content Knowledge','Critical Thinking','Communication','Effort &amp; Completion'];
-    var descriptors = {
-      'Content Knowledge':       ['Thorough, accurate, insightful','Accurate understanding','Partial with gaps','Significant gaps','Incomplete'],
-      'Critical Thinking':       ['Exceptional analysis','Sound reasoning','Limited depth','Minimal analysis','No analysis'],
-      'Communication':           ['Clear and compelling','Clear and organized','Somewhat unclear','Unclear','Not communicated'],
-      'Effort &amp; Completion': ['Exceeds all requirements','Meets all requirements','Missing some parts','Incomplete','Not submitted']
-    };
-
-    criteria.forEach(function(crit) {
-      html += '<tr><td><strong>' + crit + '</strong></td>';
-      var descs = descriptors[crit] || [];
-      for (var i = 0; i < cols.length; i++) {
-        html += '<td>' + (descs[i] || '') + '</td>';
-      }
-      html += '</tr>';
-    });
-    html += '</table>';
-    return html;
-  }
-
-  function buildActivity(d) {
-    return '<h4>' + escHtml(d.subject) + ' ' + escHtml(d.activityType) + ' \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
-      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
-      + ' &middot; Duration: ' + escHtml(d.duration) + '</p>'
-      + '<h4>Overview</h4>'
-      + '<p><em>' + escHtml(d.description) + '</em></p>'
-      + '<p>An engaging ' + escHtml(d.activityType.toLowerCase()) + ' activity designed to reinforce learning through collaboration and exploration.</p>'
-      + '<h4>Materials Needed</h4>'
-      + '<ul><li>Chart paper or whiteboards</li><li>Markers / colored pencils</li><li>Handout (provided)</li><li>Timer</li></ul>'
-      + '<h4>Instructions</h4>'
-      + '<ol><li><strong>Setup</strong> (3 min) \u2014 Arrange students in groups of 3-4</li>'
-      + '<li><strong>Explore</strong> (10 min) \u2014 Groups investigate the topic using provided materials</li>'
-      + '<li><strong>Create</strong> (10 min) \u2014 Groups produce a visual summary or model</li>'
-      + '<li><strong>Share</strong> (7 min) \u2014 Gallery walk: groups present to each other</li>'
-      + '<li><strong>Reflect</strong> (5 min) \u2014 Individual written reflection</li></ol>'
-      + '<h4>Extensions</h4>'
-      + '<ul><li>Advanced: Design their own investigation question</li>'
-      + '<li>Support: Provide partially completed graphic organizer</li></ul>';
-  }
-
-  function buildVocabulary(d) {
-    var count = parseInt(d.numTerms) || 10;
-    var html = '<h4>' + escHtml(d.subject) + ' Vocabulary \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
-      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
-      + ' &middot; ' + count + ' terms</p>'
-      + '<p><em>' + escHtml(d.description) + '</em></p>'
-      + '<table><tr><th>#</th><th>Term</th><th>Definition</th><th>Example Sentence</th></tr>';
-    for (var i = 1; i <= count; i++) {
-      html += '<tr><td>' + i + '</td><td><strong>[Term ' + i + ']</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>';
-    }
-    html += '</table>'
-      + '<h4>Practice</h4>'
-      + '<p>Use each word in a sentence. Then, create a word web connecting related terms.</p>';
-    return html;
-  }
-
-  function buildReading(d) {
-    return '<h4>' + escHtml(d.subject) + ' Reading Passage \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
-      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
-      + ' &middot; Level: ' + escHtml(d.readingLevel)
-      + ' &middot; Length: ' + escHtml(d.passageLength) + '</p>'
-      + '<p><em>' + escHtml(d.description) + '</em></p>'
-      + '<div style="background:#f9f9f9; padding:12px; border-radius:4px; margin:8px 0; border-left:3px solid #6264a7;">'
-      + '<p>[Reading passage text goes here. Edit this section to add your grade-appropriate passage about '
-      + escHtml(d.subject) + '. The passage should be written at the '
-      + escHtml(d.readingLevel).toLowerCase() + ' reading level.]</p>'
-      + '</div>'
-      + '<h4>Comprehension Questions</h4>'
-      + '<ol><li>What is the main idea of this passage?</li>'
-      + '<li>List two supporting details from the text.</li>'
-      + '<li>What does the word "[vocabulary word]" mean in context?</li>'
-      + '<li>How does the author support their argument? Give evidence.</li>'
-      + '<li>Write a brief summary (3-4 sentences) of the passage.</li></ol>'
-      + '<h4>Extension</h4>'
-      + '<p>Write a response paragraph agreeing or disagreeing with the author\'s point of view. Use evidence from the text.</p>';
-  }
-
-  // ── Wrap content for OneNote insertion ────────────────
+  // ── Wrap for OneNote insertion ─────────────────────────
   function wrapForOneNote(title, bodyHtml) {
-    var user = currentUser ? currentUser.name : 'Teacher';
-    var ts = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-    return '<div style="font-family:Segoe UI,sans-serif; max-width:640px;">'
-      + '<h2 style="color:#6264a7; margin-bottom:2px;">&#127891; ' + escHtml(title) + '</h2>'
-      + '<p style="font-size:12px; color:#888; margin-bottom:12px;">Created by ' + escHtml(user) + ' via Copilot Teach &middot; ' + ts + '</p>'
+    var ts = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return '<div style="font-family:Segoe UI,sans-serif;max-width:640px;">'
+      + '<h2 style="color:#6264a7;margin-bottom:2px;">&#127891; ' + escHtml(title) + '</h2>'
+      + '<p style="font-size:12px;color:#888;margin-bottom:12px;">Generated by Copilot Teach &middot; ' + ts + '</p>'
       + '<hr style="border:none;border-top:1px solid #e0e0e0;margin:8px 0 12px;"/>'
-      + bodyHtml
-      + '</div>';
+      + bodyHtml + '</div>';
   }
 
-  // ── oEmbed card builder ───────────────────────────────
   function buildOEmbedCard() {
-    var ts   = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-    var user = currentUser ? currentUser.name : 'Teacher';
-    return '<div style="border:1px solid #d1d1d1; border-radius:8px; padding:16px; max-width:560px; font-family:Segoe UI,sans-serif;">'
-      + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">'
+    var ts = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return '<div style="border:1px solid #d1d1d1;border-radius:8px;padding:16px;max-width:560px;font-family:Segoe UI,sans-serif;">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">'
       + '<div style="width:32px;height:32px;border-radius:4px;background:#6264a7;display:flex;align-items:center;justify-content:center;">'
       + '<span style="color:#fff;font-weight:700;font-size:14px;">T</span></div>'
       + '<div><div style="font-weight:600;font-size:14px;">M365 Copilot Teach</div>'
-      + '<div style="font-size:11px;color:#616161;">Created by ' + escHtml(user) + ' &middot; ' + ts + '</div></div></div>'
+      + '<div style="font-size:11px;color:#616161;">Created &middot; ' + ts + '</div></div></div>'
       + '<div style="background:#f5f5f5;border-radius:4px;padding:12px;margin-bottom:12px;">'
       + '<div style="font-weight:600;margin-bottom:4px;">&#128218; Teaching Content</div>'
-      + '<div style="font-size:13px;color:#424242;">This content was generated with M365 Copilot Teach for Education. Open the link below to view or edit in Copilot.</div></div>'
-      + '<a href="' + TEACH_URL + '" style="color:#6264a7;font-size:13px;font-weight:600;text-decoration:none;">&#128279; Open in Copilot Teach &rarr;</a></div>';
+      + '<div style="font-size:13px;color:#424242;">Generated with M365 Copilot Teach for Education.</div></div>'
+      + '<a href="' + TEACH_URL + '" style="color:#6264a7;font-size:13px;font-weight:600;text-decoration:none;">Open in Copilot Teach &rarr;</a></div>';
   }
 
-  // ── Insert HTML into OneNote page ─────────────────────
+  // ── OneNote-specific: Insert HTML into current page ───
   async function insertHtml(html) {
     if (!officeReady) { toast('OneNote is not ready.', 'error'); return; }
     try {
@@ -1495,32 +1189,20 @@
         await ctx.sync();
       });
       toast('Content inserted into page!', 'success');
-    } catch (err) {
+    } catch(err) {
       console.error('[Teach] Insert error:', err);
       toast('Could not insert \u2014 ' + (err.message || err), 'error');
     }
   }
 
   // ── Helpers ───────────────────────────────────────────
-  function escHtml(s) {
-    if (!s) return '';
-    var d = document.createElement('div');
-    d.appendChild(document.createTextNode(s));
-    return d.innerHTML;
-  }
-
-  function escAttr(s) {
-    return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
+  function escHtml(s) { if (!s) return ''; var d=document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+  function escAttr(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function toast(msg, type) {
     var el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = 'toast ' + type + ' show';
-    clearTimeout(el._t);
-    el._t = setTimeout(function() { el.classList.remove('show'); }, 4000);
+    el.textContent = msg; el.className = 'toast ' + type + ' show';
+    clearTimeout(el._t); el._t = setTimeout(function(){ el.classList.remove('show'); }, 4000);
   }
-
   /* ═══════════════════════════════════════════════════════
      STANDARDS DATABASE & MODAL LOGIC
      Mirrors the M365 Copilot Teach "Add standards" dialog.

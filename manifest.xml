@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Teach – OneNote Task Pane Add-in (Agave)
+  ─────────────────────────────────────────
+  • OneNote-specific: Host Name="Notebook", xsi:type="Notebook"
+  • No SSO / no WebApplicationInfo / no IdentityAPI
+  • Sideloadable by anyone – no tenant-specific values
+  • AI generation uses Azure OpenAI keys entered at runtime
+-->
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
            xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
            xsi:type="TaskPaneApp">
 
+  <!-- Stable GUID – same for every sideloader -->
   <Id>d698de84-7dd0-4c25-87c5-db5ac2847792</Id>
-  <Version>5.1.0.0</Version>
+  <Version>6.0.0.0</Version>
   <ProviderName>Microsoft Education</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Teach"/>
-  <Description DefaultValue="M365 Copilot Teach for Education — Sign in with Microsoft and generate standards-aligned lesson plans, quizzes, rubrics, activities, vocabulary lists, and reading passages directly through M365 Copilot, then insert into OneNote."/>
+  <Description DefaultValue="M365 Copilot Teach for Education – AI-powered lesson plans, quizzes, rubrics, activities, vocabulary, and reading passages via Azure OpenAI. Inserts directly into OneNote."/>
   <IconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-80.png"/>
   <SupportUrl DefaultValue="https://support.microsoft.com/education"/>
 
+  <!-- Domains the add-in may navigate to or fetch from -->
   <AppDomains>
-    <AppDomain>https://copilot.cloud.microsoft</AppDomain>
+    <AppDomain>https://thisisawd.github.io</AppDomain>
     <AppDomain>https://m365.cloud.microsoft</AppDomain>
     <AppDomain>https://copilot.microsoft.com</AppDomain>
-    <AppDomain>https://login.microsoftonline.com</AppDomain>
-    <AppDomain>https://login.live.com</AppDomain>
-    <AppDomain>https://thisisawd.github.io</AppDomain>
-    <AppDomain>https://models.inference.ai.azure.com</AppDomain>
-    <AppDomain>https://graph.microsoft.com</AppDomain>
   </AppDomains>
 
+  <!-- OneNote-specific host declaration -->
   <Hosts>
     <Host Name="Notebook"/>
   </Hosts>
@@ -34,16 +40,13 @@
     <SourceLocation DefaultValue="https://thisisawd.github.io/teach-onenote-addin/taskpane.html"/>
   </DefaultSettings>
 
-  <Requirements>
-    <Sets DefaultMinVersion="1.1">
-      <Set Name="IdentityAPI" MinVersion="1.3"/>
-    </Sets>
-  </Requirements>
-
+  <!-- ReadWriteDocument needed for OneNote.run / page.addOutline -->
   <Permissions>ReadWriteDocument</Permissions>
 
-  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+                    xsi:type="VersionOverridesV1_0">
     <Hosts>
+      <!-- OneNote-specific: xsi:type="Notebook" -->
       <Host xsi:type="Notebook">
         <DesktopFormFactor>
           <GetStarted>
@@ -82,16 +85,7 @@
         </DesktopFormFactor>
       </Host>
     </Hosts>
-    <WebApplicationInfo>
-      <Id>00000000-0000-0000-0000-000000000000</Id>
-      <Resource>api://thisisawd.github.io/00000000-0000-0000-0000-000000000000</Resource>
-      <Scopes>
-        <Scope>openid</Scope>
-        <Scope>profile</Scope>
-        <Scope>offline_access</Scope>
-        <Scope>User.Read</Scope>
-      </Scopes>
-    </WebApplicationInfo>
+    <!-- No WebApplicationInfo – no SSO, no Entra app registration needed -->
     <Resources>
       <bt:Images>
         <bt:Image id="Icon.16x16" DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-16.png"/>
@@ -109,7 +103,7 @@
         <bt:String id="TeachButton.Title" DefaultValue="Copilot Teach"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="GetStarted.Description" DefaultValue="Click the Teach button on the Home tab to create standards-aligned lesson plans, quizzes, rubrics, and more with M365 Copilot Teach."/>
+        <bt:String id="GetStarted.Description" DefaultValue="Click the Teach button on the Home tab to create standards-aligned lesson plans, quizzes, rubrics, and more with AI."/>
         <bt:String id="TeachButton.Tooltip" DefaultValue="Open Copilot Teach to create standards-aligned lesson plans, quizzes, rubrics, activities, vocabulary lists, and reading passages for your students."/>
       </bt:LongStrings>
     </Resources>
