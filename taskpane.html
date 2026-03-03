@@ -671,7 +671,10 @@
     <h2>Sign in to Teach</h2>
     <p>Sign in with your Microsoft EDU account to continue.</p>
     <button class="login-btn primary" id="ssoBtn">Sign in with Microsoft</button>
-    <button class="login-btn secondary" id="emailBtn">Try sign-in again</button>
+    <span class="login-divider">&mdash; if SSO is blocked in your tenant &mdash;</span>
+    <input type="email" id="emailInput" placeholder="name@school.edu"/>
+    <button class="login-btn secondary" id="emailBtn">Continue with EDU email</button>
+    <p id="loginError" style="font-size:12px;color:#a4262c;max-width:320px;display:none;"></p>
   </div>
 
   <!-- ═══════════ MAIN CONTENT AREA ═══════════ -->
@@ -829,6 +832,7 @@
   var lastGenHtml  = '';
   var selectedTpl  = null;
   var graphToken   = null;  // Microsoft Graph access token
+  var lastSsoError = '';
 
   /* ── Microsoft Graph API calls ───────────────────────── */
   async function callGraph(endpoint) {
@@ -946,15 +950,56 @@
     wireButtons();
   });
 
+  async function getOfficeAccessToken(options) {
+    if (typeof OfficeRuntime !== 'undefined' && OfficeRuntime.auth && typeof OfficeRuntime.auth.getAccessToken === 'function') {
+      return OfficeRuntime.auth.getAccessToken(options || {});
+    }
+
+    if (!Office.auth || typeof Office.auth.getAccessTokenAsync !== 'function') {
+      throw new Error('Office SSO API unavailable in this host.');
+    }
+
+    var direct = Office.auth.getAccessTokenAsync(options || {});
+    if (direct && typeof direct.then === 'function') {
+      var res = await direct;
+      if (res && typeof res === 'object' && 'status' in res) {
+        var succeeded = (res.status === 'succeeded')
+          || (typeof Office !== 'undefined' && Office.AsyncResultStatus && res.status === Office.AsyncResultStatus.Succeeded);
+        if (succeeded) return res.value;
+        var errMsg = (res.error && (res.error.message || res.error.code)) || 'SSO failed.';
+        throw new Error(errMsg);
+      }
+      return res;
+    }
+
+    return new Promise(function(resolve, reject) {
+      Office.auth.getAccessTokenAsync(options || {}, function(asyncResult) {
+        var succeeded = asyncResult && (
+          asyncResult.status === 'succeeded'
+          || (typeof Office !== 'undefined' && Office.AsyncResultStatus && asyncResult.status === Office.AsyncResultStatus.Succeeded)
+        );
+        if (succeeded) {
+          resolve(asyncResult.value);
+        } else {
+          var err = (asyncResult && asyncResult.error)
+            ? (asyncResult.error.message || asyncResult.error.code || JSON.stringify(asyncResult.error))
+            : 'SSO failed.';
+          reject(new Error(err));
+        }
+      });
+    });
+  }
+
   // ── SSO ────────────────────────────────────────────────
   async function trySSO() {
     try {
-      var token = await Office.auth.getAccessTokenAsync({
+      var token = await getOfficeAccessToken({
         allowSignInPrompt: true,
         allowConsentPrompt: true,
         forMSGraphAccess: true
       });
       if (token && typeof token === 'string' && token.length > 10) {
+        lastSsoError = '';
         graphToken = token;
         var payload = JSON.parse(atob(token.split('.')[1]));
         currentUser = {
@@ -970,16 +1015,28 @@
         }
         return;
       }
+      throw new Error('No access token was returned by Office SSO.');
     } catch (e) {
-      console.warn('[Teach] SSO unavailable:', e.message || e);
+      lastSsoError = e && (e.message || String(e)) ? (e.message || String(e)) : 'Unknown sign-in error.';
+      console.warn('[Teach] SSO unavailable:', lastSsoError);
     }
-    toast('Microsoft sign-in is required to use Teach.', 'error');
+    var errEl = document.getElementById('loginError');
+    if (errEl) {
+      errEl.textContent = 'SSO error: ' + lastSsoError;
+      errEl.style.display = 'block';
+    }
+    toast('Microsoft SSO failed. You can continue with EDU email fallback.', 'error');
     document.getElementById('loginOverlay').classList.remove('hidden');
   }
 
   function loginSuccess(user) {
     currentUser = user;
     document.getElementById('loginOverlay').classList.add('hidden');
+    var errEl = document.getElementById('loginError');
+    if (errEl) {
+      errEl.textContent = '';
+      errEl.style.display = 'none';
+    }
   }
 
   // ── View navigation ───────────────────────────────────
@@ -1069,9 +1126,19 @@
       await trySSO();
     });
 
-    // Retry sign-in
+    // EDU email fallback (or retry if empty)
     document.getElementById('emailBtn').addEventListener('click', async function() {
-      await trySSO();
+      var email = document.getElementById('emailInput').value.trim();
+      if (!email) {
+        await trySSO();
+        return;
+      }
+      if (!email.includes('@')) {
+        toast('Enter a valid EDU email.', 'error');
+        return;
+      }
+      loginSuccess({ name: email.split('@')[0], email: email });
+      toast('Signed in with EDU email fallback.', 'success');
     });
 
     // Open Copilot Teach in dialog
