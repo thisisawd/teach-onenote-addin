@@ -6,17 +6,18 @@
            xsi:type="TaskPaneApp">
 
   <Id>d698de84-7dd0-4c25-87c5-db5ac2847792</Id>
-  <Version>4.0.0.0</Version>
+  <Version>4.1.0.0</Version>
   <ProviderName>Microsoft Education</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Teach"/>
   <Description DefaultValue="M365 Copilot Teach for Education — Create standards-aligned lesson plans, quizzes, rubrics, activities, vocabulary lists, and reading passages. Integrates with Copilot Teach and inserts directly into OneNote."/>
   <IconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-80.png"/>
   <SupportUrl DefaultValue="https://support.microsoft.com/education"/>
 
   <AppDomains>
     <AppDomain>https://copilot.cloud.microsoft</AppDomain>
+    <AppDomain>https://m365.cloud.microsoft</AppDomain>
     <AppDomain>https://copilot.microsoft.com</AppDomain>
     <AppDomain>https://login.microsoftonline.com</AppDomain>
     <AppDomain>https://login.live.com</AppDomain>
