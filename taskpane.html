@@ -617,61 +617,6 @@
     }
     .std-tag .tag-x:hover { color: #a4262c; }
 
-    /* ── Settings panel ── */
-    .settings-gear {
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s;
-    }
-    .settings-gear:hover { background: #e8ebfa; }
-    #settingsPanel {
-      display: none;
-      position: absolute; inset: 0; z-index: 200;
-      background: #fff;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-    #settingsPanel.visible { display: flex; }
-    .settings-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 14px;
-      border-bottom: 1px solid #e0e0e0;
-      background: #fff;
-      flex-shrink: 0;
-    }
-    .settings-header h2 { font-size: 16px; font-weight: 600; color: #242424; }
-    .settings-close { background:none; border:none; font-size:22px; cursor:pointer; color:#616161; padding:4px 8px; border-radius:4px; }
-    .settings-close:hover { background:#f0f0f0; }
-    .settings-body { padding: 16px; flex:1; }
-    .settings-section { margin-bottom: 20px; }
-    .settings-section h3 { font-size: 13px; font-weight: 600; color: #6264a7; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .settings-section p { font-size: 12px; color: #616161; margin-bottom: 10px; }
-    .settings-field { margin-bottom: 12px; }
-    .settings-field label { display: block; font-size: 12px; font-weight: 600; color: #242424; margin-bottom: 4px; }
-    .settings-field input, .settings-field select {
-      width: 100%; padding: 8px 10px; border: 1px solid #d1d1d1; border-radius: 4px;
-      font-size: 13px; font-family: inherit; background: #fff;
-    }
-    .settings-field input:focus, .settings-field select:focus { outline:none; border-color:#6264a7; }
-    .settings-field input[type="password"] { font-family: monospace; letter-spacing: 1px; }
-    .settings-field .hint { font-size: 11px; color: #888; margin-top: 3px; }
-    .settings-save {
-      width: 100%; padding: 10px; border: none; border-radius: 4px;
-      background: #6264a7; color: #fff; font-size: 14px; font-weight: 600;
-      cursor: pointer; font-family: inherit;
-    }
-    .settings-save:hover { background: #4f52b5; }
-    .settings-status {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;
-      font-size: 12px; font-weight: 500;
-    }
-    .settings-status.connected { background: #dff6dd; color: #107c10; }
-    .settings-status.disconnected { background: #fde7e9; color: #a4262c; }
     .ai-badge {
       display: inline-flex; align-items: center; gap: 4px;
       font-size: 10px; font-weight: 600; padding: 2px 6px;
@@ -703,86 +648,6 @@
     </svg>
     <h1>Teach</h1>
     <span class="badge">EDU</span>
-    <div class="settings-gear" id="openSettingsBtn" title="AI & API Settings">
-      <svg width="18" height="18" viewBox="0 0 16 16" fill="#616161">
-        <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
-        <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.421 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.421-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
-      </svg>
-    </div>
-  </div>
-
-  <!-- ════════ SETTINGS PANEL ════════ -->
-  <div id="settingsPanel">
-    <div class="settings-header">
-      <h2>&#9881; AI &amp; API Settings</h2>
-      <button class="settings-close" id="closeSettingsBtn">&times;</button>
-    </div>
-    <div class="settings-body">
-      <div id="aiStatusBanner" class="settings-status disconnected">
-        &#9888; AI not configured — using local templates
-      </div>
-
-      <div class="settings-section">
-        <h3>Azure OpenAI</h3>
-        <p>Connect to Azure OpenAI for real AI-generated education content. Get your endpoint and key from the <a href="https://portal.azure.com/#view/Microsoft_Azure_ProjectOxford/CognitiveServicesHub/~/OpenAI" target="_blank" style="color:#6264a7;">Azure Portal</a>.</p>
-        <div class="settings-field">
-          <label>Endpoint URL</label>
-          <input type="url" id="settingsEndpoint" placeholder="https://your-resource.openai.azure.com"/>
-          <div class="hint">e.g. https://my-openai.openai.azure.com</div>
-        </div>
-        <div class="settings-field">
-          <label>API Key</label>
-          <input type="password" id="settingsApiKey" placeholder="Enter your Azure OpenAI API key"/>
-        </div>
-        <div class="settings-field">
-          <label>Deployment Name</label>
-          <input type="text" id="settingsDeployment" placeholder="gpt-4o" value="gpt-4o"/>
-          <div class="hint">The name of your model deployment (e.g. gpt-4o, gpt-4, gpt-35-turbo)</div>
-        </div>
-        <div class="settings-field">
-          <label>API Version</label>
-          <select id="settingsApiVersion">
-            <option value="2024-12-01-preview" selected>2024-12-01-preview</option>
-            <option value="2024-08-01-preview">2024-08-01-preview</option>
-            <option value="2024-02-01">2024-02-01</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <h3>&#8212; or GitHub Models (Free) &#8212;</h3>
-        <p>Use <a href="https://github.com/marketplace/models" target="_blank" style="color:#6264a7;">GitHub Models</a> for free AI inference. Generate a <a href="https://github.com/settings/tokens" target="_blank" style="color:#6264a7;">Personal Access Token</a>.</p>
-        <div class="settings-field">
-          <label>GitHub Token</label>
-          <input type="password" id="settingsGithubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
-          <div class="hint">Personal access token with no special scopes required</div>
-        </div>
-        <div class="settings-field">
-          <label>Model</label>
-          <select id="settingsGithubModel">
-            <option value="gpt-4o" selected>GPT-4o</option>
-            <option value="gpt-4o-mini">GPT-4o Mini</option>
-            <option value="o1-mini">o1-mini</option>
-            <option value="Phi-4">Phi-4</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <h3>Microsoft Graph</h3>
-        <p>Real user profile and education data from Microsoft Graph. Authentication is handled via Office SSO when running in OneNote.</p>
-        <div id="graphStatus" class="settings-status disconnected">
-          &#9888; Not connected to Graph
-        </div>
-        <div class="settings-field">
-          <label>Azure AD Client ID (optional)</label>
-          <input type="text" id="settingsClientId" placeholder="Enter your app registration Client ID"/>
-          <div class="hint">For MSAL-based auth. Leave blank to use Office SSO.</div>
-        </div>
-      </div>
-
-      <button class="settings-save" id="saveSettingsBtn">Save &amp; Connect</button>
-    </div>
   </div>
 
   <!-- Login overlay -->
@@ -953,7 +818,7 @@
   <script>
   /* ============================================================
      Teach — M365 Copilot for Education · OneNote Add-in
-     Production build — Real Azure OpenAI + Microsoft Graph integration.
+    Production build — Microsoft sign-in + direct M365 Copilot handoff.
      ============================================================ */
 
   var TEACH_URL      = 'https://m365.cloud.microsoft/chat?fromEducation=true&auth=2';
@@ -965,225 +830,7 @@
   var selectedTpl  = null;
   var graphToken   = null;  // Microsoft Graph access token
 
-  // ── AI Configuration (persisted in localStorage) ──────
-  var aiConfig = loadAIConfig();
-
-  function loadAIConfig() {
-    try {
-      var saved = localStorage.getItem('teach_ai_config');
-      if (saved) return JSON.parse(saved);
-    } catch(e) {}
-    return { endpoint:'', apiKey:'', deployment:'gpt-4o', apiVersion:'2024-12-01-preview',
-             githubToken:'', githubModel:'gpt-4o', clientId:'' };
-  }
-  function saveAIConfig() {
-    try { localStorage.setItem('teach_ai_config', JSON.stringify(aiConfig)); } catch(e) {}
-  }
-  function isAIConfigured() {
-    return (aiConfig.endpoint && aiConfig.apiKey) || aiConfig.githubToken;
-  }
-
-  /* ── Education System Prompts ─────────────────────────
-     Expert-crafted prompts for each template type.
-     ──────────────────────────────────────────────────── */
-  var SYSTEM_PROMPTS = {
-    lesson: 'You are an expert K-12 curriculum designer and instructional coach. Create a detailed, standards-aligned lesson plan. '
-      + 'Include: clear learning objectives (use Bloom\'s taxonomy verbs), a timed lesson flow with warm-up/direct instruction/guided practice/independent practice/closure, '
-      + 'differentiation strategies for advanced/on-level/approaching/ELL students, required materials, formative and summative assessment ideas. '
-      + 'If standards are provided, explicitly align objectives and activities to those standards. '
-      + 'Format output as clean HTML with <h4> headings, <ul>/<ol> lists, <table> for differentiation grid, and <p> paragraphs. Do not use markdown.',
-
-    quiz: 'You are an expert assessment designer for K-12 education. Create a high-quality quiz/assessment. '
-      + 'Generate real, grade-appropriate questions with plausible distractors for multiple choice. '
-      + 'Include an answer key at the end. Vary difficulty (recall, application, analysis per Bloom\'s taxonomy). '
-      + 'For short answer questions, include a sample model answer. '
-      + 'Format output as clean HTML with <h4> headings, <ol> for questions, <table> for answer key. Do not use markdown.',
-
-    rubric: 'You are an expert assessment and rubric designer for K-12 education. Create a detailed, criteria-based rubric. '
-      + 'Each criterion should have clear, specific performance descriptors at each level (not vague). '
-      + 'Include 4-6 relevant criteria based on the assignment type. Descriptors should be observable and measurable. '
-      + 'Format as clean HTML with a <table> having criteria as rows and performance levels as columns. Include a total points row. Do not use markdown.',
-
-    activity: 'You are an expert at designing engaging, pedagogically sound classroom activities for K-12 students. '
-      + 'Create a detailed activity with: overview, learning goals, step-by-step instructions with time estimates, '
-      + 'materials needed, grouping strategy, differentiation options, and reflection/debrief questions. '
-      + 'Make it interactive and student-centered. Format as clean HTML with <h4> headings, <ol>/<ul> lists. Do not use markdown.',
-
-    vocabulary: 'You are an expert vocabulary instruction specialist for K-12 education. Create a comprehensive vocabulary list. '
-      + 'For each term provide: the word, a clear student-friendly definition, an example sentence using the word in context, '
-      + 'and a word family or related terms column. Terms should be real, grade-appropriate academic vocabulary related to the topic. '
-      + 'Add a practice section with engaging activities (word sorts, sentence completion, word webs). '
-      + 'Format as clean HTML with a <table> for the word list and <h4>/<ol> for practice. Do not use markdown.',
-
-    reading: 'You are an expert at creating grade-appropriate reading passages for K-12 education. '
-      + 'Write an original, engaging reading passage at the specified reading level. The passage should be substantive and informative. '
-      + 'After the passage, include 5-8 comprehension questions spanning recall, inference, vocabulary in context, '
-      + 'author\'s purpose, and text structure. Include an answer key. '
-      + 'Format as clean HTML with the passage in a styled <div>, questions in <ol>, and answer key in a <table>. Do not use markdown.'
-  };
-
-  /* ── Build user prompt from form data ──────────────────
-     Converts the form values into a detailed prompt.
-     ──────────────────────────────────────────────────── */
-  function buildUserPrompt(tplKey, data) {
-    var parts = [];
-    var tpl = TEMPLATES[tplKey];
-
-    switch (tplKey) {
-      case 'lesson':
-        parts.push('Create a lesson plan for:');
-        parts.push('Subject: ' + data.subject);
-        parts.push('Grade Level: ' + data.gradeLevel);
-        parts.push('Language: ' + data.language);
-        parts.push('Duration: ' + data.duration);
-        parts.push('Topic/Description: ' + data.description);
-        if (data.standards) parts.push('Standards to align to: ' + data.standards);
-        break;
-
-      case 'quiz':
-        parts.push('Create a quiz/assessment:');
-        parts.push('Subject: ' + data.subject);
-        parts.push('Grade Level: ' + data.gradeLevel);
-        parts.push('Language: ' + data.language);
-        parts.push('Number of Questions: ' + data.numQuestions);
-        parts.push('Question Types: ' + data.questionTypes);
-        parts.push('Topic/Description: ' + data.description);
-        if (data.standards) parts.push('Standards to assess: ' + data.standards);
-        break;
-
-      case 'rubric':
-        parts.push('Create an assessment rubric:');
-        parts.push('Subject: ' + data.subject);
-        parts.push('Grade Level: ' + data.gradeLevel);
-        parts.push('Language: ' + data.language);
-        parts.push('Assignment Type: ' + data.assignmentType);
-        parts.push('Rubric Levels: ' + data.rubricLevels);
-        parts.push('Assignment Description: ' + data.description);
-        if (data.standards) parts.push('Standards: ' + data.standards);
-        break;
-
-      case 'activity':
-        parts.push('Create a classroom activity:');
-        parts.push('Subject: ' + data.subject);
-        parts.push('Grade Level: ' + data.gradeLevel);
-        parts.push('Language: ' + data.language);
-        parts.push('Activity Type: ' + data.activityType);
-        parts.push('Duration: ' + data.duration);
-        parts.push('Description: ' + data.description);
-        if (data.standards) parts.push('Standards: ' + data.standards);
-        break;
-
-      case 'vocabulary':
-        parts.push('Create a vocabulary list:');
-        parts.push('Subject: ' + data.subject);
-        parts.push('Grade Level: ' + data.gradeLevel);
-        parts.push('Language: ' + data.language);
-        parts.push('Number of Terms: ' + data.numTerms);
-        parts.push('Topic/Description: ' + data.description);
-        if (data.standards) parts.push('Standards: ' + data.standards);
-        break;
-
-      case 'reading':
-        parts.push('Create a reading passage:');
-        parts.push('Subject: ' + data.subject);
-        parts.push('Grade Level: ' + data.gradeLevel);
-        parts.push('Language: ' + data.language);
-        parts.push('Reading Level: ' + data.readingLevel);
-        parts.push('Passage Length: ' + data.passageLength);
-        parts.push('Topic/Description: ' + data.description);
-        if (data.standards) parts.push('Standards: ' + data.standards);
-        break;
-    }
-
-    return parts.join('\n');
-  }
-
-  /* ── Azure OpenAI API Client ───────────────────────────
-     Calls the real Azure OpenAI chat completions endpoint.
-     ──────────────────────────────────────────────────── */
-  async function callAzureOpenAI(systemPrompt, userPrompt) {
-    var url = aiConfig.endpoint.replace(/\/+$/, '')
-      + '/openai/deployments/' + encodeURIComponent(aiConfig.deployment)
-      + '/chat/completions?api-version=' + aiConfig.apiVersion;
-
-    var response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': aiConfig.apiKey
-      },
-      body: JSON.stringify({
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 4000
-      })
-    });
-
-    if (!response.ok) {
-      var errBody = await response.text();
-      throw new Error('Azure OpenAI error (' + response.status + '): ' + errBody);
-    }
-    var json = await response.json();
-    return json.choices[0].message.content;
-  }
-
-  /* ── GitHub Models API Client ──────────────────────────
-     Calls the free GitHub Models inference endpoint.
-     ──────────────────────────────────────────────────── */
-  async function callGitHubModels(systemPrompt, userPrompt) {
-    var response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + aiConfig.githubToken
-      },
-      body: JSON.stringify({
-        model: aiConfig.githubModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 4000
-      })
-    });
-
-    if (!response.ok) {
-      var errBody = await response.text();
-      throw new Error('GitHub Models error (' + response.status + '): ' + errBody);
-    }
-    var json = await response.json();
-    return json.choices[0].message.content;
-  }
-
-  /* ── Unified AI call ───────────────────────────────────
-     Routes to the configured AI backend.
-     Returns HTML string or throws on error.
-     ──────────────────────────────────────────────────── */
-  async function callAI(tplKey, data) {
-    var systemPrompt = SYSTEM_PROMPTS[tplKey] || SYSTEM_PROMPTS.lesson;
-    var userPrompt = buildUserPrompt(tplKey, data);
-
-    var rawContent;
-    if (aiConfig.endpoint && aiConfig.apiKey) {
-      rawContent = await callAzureOpenAI(systemPrompt, userPrompt);
-    } else if (aiConfig.githubToken) {
-      rawContent = await callGitHubModels(systemPrompt, userPrompt);
-    } else {
-      throw new Error('NO_AI_CONFIGURED');
-    }
-
-    // Clean up: if the AI returns markdown code fences, strip them
-    rawContent = rawContent.replace(/^```html?\s*/i, '').replace(/```\s*$/i, '').trim();
-    return rawContent;
-  }
-
-  /* ── Microsoft Graph API calls ─────────────────────────
-     Real Graph calls using the Office SSO token or MSAL.
-     ──────────────────────────────────────────────────── */
+  /* ── Microsoft Graph API calls ───────────────────────── */
   async function callGraph(endpoint) {
     if (!graphToken) throw new Error('No Graph token available');
     var response = await fetch('https://graph.microsoft.com/v1.0' + endpoint, {
@@ -1206,46 +853,10 @@
         department: profile.department || ''
       };
       console.log('[Teach] Graph profile loaded:', user.name, user.email);
-      updateGraphStatus(true, user);
       return user;
     } catch(e) {
       console.warn('[Teach] Graph profile failed:', e.message);
-      updateGraphStatus(false);
       return null;
-    }
-  }
-
-  async function fetchEducationClasses() {
-    try {
-      var data = await callGraph('/education/me/classes');
-      console.log('[Teach] Education classes:', data.value ? data.value.length : 0);
-      return data.value || [];
-    } catch(e) {
-      console.warn('[Teach] Education classes not available:', e.message);
-      return [];
-    }
-  }
-
-  function updateGraphStatus(connected, user) {
-    var el = document.getElementById('graphStatus');
-    if (connected && user) {
-      el.className = 'settings-status connected';
-      el.innerHTML = '&#10003; Connected as ' + escHtml(user.name) + ' (' + escHtml(user.email) + ')';
-    } else {
-      el.className = 'settings-status disconnected';
-      el.innerHTML = '&#9888; Not connected to Graph';
-    }
-  }
-
-  function updateAIStatus() {
-    var banner = document.getElementById('aiStatusBanner');
-    if (isAIConfigured()) {
-      var provider = (aiConfig.endpoint && aiConfig.apiKey) ? 'Azure OpenAI' : 'GitHub Models';
-      banner.className = 'settings-status connected';
-      banner.innerHTML = '&#10003; Connected to ' + provider;
-    } else {
-      banner.className = 'settings-status disconnected';
-      banner.innerHTML = '&#9888; AI not configured &mdash; using local templates';
     }
   }
 
@@ -1483,9 +1094,6 @@
     document.getElementById('insertPreviewBtn').addEventListener('click', function() { insertHtml(lastGenHtml); });
     document.getElementById('embedPreviewBtn').addEventListener('click', function() { insertHtml(buildOEmbedCard()); });
 
-    // Keep settings hidden in direct-Copilot mode
-    var gear = document.getElementById('openSettingsBtn');
-    if (gear) gear.style.display = 'none';
   }
 
   function buildCopilotPrompt(tplKey, data) {
@@ -1507,56 +1115,6 @@
     lines.push('- Keep language age-appropriate and standards-aligned if standards are provided.');
     lines.push('- Use clear sections and concise formatting suitable to paste into OneNote.');
     return lines.join('\n');
-  }
-
-  // ── Settings management ────────────────────────────────
-  function populateSettings() {
-    document.getElementById('settingsEndpoint').value = aiConfig.endpoint || '';
-    document.getElementById('settingsApiKey').value = aiConfig.apiKey || '';
-    document.getElementById('settingsDeployment').value = aiConfig.deployment || 'gpt-4o';
-    document.getElementById('settingsApiVersion').value = aiConfig.apiVersion || '2024-12-01-preview';
-    document.getElementById('settingsGithubToken').value = aiConfig.githubToken || '';
-    document.getElementById('settingsGithubModel').value = aiConfig.githubModel || 'gpt-4o';
-    document.getElementById('settingsClientId').value = aiConfig.clientId || '';
-  }
-
-  async function saveSettings() {
-    aiConfig.endpoint = document.getElementById('settingsEndpoint').value.trim();
-    aiConfig.apiKey = document.getElementById('settingsApiKey').value.trim();
-    aiConfig.deployment = document.getElementById('settingsDeployment').value.trim() || 'gpt-4o';
-    aiConfig.apiVersion = document.getElementById('settingsApiVersion').value;
-    aiConfig.githubToken = document.getElementById('settingsGithubToken').value.trim();
-    aiConfig.githubModel = document.getElementById('settingsGithubModel').value;
-    aiConfig.clientId = document.getElementById('settingsClientId').value.trim();
-    saveAIConfig();
-    updateAIStatus();
-
-    // Test AI connection
-    if (isAIConfigured()) {
-      var banner = document.getElementById('aiStatusBanner');
-      banner.className = 'settings-status disconnected';
-      banner.innerHTML = '&#8987; Testing connection\u2026';
-      try {
-        var testResult = await callAI('lesson', {
-          subject:'Math', gradeLevel:'Grade 3', language:'English',
-          duration:'5 minutes', description:'Test connection - return a one sentence confirmation that the API is working.'
-        });
-        if (testResult && testResult.length > 5) {
-          var provider = (aiConfig.endpoint && aiConfig.apiKey) ? 'Azure OpenAI' : 'GitHub Models';
-          banner.className = 'settings-status connected';
-          banner.innerHTML = '&#10003; Connected to ' + provider + ' \u2014 AI generation is live!';
-          toast('AI connected successfully! Content will now be generated by ' + provider + '.', 'success');
-        }
-      } catch(e) {
-        banner.className = 'settings-status disconnected';
-        banner.innerHTML = '&#10007; Connection failed: ' + escHtml(e.message);
-        toast('AI connection test failed: ' + e.message, 'error');
-      }
-    } else {
-      toast('Settings saved. Configure Azure OpenAI or GitHub Models for real AI generation.', 'success');
-    }
-
-    document.getElementById('settingsPanel').classList.remove('visible');
   }
 
   // ── Open Copilot Teach ─────────────────────────────────
