@@ -1,16 +1,16 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
            xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
            xsi:type="TaskPaneApp">
 
-  <Id>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Id>
-  <Version>1.0.0.0</Version>
+  <Id>d698de84-7dd0-4c25-87c5-db5ac2847792</Id>
+  <Version>2.0.0.0</Version>
   <ProviderName>Microsoft Education</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Teach"/>
-  <Description DefaultValue="M365 Copilot Teach for EDU â€” AI-powered lesson plans, activities, and assessments inserted directly into OneNote."/>
+  <Description DefaultValue="M365 Copilot Teach for EDU - AI-powered lesson plans, activities, and assessments inserted directly into OneNote."/>
   <IconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://support.microsoft.com/education"/>
@@ -20,6 +20,7 @@
     <AppDomain>https://copilot.microsoft.com</AppDomain>
     <AppDomain>https://login.microsoftonline.com</AppDomain>
     <AppDomain>https://login.live.com</AppDomain>
+    <AppDomain>https://thisisawd.github.io</AppDomain>
   </AppDomains>
 
   <Hosts>
@@ -95,4 +96,3 @@
     </Resources>
   </VersionOverrides>
 </OfficeApp>
-
