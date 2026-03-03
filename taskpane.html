@@ -350,6 +350,272 @@
       from { opacity: 0; transform: translateX(-12px); }
       to   { opacity: 1; transform: translateX(0); }
     }
+
+    /* ═══════════════════════════════════════════════════════
+       ADD STANDARDS MODAL  (Copilot Teach style)
+       ═══════════════════════════════════════════════════════ */
+    #standardsModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+    }
+    #standardsModal.open {
+      display: flex;
+    }
+    .std-dialog {
+      background: #fff;
+      border-radius: 8px;
+      width: 95%;
+      max-width: 480px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+      animation: stdFadeIn 0.2s ease;
+    }
+    @keyframes stdFadeIn {
+      from { opacity:0; transform:translateY(12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .std-dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+    .std-dialog-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #242424;
+    }
+    .std-close-btn {
+      width: 32px; height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #616161;
+      font-size: 20px;
+    }
+    .std-close-btn:hover { background: #f0f0f0; }
+
+    /* filter row */
+    .std-filters {
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+    .std-filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+      min-width: 100px;
+    }
+    .std-filter-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #616161;
+    }
+    .std-filter-group select {
+      padding: 6px 8px;
+      border: 1px solid #d1d1d1;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #242424;
+      background: #f5f5ff;
+      cursor: pointer;
+    }
+    .std-filter-group select:focus {
+      outline: none;
+      border-color: #6264a7;
+    }
+    .std-search-row {
+      padding: 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .std-search-icon {
+      width: 32px; height: 32px;
+      border: 1px solid #d1d1d1;
+      border-radius: 6px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #616161;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+    .std-search-icon:hover { border-color: #6264a7; }
+
+    /* standards list */
+    .std-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 20px 12px;
+      min-height: 180px;
+    }
+    .std-list::-webkit-scrollbar { width: 6px; }
+    .std-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+    .std-category {
+      margin-bottom: 4px;
+    }
+    .std-cat-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      cursor: pointer;
+      user-select: none;
+    }
+    .std-cat-header .std-chevron {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      color: #616161;
+      transition: transform 0.15s;
+    }
+    .std-cat-header .std-chevron.expanded {
+      transform: rotate(90deg);
+    }
+    .std-cat-header .std-checkbox {
+      width: 18px; height: 18px;
+      border: 2px solid #b4b4b4;
+      border-radius: 3px;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+    .std-cat-header .std-checkbox.checked {
+      background: #6264a7;
+      border-color: #6264a7;
+    }
+    .std-cat-header .std-checkbox.partial {
+      border-color: #6264a7;
+    }
+    .std-cat-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #242424;
+    }
+    .std-cat-children {
+      display: none;
+      padding-left: 26px;
+    }
+    .std-cat-children.expanded {
+      display: block;
+    }
+    .std-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+    .std-item:hover { background: #f8f7ff; border-radius: 4px; }
+    .std-item .std-checkbox {
+      width: 18px; height: 18px;
+      border: 2px solid #b4b4b4;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+    .std-item .std-checkbox.checked {
+      background: #6264a7;
+      border-color: #6264a7;
+    }
+    .std-item-text {
+      flex: 1;
+    }
+    .std-item-code {
+      font-size: 13px;
+      font-weight: 700;
+      color: #242424;
+    }
+    .std-item-desc {
+      font-size: 13px;
+      color: #424242;
+      line-height: 1.4;
+    }
+    .std-no-results {
+      text-align: center;
+      padding: 24px;
+      color: #888;
+      font-size: 13px;
+    }
+
+    /* footer */
+    .std-dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 20px;
+      border-top: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+    .std-add-btn {
+      padding: 8px 24px;
+      background: #6264a7;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .std-add-btn:hover { background: #4f52b5; }
+    .std-add-btn:disabled { opacity: 0.5; cursor: default; }
+
+    /* selected standards tags in form */
+    .std-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .std-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: #e8ebfa;
+      color: #6264a7;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .std-tag .tag-x {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      color: #8b8bc7;
+    }
+    .std-tag .tag-x:hover { color: #a4262c; }
   </style>
 </head>
 <body>
@@ -479,6 +745,43 @@
 
   </div><!-- /.main -->
 
+  <!-- ════════ ADD STANDARDS MODAL ════════ -->
+  <div id="standardsModal">
+    <div class="std-dialog">
+      <div class="std-dialog-header">
+        <h2>Add standards</h2>
+        <button class="std-close-btn" id="stdCloseBtn">&times;</button>
+      </div>
+      <div class="std-filters">
+        <div class="std-filter-group">
+          <label>Standard set</label>
+          <select id="stdFilterSet"></select>
+        </div>
+        <div class="std-filter-group">
+          <label>Grade</label>
+          <select id="stdFilterGrade"></select>
+        </div>
+        <div class="std-filter-group">
+          <label>Subject</label>
+          <select id="stdFilterSubject"></select>
+        </div>
+      </div>
+      <div class="std-filters" style="border-bottom:none;padding-bottom:0;">
+        <div class="std-filter-group" style="min-width:140px;flex:0 0 auto;">
+          <label>Strand</label>
+          <select id="stdFilterStrand"></select>
+        </div>
+        <div class="std-search-icon" id="stdSearchBtn" title="Search standards">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+        </div>
+      </div>
+      <div class="std-list" id="stdList"></div>
+      <div class="std-dialog-footer">
+        <button class="std-add-btn" id="stdAddBtn">Add</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
@@ -509,7 +812,7 @@
         { id:'gradeLevel',  label:'Grade level',          type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
         { id:'language',    label:'Language',              type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
         { id:'description', label:'Description',          type:'textarea',   placeholder:'Describe the lesson topic, key concepts to cover, and any specific requirements...', required:true, maxlength:10000, addContent:true },
-        { id:'standards',   label:'Standards',            type:'text',       placeholder:'e.g. CCSS.MATH.CONTENT.5.NF.A.1', required:false, addBtn:'Add standards' },
+        { id:'standards',   label:'Standards',            type:'standards',  required:false },
         { id:'duration',    label:'Lesson plan duration',  type:'select',     options:['15 minutes','30 minutes','45 minutes','60 minutes','90 minutes','2 hours','Full day'], required:true, defaultVal:'45 minutes' }
       ]
     },
@@ -638,7 +941,11 @@
       if (f.required) html += ' <span class="req">*</span>';
       html += '</label>';
 
-      if (f.type === 'text') {
+      if (f.type === 'standards') {
+        html += '<input type="hidden" id="field_' + f.id + '" value=""/>';
+        html += '<div class="std-tags" id="stdTagsContainer"></div>';
+        html += '<button class="add-btn" id="openStandardsBtn">+ Add standards</button>';
+      } else if (f.type === 'text') {
         html += '<input type="text" id="field_' + f.id + '" placeholder="' + escAttr(f.placeholder || '') + '"/>';
         if (f.addBtn) {
           html += '<button class="add-btn" onclick="document.getElementById(\'field_' + f.id + '\').focus()">'
@@ -668,6 +975,12 @@
     });
 
     document.getElementById('formFields').innerHTML = html;
+
+    // Wire "Add standards" button if present
+    var openStdBtn = document.getElementById('openStandardsBtn');
+    if (openStdBtn) {
+      openStdBtn.addEventListener('click', function() { openStandardsModal(); });
+    }
 
     // Hide preview card when entering creation view
     document.getElementById('previewCard').classList.remove('visible');
@@ -1055,6 +1368,810 @@
     clearTimeout(el._t);
     el._t = setTimeout(function() { el.classList.remove('show'); }, 4000);
   }
+
+  /* ═══════════════════════════════════════════════════════
+     STANDARDS DATABASE & MODAL LOGIC
+     Mirrors the M365 Copilot Teach "Add standards" dialog.
+     ═══════════════════════════════════════════════════════ */
+
+  var selectedStandards = []; // array of {code, desc}
+
+  /* ── Standards data ────────────────────────────────────
+     Structured: STANDARDS_DB[setName][gradeName][subjectName][strandName] = [{code,desc}]
+     Real standards from CCSS, NGSS, and state frameworks.
+     ──────────────────────────────────────────────────── */
+  var STANDARDS_DB = {
+    'Common Core State Standards': {
+      'Grade 3': {
+        'Mathematics': {
+          'Operations & Algebraic Thinking': [
+            {code:'3.OA.A.1', desc:'Interpret products of whole numbers, e.g., interpret 5 \u00d7 7 as the total number of objects in 5 groups of 7 objects each.'},
+            {code:'3.OA.A.2', desc:'Interpret whole-number quotients of whole numbers, e.g., interpret 56 \u00f7 8 as the number of objects in each share.'},
+            {code:'3.OA.A.3', desc:'Use multiplication and division within 100 to solve word problems in situations involving equal groups, arrays, and measurement quantities.'},
+            {code:'3.OA.A.4', desc:'Determine the unknown whole number in a multiplication or division equation relating three whole numbers.'},
+            {code:'3.OA.B.5', desc:'Apply properties of operations as strategies to multiply and divide.'},
+            {code:'3.OA.B.6', desc:'Understand division as an unknown-factor problem.'},
+            {code:'3.OA.C.7', desc:'Fluently multiply and divide within 100, using strategies such as the relationship between multiplication and division.'},
+            {code:'3.OA.D.8', desc:'Solve two-step word problems using the four operations. Represent these problems using equations with a letter standing for the unknown quantity.'},
+            {code:'3.OA.D.9', desc:'Identify arithmetic patterns (including patterns in the addition table or multiplication table), and explain them using properties of operations.'}
+          ],
+          'Number & Operations in Base Ten': [
+            {code:'3.NBT.A.1', desc:'Use place value understanding to round whole numbers to the nearest 10 or 100.'},
+            {code:'3.NBT.A.2', desc:'Fluently add and subtract within 1000 using strategies and algorithms based on place value, properties of operations, and/or the relationship between addition and subtraction.'},
+            {code:'3.NBT.A.3', desc:'Multiply one-digit whole numbers by multiples of 10 in the range 10-90 using strategies based on place value and properties of operations.'}
+          ],
+          'Number & Operations\u2014Fractions': [
+            {code:'3.NF.A.1', desc:'Understand a fraction 1/b as the quantity formed by 1 part when a whole is partitioned into b equal parts.'},
+            {code:'3.NF.A.2', desc:'Understand a fraction as a number on the number line; represent fractions on a number line diagram.'},
+            {code:'3.NF.A.3', desc:'Explain equivalence of fractions in special cases, and compare fractions by reasoning about their size.'}
+          ],
+          'Measurement & Data': [
+            {code:'3.MD.A.1', desc:'Tell and write time to the nearest minute and measure time intervals in minutes.'},
+            {code:'3.MD.A.2', desc:'Measure and estimate liquid volumes and masses of objects using standard units of grams, kilograms, and liters.'},
+            {code:'3.MD.B.3', desc:'Draw a scaled picture graph and a scaled bar graph to represent a data set with several categories.'},
+            {code:'3.MD.B.4', desc:'Generate measurement data by measuring lengths using rulers marked with halves and fourths of an inch.'},
+            {code:'3.MD.C.5', desc:'Recognize area as an attribute of plane figures and understand concepts of area measurement.'},
+            {code:'3.MD.C.6', desc:'Measure areas by counting unit squares.'},
+            {code:'3.MD.C.7', desc:'Relate area to the operations of multiplication and addition.'},
+            {code:'3.MD.D.8', desc:'Solve real world and mathematical problems involving perimeters of polygons.'}
+          ],
+          'Geometry': [
+            {code:'3.G.A.1', desc:'Understand that shapes in different categories may share attributes, and that the shared attributes can define a larger category.'},
+            {code:'3.G.A.2', desc:'Partition shapes into parts with equal areas. Express the area of each part as a unit fraction of the whole.'}
+          ]
+        },
+        'English Language Arts': {
+          'Reading: Literature': [
+            {code:'RL.3.1', desc:'Ask and answer questions to demonstrate understanding of a text, referring explicitly to the text as the basis for the answers.'},
+            {code:'RL.3.2', desc:'Recount stories, including fables, folktales, and myths from diverse cultures; determine the central message, lesson, or moral.'},
+            {code:'RL.3.3', desc:'Describe characters in a story (e.g., their traits, motivations, or feelings) and explain how their actions contribute to the sequence of events.'},
+            {code:'RL.3.4', desc:'Determine the meaning of words and phrases as they are used in a text, distinguishing literal from nonliteral language.'},
+            {code:'RL.3.5', desc:'Refer to parts of stories, dramas, and poems when writing or speaking about a text, using terms such as chapter, scene, and stanza.'}
+          ],
+          'Reading: Informational Text': [
+            {code:'RI.3.1', desc:'Ask and answer questions to demonstrate understanding of a text, referring explicitly to the text as the basis for the answers.'},
+            {code:'RI.3.2', desc:'Determine the main idea of a text; recount the key details and explain how they support the main idea.'},
+            {code:'RI.3.3', desc:'Describe the relationship between a series of historical events, scientific ideas or concepts, or steps in technical procedures.'},
+            {code:'RI.3.4', desc:'Determine the meaning of general academic and domain-specific words and phrases in a text relevant to a grade 3 topic or subject area.'}
+          ],
+          'Writing': [
+            {code:'W.3.1', desc:'Write opinion pieces on topics or texts, supporting a point of view with reasons.'},
+            {code:'W.3.2', desc:'Write informative/explanatory texts to examine a topic and convey ideas and information clearly.'},
+            {code:'W.3.3', desc:'Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.'}
+          ]
+        }
+      },
+      'Grade 5': {
+        'Mathematics': {
+          'Operations & Algebraic Thinking': [
+            {code:'5.OA.A.1', desc:'Use parentheses, brackets, or braces in numerical expressions, and evaluate expressions with these symbols.'},
+            {code:'5.OA.A.2', desc:'Write simple expressions that record calculations with numbers, and interpret numerical expressions without evaluating them.'},
+            {code:'5.OA.B.3', desc:'Generate two numerical patterns using two given rules. Identify apparent relationships between corresponding terms.'}
+          ],
+          'Number & Operations in Base Ten': [
+            {code:'5.NBT.A.1', desc:'Recognize that in a multi-digit number, a digit in one place represents 10 times as much as it represents in the place to its right and 1/10 of what it represents to its left.'},
+            {code:'5.NBT.A.2', desc:'Explain patterns in the number of zeros of the product when multiplying a number by powers of 10.'},
+            {code:'5.NBT.A.3', desc:'Read, write, and compare decimals to thousandths.'},
+            {code:'5.NBT.A.4', desc:'Use place value understanding to round decimals to any place.'},
+            {code:'5.NBT.B.5', desc:'Fluently multiply multi-digit whole numbers using the standard algorithm.'},
+            {code:'5.NBT.B.6', desc:'Find whole-number quotients of whole numbers with up to four-digit dividends and two-digit divisors.'},
+            {code:'5.NBT.B.7', desc:'Add, subtract, multiply, and divide decimals to hundredths, using concrete models or drawings and strategies.'}
+          ],
+          'Number & Operations\u2014Fractions': [
+            {code:'5.NF.A.1', desc:'Add and subtract fractions with unlike denominators (including mixed numbers) by replacing given fractions with equivalent fractions.'},
+            {code:'5.NF.A.2', desc:'Solve word problems involving addition and subtraction of fractions referring to the same whole.'},
+            {code:'5.NF.B.3', desc:'Interpret a fraction as division of the numerator by the denominator (a/b = a \u00f7 b).'},
+            {code:'5.NF.B.4', desc:'Apply and extend previous understandings of multiplication to multiply a fraction or whole number by a fraction.'},
+            {code:'5.NF.B.5', desc:'Interpret multiplication as scaling (resizing).'},
+            {code:'5.NF.B.6', desc:'Solve real world problems involving multiplication of fractions and mixed numbers.'},
+            {code:'5.NF.B.7', desc:'Apply and extend previous understandings of division to divide unit fractions by whole numbers and whole numbers by unit fractions.'}
+          ],
+          'Measurement & Data': [
+            {code:'5.MD.A.1', desc:'Convert among different-sized standard measurement units within a given measurement system.'},
+            {code:'5.MD.B.2', desc:'Make a line plot to display a data set of measurements in fractions of a unit.'},
+            {code:'5.MD.C.3', desc:'Recognize volume as an attribute of solid figures and understand concepts of volume measurement.'},
+            {code:'5.MD.C.4', desc:'Measure volumes by counting unit cubes.'},
+            {code:'5.MD.C.5', desc:'Relate volume to the operations of multiplication and addition and solve real world and mathematical problems involving volume.'}
+          ],
+          'Geometry': [
+            {code:'5.G.A.1', desc:'Use a pair of perpendicular number lines, called axes, to define a coordinate system.'},
+            {code:'5.G.A.2', desc:'Represent real world and mathematical problems by graphing points in the first quadrant of the coordinate plane.'},
+            {code:'5.G.B.3', desc:'Understand that attributes belonging to a category of two-dimensional figures also belong to all subcategories of that category.'},
+            {code:'5.G.B.4', desc:'Classify two-dimensional figures in a hierarchy based on properties.'}
+          ]
+        },
+        'English Language Arts': {
+          'Reading: Literature': [
+            {code:'RL.5.1', desc:'Quote accurately from a text when explaining what the text says explicitly and when drawing inferences from the text.'},
+            {code:'RL.5.2', desc:'Determine a theme of a story, drama, or poem from details in the text, including how characters respond to challenges.'},
+            {code:'RL.5.3', desc:'Compare and contrast two or more characters, settings, or events in a story or drama.'},
+            {code:'RL.5.4', desc:'Determine the meaning of words and phrases as they are used in a text, including figurative language such as metaphors and similes.'}
+          ],
+          'Reading: Informational Text': [
+            {code:'RI.5.1', desc:'Quote accurately from a text when explaining what the text says explicitly and when drawing inferences.'},
+            {code:'RI.5.2', desc:'Determine two or more main ideas of a text and explain how they are supported by key details; provide a summary.'},
+            {code:'RI.5.3', desc:'Explain the relationships or interactions between two or more individuals, events, ideas, or concepts based on specific information in the text.'}
+          ],
+          'Writing': [
+            {code:'W.5.1', desc:'Write opinion pieces on topics or texts, supporting a point of view with reasons and information.'},
+            {code:'W.5.2', desc:'Write informative/explanatory texts to examine a topic and convey ideas and information clearly.'},
+            {code:'W.5.3', desc:'Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.'}
+          ]
+        }
+      },
+      'Grade 6': {
+        'Mathematics': {
+          'Ratios & Proportional Relationships': [
+            {code:'6.RP.A.1', desc:'Understand the concept of a ratio and use ratio language to describe a ratio relationship between two quantities.'},
+            {code:'6.RP.A.2', desc:'Understand the concept of a unit rate a/b associated with a ratio a:b with b \u2260 0, and use rate language.'},
+            {code:'6.RP.A.3', desc:'Use ratio and rate reasoning to solve real-world and mathematical problems.'}
+          ],
+          'The Number System': [
+            {code:'6.NS.A.1', desc:'Interpret and compute quotients of fractions, and solve word problems involving division of fractions by fractions.'},
+            {code:'6.NS.B.2', desc:'Fluently divide multi-digit numbers using the standard algorithm.'},
+            {code:'6.NS.B.3', desc:'Fluently add, subtract, multiply, and divide multi-digit decimals using the standard algorithm.'},
+            {code:'6.NS.B.4', desc:'Find the greatest common factor of two whole numbers less than or equal to 100 and the least common multiple.'},
+            {code:'6.NS.C.5', desc:'Understand that positive and negative numbers are used together to describe quantities having opposite directions or values.'},
+            {code:'6.NS.C.6', desc:'Understand a rational number as a point on the number line.'},
+            {code:'6.NS.C.7', desc:'Understand ordering and absolute value of rational numbers.'},
+            {code:'6.NS.C.8', desc:'Solve real-world and mathematical problems by graphing points in all four quadrants of the coordinate plane.'}
+          ],
+          'Expressions & Equations': [
+            {code:'6.EE.A.1', desc:'Write and evaluate numerical expressions involving whole-number exponents.'},
+            {code:'6.EE.A.2', desc:'Write, read, and evaluate expressions in which letters stand for numbers.'},
+            {code:'6.EE.A.3', desc:'Apply the properties of operations to generate equivalent expressions.'},
+            {code:'6.EE.A.4', desc:'Identify when two expressions are equivalent.'},
+            {code:'6.EE.B.5', desc:'Understand solving an equation or inequality as a process of answering a question.'},
+            {code:'6.EE.B.6', desc:'Use variables to represent numbers and write expressions when solving a real-world or mathematical problem.'},
+            {code:'6.EE.B.7', desc:'Solve real-world and mathematical problems by writing and solving equations of the form x + p = q and px = q.'},
+            {code:'6.EE.B.8', desc:'Write an inequality of the form x > c or x < c to represent a constraint or condition in a real-world problem.'},
+            {code:'6.EE.C.9', desc:'Use variables to represent two quantities in a real-world problem that change in relationship to one another.'}
+          ],
+          'Geometry': [
+            {code:'6.G.A.1', desc:'Find the area of right triangles, other triangles, special quadrilaterals, and polygons.'},
+            {code:'6.G.A.2', desc:'Find the volume of a right rectangular prism with fractional edge lengths.'},
+            {code:'6.G.A.3', desc:'Draw polygons in the coordinate plane given coordinates for the vertices.'},
+            {code:'6.G.A.4', desc:'Represent three-dimensional figures using nets made up of rectangles and triangles.'}
+          ],
+          'Statistics & Probability': [
+            {code:'6.SP.A.1', desc:'Recognize a statistical question as one that anticipates variability in the data related to the question.'},
+            {code:'6.SP.A.2', desc:'Understand that a set of data collected to answer a statistical question has a distribution which can be described by its center, spread, and overall shape.'},
+            {code:'6.SP.A.3', desc:'Recognize that a measure of center for a numerical data set summarizes all of its values with a single number.'},
+            {code:'6.SP.B.4', desc:'Display numerical data in plots on a number line, including dot plots, histograms, and box plots.'},
+            {code:'6.SP.B.5', desc:'Summarize numerical data sets in relation to their context.'}
+          ]
+        },
+        'English Language Arts': {
+          'Reading: Literature': [
+            {code:'RL.6.1', desc:'Cite textual evidence to support analysis of what the text says explicitly as well as inferences drawn from the text.'},
+            {code:'RL.6.2', desc:'Determine a theme or central idea of a text and how it is conveyed through particular details.'},
+            {code:'RL.6.3', desc:'Describe how a particular story\u2019s or drama\u2019s plot unfolds in a series of episodes as well as how the characters respond or change.'},
+            {code:'RL.6.4', desc:'Determine the meaning of words and phrases as they are used in a text, including figurative and connotative meanings.'}
+          ],
+          'Writing': [
+            {code:'W.6.1', desc:'Write arguments to support claims with clear reasons and relevant evidence.'},
+            {code:'W.6.2', desc:'Write informative/explanatory texts to examine a topic and convey ideas, concepts, and information.'},
+            {code:'W.6.3', desc:'Write narratives to develop real or imagined experiences or events using effective technique, relevant descriptive details, and well-structured event sequences.'}
+          ]
+        },
+        'Health and PE': {
+          'Physical Education': [
+            {code:'PE 1', desc:'Motor Skills and Movement Patterns: Physically literate students demonstrate competency in a variety of motor skills and movement patterns.'},
+            {code:'PE 2', desc:'Concepts and Strategies: Physically literate students apply knowledge of concepts, principles, strategies and tactics related to movement and performance.'},
+            {code:'PE 3', desc:'Fitness Education: Physically literate students demonstrate the knowledge and skills to plan, execute, self-monitor, achieve, and maintain a health-enhancing level of physical activity and/or fitness.'},
+            {code:'PE 4', desc:'Responsible Personal and Social Behavior: Physically literate students exhibit responsible personal and social behavior that respects self and others.'},
+            {code:'PE 5', desc:'Value of Physical Activity: Physically literate students recognize the value of physical activity for health, enjoyment, challenge, self-expression and/or social interaction.'}
+          ],
+          'Health Education': [
+            {code:'HE 1', desc:'Core Concepts: Students will comprehend concepts related to health promotion and disease prevention to enhance health.'},
+            {code:'HE 2', desc:'Analyzing Influences: Students will analyze the influence of family, peers, culture, media, technology, and other factors on health behaviors.'},
+            {code:'HE 3', desc:'Accessing Information: Students will demonstrate the ability to access valid information, products, and services to enhance health.'},
+            {code:'HE 4', desc:'Interpersonal Communication: Students will demonstrate the ability to use interpersonal communication skills to enhance health and avoid or reduce health risks.'},
+            {code:'HE 5', desc:'Decision Making: Students will demonstrate the ability to use decision-making skills to enhance health.'}
+          ]
+        }
+      },
+      'Grade 8': {
+        'Mathematics': {
+          'The Number System': [
+            {code:'8.NS.A.1', desc:'Know that numbers that are not rational are called irrational. Understand informally that every number has a decimal expansion.'},
+            {code:'8.NS.A.2', desc:'Use rational approximations of irrational numbers to compare the size of irrational numbers.'}
+          ],
+          'Expressions & Equations': [
+            {code:'8.EE.A.1', desc:'Know and apply the properties of integer exponents to generate equivalent numerical expressions.'},
+            {code:'8.EE.A.2', desc:'Use square root and cube root symbols to represent solutions to equations of the form x\u00b2 = p and x\u00b3 = p.'},
+            {code:'8.EE.A.3', desc:'Use numbers expressed in the form of a single digit times an integer power of 10 to estimate very large or very small quantities.'},
+            {code:'8.EE.A.4', desc:'Perform operations with numbers expressed in scientific notation.'},
+            {code:'8.EE.B.5', desc:'Graph proportional relationships, interpreting the unit rate as the slope of the graph.'},
+            {code:'8.EE.B.6', desc:'Use similar triangles to explain why the slope m is the same between any two distinct points on a non-vertical line.'},
+            {code:'8.EE.C.7', desc:'Solve linear equations in one variable.'},
+            {code:'8.EE.C.8', desc:'Analyze and solve pairs of simultaneous linear equations.'}
+          ],
+          'Functions': [
+            {code:'8.F.A.1', desc:'Understand that a function is a rule that assigns to each input exactly one output.'},
+            {code:'8.F.A.2', desc:'Compare properties of two functions each represented in a different way (algebraically, graphically, numerically, or verbally).'},
+            {code:'8.F.A.3', desc:'Interpret the equation y = mx + b as defining a linear function, whose graph is a straight line.'},
+            {code:'8.F.B.4', desc:'Construct a function to model a linear relationship between two quantities.'},
+            {code:'8.F.B.5', desc:'Describe qualitatively the functional relationship between two quantities by analyzing a graph.'}
+          ],
+          'Geometry': [
+            {code:'8.G.A.1', desc:'Verify experimentally the properties of rotations, reflections, and translations.'},
+            {code:'8.G.A.2', desc:'Understand that a two-dimensional figure is congruent to another if the second can be obtained from the first by a sequence of rotations, reflections, and translations.'},
+            {code:'8.G.B.6', desc:'Explain a proof of the Pythagorean Theorem and its converse.'},
+            {code:'8.G.B.7', desc:'Apply the Pythagorean Theorem to determine unknown side lengths in right triangles in real-world and mathematical problems.'},
+            {code:'8.G.B.8', desc:'Apply the Pythagorean Theorem to find the distance between two points in a coordinate system.'}
+          ]
+        },
+        'Science': {
+          'Physical Science': [
+            {code:'MS-PS1-1', desc:'Develop models to describe the atomic composition of simple molecules and extended structures.'},
+            {code:'MS-PS1-2', desc:'Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.'},
+            {code:'MS-PS1-3', desc:'Gather and make sense of information to describe that synthetic materials come from natural resources and impact society.'},
+            {code:'MS-PS1-4', desc:'Develop a model that predicts and describes changes in particle motion, temperature, and state of a pure substance when thermal energy is added or removed.'},
+            {code:'MS-PS2-1', desc:'Apply Newton\u2019s Third Law to design a solution to a problem involving the motion of two colliding objects.'},
+            {code:'MS-PS2-2', desc:'Plan an investigation to provide evidence that the change in an object\u2019s motion depends on the sum of the forces acting on the object and the mass of the object.'}
+          ],
+          'Life Science': [
+            {code:'MS-LS1-1', desc:'Conduct an investigation to provide evidence that living things are made of cells; either one cell or many different numbers and types of cells.'},
+            {code:'MS-LS1-2', desc:'Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.'},
+            {code:'MS-LS1-3', desc:'Use argument supported by evidence for how the body is a system of interacting subsystems composed of groups of cells.'},
+            {code:'MS-LS1-4', desc:'Use argument based on empirical evidence and scientific reasoning to support an explanation for how characteristic animal behaviors and specialized plant structures affect the probability of successful reproduction.'},
+            {code:'MS-LS1-5', desc:'Construct a scientific explanation based on evidence for how environmental and genetic factors influence the growth of organisms.'}
+          ],
+          'Earth & Space Science': [
+            {code:'MS-ESS1-1', desc:'Develop and use a model of the Earth-sun-moon system to describe the cyclic patterns of lunar phases, eclipses, and seasons.'},
+            {code:'MS-ESS1-2', desc:'Develop and use a model to describe the role of gravity in the motions within galaxies and the solar system.'},
+            {code:'MS-ESS1-3', desc:'Analyze and interpret data to determine scale properties of objects in the solar system.'},
+            {code:'MS-ESS2-1', desc:'Develop a model to describe the cycling of Earth\u2019s materials and the flow of energy that drives this process.'}
+          ]
+        }
+      }
+    },
+    'Next Generation Science Standards': {
+      'Grade 3': {
+        'Science': {
+          'Physical Science': [
+            {code:'3-PS2-1', desc:'Plan and conduct an investigation to provide evidence of the effects of balanced and unbalanced forces on the motion of an object.'},
+            {code:'3-PS2-2', desc:'Make observations and/or measurements of an object\u2019s motion to provide evidence that a pattern can be used to predict future motion.'},
+            {code:'3-PS2-3', desc:'Ask questions to determine cause and effect relationships of electric or magnetic interactions between two objects not in contact with each other.'},
+            {code:'3-PS2-4', desc:'Define a simple design problem that can be solved by applying scientific ideas about magnets.'}
+          ],
+          'Life Science': [
+            {code:'3-LS1-1', desc:'Develop models to describe that organisms have unique and diverse life cycles but all have in common birth, growth, reproduction, and death.'},
+            {code:'3-LS2-1', desc:'Construct an argument that some animals form groups that help members survive.'},
+            {code:'3-LS3-1', desc:'Analyze and interpret data to provide evidence that plants and animals have traits inherited from parents.'},
+            {code:'3-LS3-2', desc:'Use evidence to support the explanation that traits can be influenced by the environment.'},
+            {code:'3-LS4-1', desc:'Analyze and interpret data from fossils to provide evidence of the organisms and the environments in which they lived long ago.'},
+            {code:'3-LS4-2', desc:'Use evidence to construct an explanation for how the variations in characteristics among individuals of the same species may provide advantages in surviving, finding mates, and reproducing.'},
+            {code:'3-LS4-3', desc:'Construct an argument with evidence that in a particular habitat some organisms can survive well, some survive less well, and some cannot survive at all.'},
+            {code:'3-LS4-4', desc:'Make a claim about the merit of a solution to a problem caused when the environment changes and the types of plants and animals that live there may change.'}
+          ],
+          'Earth & Space Science': [
+            {code:'3-ESS2-1', desc:'Represent data in tables and graphical displays to describe typical weather conditions expected during a particular season.'},
+            {code:'3-ESS2-2', desc:'Obtain and combine information to describe climates in different regions of the world.'},
+            {code:'3-ESS3-1', desc:'Make a claim about the merit of a design solution that reduces the impacts of a weather-related hazard.'}
+          ]
+        }
+      },
+      'Grade 5': {
+        'Science': {
+          'Physical Science': [
+            {code:'5-PS1-1', desc:'Develop a model to describe that matter is made of particles too small to be seen.'},
+            {code:'5-PS1-2', desc:'Measure and graph quantities to provide evidence that regardless of the type of change that occurs when heating, cooling, or mixing substances, the total weight of matter is conserved.'},
+            {code:'5-PS1-3', desc:'Make observations and measurements to identify materials based on their properties.'},
+            {code:'5-PS1-4', desc:'Conduct an investigation to determine whether the mixing of two or more substances results in new substances.'},
+            {code:'5-PS2-1', desc:'Support an argument that the gravitational force exerted by Earth on objects is directed down.'},
+            {code:'5-PS3-1', desc:'Use models to describe that energy in animals\u2019 food (used for body repair, growth, motion, and to maintain body warmth) was once energy from the sun.'}
+          ],
+          'Life Science': [
+            {code:'5-LS1-1', desc:'Support an argument that plants get the materials they need for growth chiefly from air and water.'},
+            {code:'5-LS2-1', desc:'Develop a model to describe the movement of matter among plants, animals, decomposers, and the environment.'}
+          ],
+          'Earth & Space Science': [
+            {code:'5-ESS1-1', desc:'Support an argument that differences in the apparent brightness of the sun compared to other stars is due to their relative distances from Earth.'},
+            {code:'5-ESS1-2', desc:'Represent data in graphical displays to reveal patterns of daily changes in length and direction of shadows, day and night, and the seasonal appearance of some stars in the night sky.'},
+            {code:'5-ESS2-1', desc:'Develop a model using an example to describe ways the geosphere, biosphere, hydrosphere, and/or atmosphere interact.'},
+            {code:'5-ESS3-1', desc:'Obtain and combine information about ways individual communities use science ideas to protect the Earth\u2019s resources and environment.'}
+          ]
+        }
+      },
+      'Grade 6': {
+        'Science': {
+          'Physical Science': [
+            {code:'MS-PS1-1', desc:'Develop models to describe the atomic composition of simple molecules and extended structures.'},
+            {code:'MS-PS1-2', desc:'Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.'},
+            {code:'MS-PS1-4', desc:'Develop a model that predicts and describes changes in particle motion, temperature, and state of a pure substance when thermal energy is added or removed.'}
+          ],
+          'Life Science': [
+            {code:'MS-LS1-1', desc:'Conduct an investigation to provide evidence that living things are made of cells; either one cell or many different numbers and types of cells.'},
+            {code:'MS-LS1-2', desc:'Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.'},
+            {code:'MS-LS1-3', desc:'Use argument supported by evidence for how the body is a system of interacting subsystems composed of groups of cells.'}
+          ],
+          'Earth & Space Science': [
+            {code:'MS-ESS1-1', desc:'Develop and use a model of the Earth-sun-moon system to describe the cyclic patterns of lunar phases, eclipses, and seasons.'},
+            {code:'MS-ESS1-2', desc:'Develop and use a model to describe the role of gravity in the motions within galaxies and the solar system.'}
+          ]
+        }
+      }
+    },
+    'Maine Learning Results': {
+      'Grade 6': {
+        'Health and PE': {
+          'Physical Education': [
+            {code:'PE 1', desc:'Motor Skills and Movement Patterns: Physically literate students demonstrate competency in a variety of motor skills and movement patterns.'},
+            {code:'PE 2', desc:'Concepts and Strategies: Physically literate students apply knowledge of concepts, principles, strategies and tactics related to movement and performance.'},
+            {code:'PE 3', desc:'Fitness Education: Physically literate students demonstrate the knowledge and skills to plan, execute, self-monitor, achieve, and maintain a health-enhancing level of physical activity and/or fitness.'},
+            {code:'PE 4', desc:'Responsible Personal and Social Behavior: Physically literate students exhibit responsible personal and social behavior that respects self and others.'},
+            {code:'PE 5', desc:'Value of Physical Activity: Physically literate students recognize the value of physical activity for health, enjoyment, challenge, self-expression and/or social interaction.'}
+          ],
+          'Health Education': [
+            {code:'HE 1', desc:'Core Concepts: Students will comprehend concepts related to health promotion and disease prevention to enhance health.'},
+            {code:'HE 2', desc:'Analyzing Influences: Students will analyze the influence of family, peers, culture, media, technology, and other factors on health behaviors.'},
+            {code:'HE 3', desc:'Accessing Information: Students will demonstrate the ability to access valid information, products, and services to enhance health.'},
+            {code:'HE 4', desc:'Interpersonal Communication: Students will demonstrate the ability to use interpersonal communication skills to enhance health and avoid or reduce health risks.'},
+            {code:'HE 5', desc:'Decision Making: Students will demonstrate the ability to use decision-making skills to enhance health.'},
+            {code:'HE 6', desc:'Goal Setting: Students will demonstrate the ability to use goal-setting skills to enhance health.'},
+            {code:'HE 7', desc:'Self-Management: Students will demonstrate the ability to practice health-enhancing behaviors and avoid or reduce health risks.'},
+            {code:'HE 8', desc:'Advocacy: Students will demonstrate the ability to advocate for personal, family, and community health.'}
+          ]
+        },
+        'Mathematics': {
+          'Ratios & Proportional Relationships': [
+            {code:'6.RP.A.1', desc:'Understand the concept of a ratio and use ratio language to describe a ratio relationship between two quantities.'},
+            {code:'6.RP.A.2', desc:'Understand the concept of a unit rate a/b associated with a ratio a:b with b \u2260 0.'},
+            {code:'6.RP.A.3', desc:'Use ratio and rate reasoning to solve real-world and mathematical problems.'}
+          ],
+          'Expressions & Equations': [
+            {code:'6.EE.A.1', desc:'Write and evaluate numerical expressions involving whole-number exponents.'},
+            {code:'6.EE.A.2', desc:'Write, read, and evaluate expressions in which letters stand for numbers.'},
+            {code:'6.EE.B.5', desc:'Understand solving an equation or inequality as a process of answering a question.'}
+          ]
+        },
+        'English Language Arts': {
+          'Reading: Literature': [
+            {code:'RL.6.1', desc:'Cite textual evidence to support analysis of what the text says explicitly as well as inferences drawn from the text.'},
+            {code:'RL.6.2', desc:'Determine a theme or central idea of a text and how it is conveyed through particular details.'},
+            {code:'RL.6.3', desc:'Describe how a particular story\u2019s or drama\u2019s plot unfolds as well as how characters respond or change.'}
+          ],
+          'Writing': [
+            {code:'W.6.1', desc:'Write arguments to support claims with clear reasons and relevant evidence.'},
+            {code:'W.6.2', desc:'Write informative/explanatory texts to examine a topic and convey ideas, concepts, and information.'}
+          ]
+        },
+        'Science': {
+          'Life Science': [
+            {code:'MS-LS1-1', desc:'Conduct an investigation to provide evidence that living things are made of cells.'},
+            {code:'MS-LS1-2', desc:'Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.'}
+          ],
+          'Earth & Space Science': [
+            {code:'MS-ESS1-1', desc:'Develop and use a model of the Earth-sun-moon system to describe the cyclic patterns of lunar phases, eclipses, and seasons.'}
+          ]
+        }
+      },
+      'Grade 3': {
+        'Mathematics': {
+          'Operations & Algebraic Thinking': [
+            {code:'3.OA.A.1', desc:'Interpret products of whole numbers.'},
+            {code:'3.OA.A.2', desc:'Interpret whole-number quotients of whole numbers.'},
+            {code:'3.OA.C.7', desc:'Fluently multiply and divide within 100.'}
+          ],
+          'Measurement & Data': [
+            {code:'3.MD.A.1', desc:'Tell and write time to the nearest minute and measure time intervals in minutes.'},
+            {code:'3.MD.C.5', desc:'Recognize area as an attribute of plane figures and understand concepts of area measurement.'}
+          ]
+        },
+        'English Language Arts': {
+          'Reading: Literature': [
+            {code:'RL.3.1', desc:'Ask and answer questions to demonstrate understanding of a text, referring explicitly to the text.'},
+            {code:'RL.3.2', desc:'Recount stories; determine the central message, lesson, or moral.'}
+          ],
+          'Writing': [
+            {code:'W.3.1', desc:'Write opinion pieces on topics or texts, supporting a point of view with reasons.'},
+            {code:'W.3.2', desc:'Write informative/explanatory texts to examine a topic and convey ideas and information clearly.'}
+          ]
+        }
+      },
+      'Grade 5': {
+        'Mathematics': {
+          'Number & Operations\u2014Fractions': [
+            {code:'5.NF.A.1', desc:'Add and subtract fractions with unlike denominators (including mixed numbers).'},
+            {code:'5.NF.B.3', desc:'Interpret a fraction as division of the numerator by the denominator.'},
+            {code:'5.NF.B.4', desc:'Apply and extend previous understandings of multiplication to multiply a fraction or whole number by a fraction.'}
+          ],
+          'Measurement & Data': [
+            {code:'5.MD.C.3', desc:'Recognize volume as an attribute of solid figures and understand concepts of volume measurement.'},
+            {code:'5.MD.C.5', desc:'Relate volume to the operations of multiplication and addition.'}
+          ]
+        },
+        'English Language Arts': {
+          'Reading: Literature': [
+            {code:'RL.5.1', desc:'Quote accurately from a text when explaining what the text says explicitly and when drawing inferences.'},
+            {code:'RL.5.2', desc:'Determine a theme of a story, drama, or poem from details in the text.'}
+          ],
+          'Writing': [
+            {code:'W.5.1', desc:'Write opinion pieces on topics or texts, supporting a point of view with reasons and information.'}
+          ]
+        },
+        'Science': {
+          'Physical Science': [
+            {code:'5-PS1-1', desc:'Develop a model to describe that matter is made of particles too small to be seen.'},
+            {code:'5-PS1-2', desc:'Measure and graph quantities to provide evidence that the total weight of matter is conserved.'}
+          ]
+        }
+      }
+    },
+    'Texas Essential Knowledge and Skills': {
+      'Grade 5': {
+        'Mathematics': {
+          'Number & Operations': [
+            {code:'5.2A', desc:'Represent the value of the digit in decimals through the thousandths using expanded notation and numerals.'},
+            {code:'5.2B', desc:'Compare and order two decimals to thousandths and represent comparisons using the symbols >, <, or =.'},
+            {code:'5.3A', desc:'Estimate to determine solutions to mathematical and real-world problems involving addition, subtraction, multiplication, or division.'},
+            {code:'5.3B', desc:'Multiply with fluency a three-digit number by a two-digit number using the standard algorithm.'},
+            {code:'5.3C', desc:'Solve with proficiency for quotients of up to a four-digit dividend by a two-digit divisor using strategies and the standard algorithm.'},
+            {code:'5.3D', desc:'Represent multiplication of decimals with products to the hundredths using objects and pictorial models.'}
+          ],
+          'Algebraic Reasoning': [
+            {code:'5.4A', desc:'Identify prime and composite numbers.'},
+            {code:'5.4B', desc:'Represent and solve multi-step problems involving the four operations with whole numbers using equations with a letter standing for the unknown quantity.'},
+            {code:'5.4C', desc:'Generate a numerical pattern when given a rule in the form y = ax or y = x + a and graph.'},
+            {code:'5.4D', desc:'Recognize the difference between additive and multiplicative numerical patterns given in a table or graph.'}
+          ],
+          'Geometry & Measurement': [
+            {code:'5.5A', desc:'Classify two-dimensional figures in a hierarchy of sets and subsets using graphic organizers based on their attributes and properties.'},
+            {code:'5.6A', desc:'Recognize a cube with side length of one unit as a unit cube having one cubic unit of volume and the volume of a three-dimensional figure as the number of unit cubes.'},
+            {code:'5.6B', desc:'Determine the volume of a rectangular prism with whole number side lengths in problems related to the number of layers times the number of unit cubes in the area of the base.'}
+          ]
+        },
+        'Science': {
+          'Life Science': [
+            {code:'5.9A', desc:'Observe the way organisms live and survive in their ecosystem by interacting with the living and nonliving components.'},
+            {code:'5.9B', desc:'Describe how the flow of energy derived from the Sun, used by producers to create their own food, is transferred through a food chain and food web to consumers and decomposers.'},
+            {code:'5.9C', desc:'Predict the effects of changes in ecosystems caused by living organisms, including humans, such as the overpopulation of grazers or the building of highways.'}
+          ],
+          'Earth & Space Science': [
+            {code:'5.8A', desc:'Differentiate between weather and climate.'},
+            {code:'5.8B', desc:'Explain how the Sun and the ocean interact in the water cycle.'},
+            {code:'5.8C', desc:'Demonstrate that Earth rotates on its axis once approximately every 24 hours causing the day/night cycle and the apparent movement of the Sun across the sky.'}
+          ]
+        },
+        'English Language Arts': {
+          'Reading': [
+            {code:'5.6A', desc:'Establish purpose for reading assigned and self-selected texts.'},
+            {code:'5.6B', desc:'Generate questions about text before, during, and after reading to deepen understanding and gain information.'},
+            {code:'5.6C', desc:'Make and correct or confirm predictions using text features, characteristics of genre, and structures.'},
+            {code:'5.6F', desc:'Make inferences and use evidence to support understanding.'},
+            {code:'5.6G', desc:'Evaluate details read to determine key ideas.'}
+          ],
+          'Writing': [
+            {code:'5.11A', desc:'Plan a first draft by selecting a genre for a particular topic, purpose, and audience using a range of strategies such as brainstorming, freewriting, and mapping.'},
+            {code:'5.11B', desc:'Develop drafts into a focused, structured, and coherent piece of writing.'},
+            {code:'5.11C', desc:'Revise drafts to improve sentence structure and word choice by adding, deleting, combining, and rearranging ideas for coherence and clarity.'}
+          ]
+        }
+      },
+      'Grade 6': {
+        'Mathematics': {
+          'Number & Operations': [
+            {code:'6.2A', desc:'Classify whole numbers, integers, and rational numbers using a visual representation such as a Venn diagram.'},
+            {code:'6.2B', desc:'Identify a number, its opposite, and its absolute value.'},
+            {code:'6.2C', desc:'Locate, compare, and order integers and rational numbers using a number line.'},
+            {code:'6.3A', desc:'Recognize that dividing by a rational number and multiplying by its reciprocal result in equivalent values.'}
+          ],
+          'Proportionality': [
+            {code:'6.4A', desc:'Compare two rules verbally, numerically, graphically, and symbolically in the form of y = ax or y = x + a in order to differentiate between additive and multiplicative relationships.'},
+            {code:'6.4B', desc:'Apply qualitative and quantitative reasoning to solve prediction and comparison of real-world problems involving ratios and rates.'},
+            {code:'6.5A', desc:'Represent mathematical and real-world problems involving ratios and rates using scale factors, tables, graphs, and proportions.'}
+          ]
+        }
+      }
+    }
+  };
+
+  /* ── Standards modal logic ─────────────────────────────
+     Mirrors the Copilot Teach "Add standards" sub-dialog.
+     ──────────────────────────────────────────────────── */
+  var stdTempSelected = []; // temporary selections while modal is open
+
+  function openStandardsModal() {
+    // Copy currently-selected standards into temp
+    stdTempSelected = selectedStandards.slice();
+
+    // Populate filter dropdowns
+    populateStdSets();
+    populateStdGrades();
+    populateStdSubjects();
+    populateStdStrands();
+    renderStdList();
+
+    document.getElementById('standardsModal').classList.add('open');
+  }
+
+  function closeStandardsModal() {
+    document.getElementById('standardsModal').classList.remove('open');
+  }
+
+  function populateStdSets() {
+    var sel = document.getElementById('stdFilterSet');
+    var sets = Object.keys(STANDARDS_DB);
+    sel.innerHTML = '';
+    sets.forEach(function(s, i) {
+      var opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s.length > 18 ? s.substring(0,16) + '\u2026' : s;
+      opt.title = s;
+      sel.appendChild(opt);
+    });
+  }
+
+  function populateStdGrades() {
+    var sel = document.getElementById('stdFilterGrade');
+    var setName = document.getElementById('stdFilterSet').value;
+    var grades = setName && STANDARDS_DB[setName] ? Object.keys(STANDARDS_DB[setName]) : [];
+    sel.innerHTML = '';
+    grades.forEach(function(g) {
+      var opt = document.createElement('option');
+      opt.value = g;
+      opt.textContent = g;
+      sel.appendChild(opt);
+    });
+    // Try to match form grade level
+    var formGrade = document.getElementById('field_gradeLevel');
+    if (formGrade && formGrade.value) {
+      var gv = formGrade.value;
+      // Try to match "5th Grade" -> "Grade 5"
+      var m = gv.match(/(\d+)/);
+      if (m) {
+        var target = 'Grade ' + m[1];
+        for (var i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].value === target) { sel.value = target; break; }
+        }
+      }
+    }
+  }
+
+  function populateStdSubjects() {
+    var sel = document.getElementById('stdFilterSubject');
+    var setName = document.getElementById('stdFilterSet').value;
+    var gradeName = document.getElementById('stdFilterGrade').value;
+    var subjects = (setName && gradeName && STANDARDS_DB[setName] && STANDARDS_DB[setName][gradeName])
+      ? Object.keys(STANDARDS_DB[setName][gradeName]) : [];
+    sel.innerHTML = '';
+    subjects.forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      sel.appendChild(opt);
+    });
+    // Try to match form subject
+    var formSubject = document.getElementById('field_subject');
+    if (formSubject && formSubject.value) {
+      var sv = formSubject.value.toLowerCase();
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value.toLowerCase().indexOf(sv) !== -1) {
+          sel.value = sel.options[i].value;
+          break;
+        }
+      }
+    }
+  }
+
+  function populateStdStrands() {
+    var sel = document.getElementById('stdFilterStrand');
+    var setName = document.getElementById('stdFilterSet').value;
+    var gradeName = document.getElementById('stdFilterGrade').value;
+    var subjectName = document.getElementById('stdFilterSubject').value;
+    var strands = (setName && gradeName && subjectName
+      && STANDARDS_DB[setName] && STANDARDS_DB[setName][gradeName]
+      && STANDARDS_DB[setName][gradeName][subjectName])
+      ? Object.keys(STANDARDS_DB[setName][gradeName][subjectName]) : [];
+    sel.innerHTML = '<option value="">All strands</option>';
+    strands.forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      sel.appendChild(opt);
+    });
+  }
+
+  function getFilteredStandards() {
+    var setName = document.getElementById('stdFilterSet').value;
+    var gradeName = document.getElementById('stdFilterGrade').value;
+    var subjectName = document.getElementById('stdFilterSubject').value;
+    var strandName = document.getElementById('stdFilterStrand').value;
+
+    if (!setName || !gradeName || !subjectName) return {};
+    var subjectData = STANDARDS_DB[setName] && STANDARDS_DB[setName][gradeName]
+      && STANDARDS_DB[setName][gradeName][subjectName];
+    if (!subjectData) return {};
+
+    if (strandName && subjectData[strandName]) {
+      var result = {};
+      result[strandName] = subjectData[strandName];
+      return result;
+    }
+    return subjectData;
+  }
+
+  function isStdSelected(code) {
+    return stdTempSelected.some(function(s) { return s.code === code; });
+  }
+
+  function toggleStdSelection(code, desc) {
+    var idx = -1;
+    stdTempSelected.forEach(function(s, i) { if (s.code === code) idx = i; });
+    if (idx >= 0) {
+      stdTempSelected.splice(idx, 1);
+    } else {
+      stdTempSelected.push({code: code, desc: desc});
+    }
+  }
+
+  function renderStdList() {
+    var container = document.getElementById('stdList');
+    var data = getFilteredStandards();
+    var strands = Object.keys(data);
+
+    if (strands.length === 0) {
+      container.innerHTML = '<div class="std-no-results">No standards found for the selected filters. Try changing Standard set, Grade, or Subject.</div>';
+      return;
+    }
+
+    var html = '';
+    strands.forEach(function(strand, si) {
+      var items = data[strand];
+      // Check how many in this strand are selected
+      var checkedCount = 0;
+      items.forEach(function(item) { if (isStdSelected(item.code)) checkedCount++; });
+      var allChecked = checkedCount === items.length;
+      var partial = checkedCount > 0 && !allChecked;
+
+      html += '<div class="std-category" data-strand-idx="' + si + '">';
+      // Category header
+      html += '<div class="std-cat-header" data-strand="' + escAttr(strand) + '">';
+      html += '<svg class="std-chevron" viewBox="0 0 16 16" fill="currentColor"><path d="M6 3.5a.5.5 0 0 1 .854-.354l4 4a.5.5 0 0 1 0 .708l-4 4A.5.5 0 0 1 6 11.5v-8z"/></svg>';
+      html += '<div class="std-checkbox' + (allChecked ? ' checked' : '') + (partial ? ' partial' : '') + '" data-strand-check="' + escAttr(strand) + '">'
+        + (allChecked ? '<svg width="12" height="12" viewBox="0 0 16 16" fill="#fff"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>' : '')
+        + (partial ? '<svg width="10" height="10" viewBox="0 0 16 16" fill="#6264a7"><rect x="3" y="7" width="10" height="2" rx="1"/></svg>' : '')
+        + '</div>';
+      html += '<span class="std-cat-name">' + escHtml(strand) + '</span>';
+      html += '</div>';
+
+      // Children
+      html += '<div class="std-cat-children">';
+      items.forEach(function(item) {
+        var checked = isStdSelected(item.code);
+        html += '<div class="std-item" data-code="' + escAttr(item.code) + '" data-desc="' + escAttr(item.desc) + '">';
+        html += '<div class="std-checkbox' + (checked ? ' checked' : '') + '">'
+          + (checked ? '<svg width="12" height="12" viewBox="0 0 16 16" fill="#fff"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>' : '')
+          + '</div>';
+        html += '<div class="std-item-text">';
+        html += '<div class="std-item-code">' + escHtml(item.code) + '</div>';
+        html += '<div class="std-item-desc">' + escHtml(item.desc) + '</div>';
+        html += '</div></div>';
+      });
+      html += '</div></div>';
+    });
+
+    container.innerHTML = html;
+
+    // Wire category expand/collapse
+    container.querySelectorAll('.std-cat-header').forEach(function(header) {
+      header.addEventListener('click', function(e) {
+        // Don't toggle if they clicked the checkbox
+        if (e.target.closest('.std-checkbox')) return;
+        var cat = header.closest('.std-category');
+        var children = cat.querySelector('.std-cat-children');
+        var chevron = header.querySelector('.std-chevron');
+        children.classList.toggle('expanded');
+        chevron.classList.toggle('expanded');
+      });
+    });
+
+    // Wire category checkbox (select/deselect all in strand)
+    container.querySelectorAll('[data-strand-check]').forEach(function(cb) {
+      cb.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var strandName = cb.getAttribute('data-strand-check');
+        var strandData = getFilteredStandards()[strandName];
+        if (!strandData) return;
+        // Check if all are selected
+        var allSel = strandData.every(function(item) { return isStdSelected(item.code); });
+        if (allSel) {
+          // Deselect all
+          strandData.forEach(function(item) {
+            var idx = -1;
+            stdTempSelected.forEach(function(s, i) { if (s.code === item.code) idx = i; });
+            if (idx >= 0) stdTempSelected.splice(idx, 1);
+          });
+        } else {
+          // Select all missing
+          strandData.forEach(function(item) {
+            if (!isStdSelected(item.code)) {
+              stdTempSelected.push({code: item.code, desc: item.desc});
+            }
+          });
+        }
+        renderStdList();
+      });
+    });
+
+    // Wire item checkboxes
+    container.querySelectorAll('.std-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        var code = item.getAttribute('data-code');
+        var desc = item.getAttribute('data-desc');
+        toggleStdSelection(code, desc);
+        renderStdList();
+      });
+    });
+  }
+
+  function applyStandardsToForm() {
+    selectedStandards = stdTempSelected.slice();
+    // Update hidden field
+    var hiddenField = document.getElementById('field_standards');
+    if (hiddenField) {
+      hiddenField.value = selectedStandards.map(function(s) { return s.code; }).join(', ');
+    }
+    // Update tags display
+    renderStdTags();
+    closeStandardsModal();
+  }
+
+  function renderStdTags() {
+    var container = document.getElementById('stdTagsContainer');
+    if (!container) return;
+    if (selectedStandards.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+    var html = '';
+    selectedStandards.forEach(function(s, i) {
+      html += '<span class="std-tag" title="' + escAttr(s.desc) + '">'
+        + escHtml(s.code)
+        + '<span class="tag-x" data-std-idx="' + i + '">&times;</span>'
+        + '</span>';
+    });
+    container.innerHTML = html;
+    // Wire remove buttons
+    container.querySelectorAll('.tag-x').forEach(function(x) {
+      x.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var idx = parseInt(x.getAttribute('data-std-idx'));
+        selectedStandards.splice(idx, 1);
+        // Update hidden field
+        var hf = document.getElementById('field_standards');
+        if (hf) hf.value = selectedStandards.map(function(s) { return s.code; }).join(', ');
+        renderStdTags();
+      });
+    });
+  }
+
+  // Wire standards modal events (run once on page load)
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('stdCloseBtn').addEventListener('click', closeStandardsModal);
+    document.getElementById('stdAddBtn').addEventListener('click', applyStandardsToForm);
+
+    // Close on backdrop click
+    document.getElementById('standardsModal').addEventListener('click', function(e) {
+      if (e.target === this) closeStandardsModal();
+    });
+
+    // Filter change handlers
+    document.getElementById('stdFilterSet').addEventListener('change', function() {
+      populateStdGrades(); populateStdSubjects(); populateStdStrands(); renderStdList();
+    });
+    document.getElementById('stdFilterGrade').addEventListener('change', function() {
+      populateStdSubjects(); populateStdStrands(); renderStdList();
+    });
+    document.getElementById('stdFilterSubject').addEventListener('change', function() {
+      populateStdStrands(); renderStdList();
+    });
+    document.getElementById('stdFilterStrand').addEventListener('change', function() {
+      renderStdList();
+    });
+  });
   </script>
 </body>
 </html>
