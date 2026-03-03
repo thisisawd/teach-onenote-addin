@@ -791,8 +791,8 @@
      Production build — integrates with Copilot Teach module.
      ============================================================ */
 
-  var TEACH_URL      = 'https://copilot.cloud.microsoft/teach';
-  var TEACH_FALLBACK = 'https://copilot.microsoft.com/?fromEducation=true';
+  var TEACH_URL      = 'https://m365.cloud.microsoft/chat?fromEducation=true&auth=2';
+  var TEACH_FALLBACK = 'https://copilot.microsoft.com/?fromEducation=true&auth=2';
 
   var currentUser  = null;
   var officeReady  = false;
@@ -1034,43 +1034,16 @@
     document.getElementById('embedPreviewBtn').addEventListener('click', function() { insertHtml(buildOEmbedCard()); });
   }
 
-  // ── Open Copilot Teach via Office Dialog API ──────────
+  // ── Open Copilot Teach ─────────────────────────────────
+  // Opens M365 Copilot in a new browser tab (Dialog API can't
+  // reliably embed third-party Copilot pages due to X-Frame-Options).
   function openCopilotDialog() {
     var url = TEACH_URL;
     if (currentUser && currentUser.email) {
-      url += '?login_hint=' + encodeURIComponent(currentUser.email);
+      url += '&login_hint=' + encodeURIComponent(currentUser.email);
     }
-
-    Office.context.ui.displayDialogAsync(url,
-      { height: 80, width: 60, promptBeforeOpen: false },
-      function(result) {
-        if (result.status === Office.AsyncResultStatus.Failed) {
-          console.warn('[Teach] Dialog failed, trying fallback URL');
-          var fallback = TEACH_FALLBACK;
-          if (currentUser && currentUser.email) {
-            fallback += '&login_hint=' + encodeURIComponent(currentUser.email);
-          }
-          Office.context.ui.displayDialogAsync(fallback,
-            { height: 80, width: 60, promptBeforeOpen: false },
-            function(r2) {
-              if (r2.status === Office.AsyncResultStatus.Failed) {
-                window.open(url, '_blank');
-                toast('Opened Copilot Teach in a new browser tab.', 'success');
-              }
-            }
-          );
-        } else {
-          var dialog = result.value;
-          dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(arg) {
-            toast('Content received from Copilot Teach!', 'success');
-            dialog.close();
-          });
-          dialog.addEventHandler(Office.EventType.DialogEventReceived, function(arg) {
-            console.log('[Teach] Dialog closed, event:', arg.error);
-          });
-        }
-      }
-    );
+    window.open(url, '_blank');
+    toast('Opened M365 Copilot in a new browser tab.', 'success');
   }
 
   // ── Collect form data ─────────────────────────────────
@@ -1101,8 +1074,8 @@
   }
 
   // ── Generate content from form ────────────────────────
-  // Attempts to open the real M365 Copilot Teach module first.
-  // Falls back to high-quality local template generation.
+  // Uses local template engine to generate content instantly.
+  // Content is based on the form inputs and inserted into OneNote.
   function generateContent() {
     var data = collectFormData();
     if (!data) return;
@@ -1112,117 +1085,31 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Generating\u2026';
 
-    // Try opening real Copilot Teach module via Dialog API
-    var teachUrl = buildTeachUrl(tpl, data);
-    tryTeachDialog(teachUrl, function onDialogResult(success, resultHtml) {
-      if (success && resultHtml) {
-        // Got real content from Copilot Teach
-        showPreview(tpl, resultHtml, data);
-      } else {
-        // Use local template generation (still production quality)
-        var html = buildTemplate(tpl, data);
-        showPreview(tpl, html, data);
-      }
+    // Brief delay for UX feedback, then generate
+    setTimeout(function() {
+      var html = buildTemplate(tpl, data);
+      lastGenHtml = html;
+
+      // Show preview
+      var card = document.getElementById('previewCard');
+      var titleText = TEMPLATES[tpl] ? TEMPLATES[tpl].title.replace('Create ','') : 'Teaching Content';
+      titleText = titleText.charAt(0).toUpperCase() + titleText.slice(1);
+      document.getElementById('previewTitle').textContent = '\uD83C\uDF93 ' + titleText;
+      document.getElementById('previewMeta').textContent = 'Created by '
+        + (currentUser ? currentUser.name : 'Teacher')
+        + ' \u00B7 ' + new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      document.getElementById('previewContent').innerHTML = html;
+      card.classList.add('visible');
+      card.scrollIntoView({ behavior: 'smooth' });
+
       btn.disabled = false;
       btn.innerHTML = '<svg class="sparkle-svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">'
         + '<path d="M8 .75a.75.75 0 0 1 .694.468l1.264 3.073 3.073 1.264a.75.75 0 0 1 0 1.39l-3.073 1.264-1.264 3.073a.75.75 0 0 1-1.39 0L6.042 8.209 2.97 6.945a.75.75 0 0 1 0-1.39l3.073-1.264L7.306 1.218A.75.75 0 0 1 8 .75zM12.5 9.5a.5.5 0 0 1 .464.314l.61 1.526 1.526.61a.5.5 0 0 1 0 .928l-1.526.61-.61 1.526a.5.5 0 0 1-.928 0l-.61-1.526-1.526-.61a.5.5 0 0 1 0-.928l1.526-.61.61-1.526A.5.5 0 0 1 12.5 9.5z"/>'
         + '</svg> Generate';
-    });
-  }
 
-  // Build the Copilot Teach URL with pre-filled form parameters
-  function buildTeachUrl(tpl, data) {
-    var base = TEACH_URL;
-    var params = [];
-    if (currentUser && currentUser.email) params.push('login_hint=' + encodeURIComponent(currentUser.email));
-    params.push('template=' + encodeURIComponent(tpl));
-    if (data.subject)    params.push('subject=' + encodeURIComponent(data.subject));
-    if (data.gradeLevel) params.push('grade=' + encodeURIComponent(data.gradeLevel));
-    if (data.language)   params.push('language=' + encodeURIComponent(data.language));
-    if (data.description) params.push('description=' + encodeURIComponent(data.description));
-    if (data.standards)  params.push('standards=' + encodeURIComponent(data.standards));
-    return base + (params.length ? '?' + params.join('&') : '');
-  }
-
-  // Try to use Office Dialog API to open Copilot Teach
-  function tryTeachDialog(url, callback) {
-    if (!officeReady) {
-      // Not in Office context - use local generation
-      setTimeout(function() { callback(false, null); }, 600);
-      return;
-    }
-
-    var dialogTimeout, dialogOpened = false;
-
-    try {
-      Office.context.ui.displayDialogAsync(url,
-        { height: 80, width: 65, promptBeforeOpen: false },
-        function(result) {
-          if (result.status === Office.AsyncResultStatus.Failed) {
-            // Dialog couldn't open (X-Frame, permissions, etc.) - use local template
-            console.log('[Teach] Dialog unavailable, using local generation. Code:', result.error.code);
-            callback(false, null);
-            return;
-          }
-
-          dialogOpened = true;
-          var dialog = result.value;
-          toast('Copilot Teach opened \u2014 create your content and close when done.', 'success');
-
-          // Listen for content passed back from dialog
-          dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(arg) {
-            clearTimeout(dialogTimeout);
-            try {
-              var msg = JSON.parse(arg.message);
-              callback(true, msg.html || msg.content || null);
-            } catch(e) {
-              callback(true, arg.message);
-            }
-            dialog.close();
-          });
-
-          // When dialog is closed without sending content
-          dialog.addEventHandler(Office.EventType.DialogEventReceived, function(arg) {
-            clearTimeout(dialogTimeout);
-            if (!dialogOpened) return;
-            dialogOpened = false;
-            // User closed Copilot Teach - fall back to local template
-            console.log('[Teach] Dialog closed by user, using local generation.');
-            callback(false, null);
-          });
-
-          // Fallback timeout - if dialog doesn't respond in 3 min, generate locally
-          dialogTimeout = setTimeout(function() {
-            if (dialogOpened) {
-              dialogOpened = false;
-              try { dialog.close(); } catch(e) {}
-              callback(false, null);
-            }
-          }, 180000);
-        }
-      );
-    } catch (err) {
-      console.error('[Teach] Dialog API error:', err);
-      setTimeout(function() { callback(false, null); }, 600);
-    }
-  }
-
-  // Show preview card with generated content
-  function showPreview(tpl, html, data) {
-    lastGenHtml = html;
-    var card = document.getElementById('previewCard');
-    var titleText = TEMPLATES[tpl] ? TEMPLATES[tpl].title.replace('Create ','') : 'Teaching Content';
-    titleText = titleText.charAt(0).toUpperCase() + titleText.slice(1);
-    document.getElementById('previewTitle').textContent = '\uD83C\uDF93 ' + titleText;
-    document.getElementById('previewMeta').textContent = 'Created by '
-      + (currentUser ? currentUser.name : 'Teacher')
-      + ' \u00B7 ' + new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-    document.getElementById('previewContent').innerHTML = html;
-    card.classList.add('visible');
-    card.scrollIntoView({ behavior: 'smooth' });
-
-    // Insert directly into OneNote
-    insertHtml(wrapForOneNote(titleText, html));
+      // Insert directly into OneNote
+      insertHtml(wrapForOneNote(titleText, html));
+    }, 600);
   }
 
   // ── Template builders (data-driven) ───────────────────
