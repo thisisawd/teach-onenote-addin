@@ -39,6 +39,13 @@
       font-weight: 600;
     }
 
+    /* ── Main scroll area ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+    }
+
     /* ── Login overlay ── */
     #loginOverlay {
       position: absolute; inset:0; z-index:100;
@@ -78,51 +85,150 @@
     .login-btn.secondary { background:#f5f5f5; color:#242424; border:1px solid #d1d1d1; }
     .login-btn.secondary:hover { background:#e8e8e8; }
     .login-divider { font-size:12px; color:#999; }
-    .user-info { font-size:12px; color:#107c10; }
 
-    /* ── Teach iframe ── */
-    #teachFrame {
-      flex: 1;
-      width: 100%;
-      border: none;
-    }
-
-    /* ── Bottom bar ── */
-    .bottom-bar {
+    /* ── Open Copilot banner ── */
+    .copilot-banner {
       display: flex;
-      gap: 6px;
-      padding: 8px 10px;
-      background: #fff;
-      border-top: 1px solid #e0e0e0;
-      flex-shrink: 0;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: linear-gradient(135deg, #6264a7 0%, #8b5cf6 100%);
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: opacity 0.15s;
     }
-    .bottom-bar button {
-      flex: 1;
-      padding: 8px 4px;
-      border: 1px solid #d1d1d1;
-      border-radius: 4px;
-      background: #fff;
+    .copilot-banner:hover { opacity: 0.92; }
+    .copilot-banner .icon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .copilot-banner .text { flex:1; }
+    .copilot-banner .text h3 { font-size:14px; font-weight:600; margin-bottom:2px; }
+    .copilot-banner .text p { font-size:11px; opacity:0.85; }
+    .copilot-banner .arrow { font-size:18px; opacity:0.7; }
+
+    /* ── Section titles ── */
+    .section-title {
       font-size: 12px;
+      font-weight: 600;
+      color: #616161;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Template cards ── */
+    .templates {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tpl-card {
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+    }
+    .tpl-card:hover { border-color: #6264a7; background: #f8f7ff; }
+    .tpl-card .emoji { font-size: 22px; margin-bottom: 6px; }
+    .tpl-card .name { font-size: 13px; font-weight: 600; color: #242424; }
+    .tpl-card .desc { font-size: 11px; color: #616161; margin-top: 2px; }
+
+    /* ── Custom prompt area ── */
+    .prompt-area {
+      margin-bottom: 16px;
+    }
+    .prompt-area textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px 12px;
+      border: 1px solid #d1d1d1;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .prompt-area textarea:focus { outline: none; border-color: #6264a7; }
+    .prompt-area textarea::placeholder { color: #999; }
+
+    /* ── Generate button ── */
+    .gen-btn {
+      width: 100%;
+      padding: 10px;
+      background: #6264a7;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       font-family: inherit;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 6px;
+      margin-bottom: 16px;
     }
-    .bottom-bar button:hover { background:#f5f5f5; }
-    .bottom-bar button.primary {
-      background: #6264a7;
-      color: #fff;
-      border-color: #6264a7;
-    }
-    .bottom-bar button.primary:hover { background:#4f52b5; }
+    .gen-btn:hover { background: #4f52b5; }
+    .gen-btn:disabled { opacity: 0.5; cursor: default; }
 
-    /* ── Status toast ── */
+    /* ── Preview card ── */
+    #previewCard {
+      display: none;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    #previewCard.visible { display: block; }
+    #previewCard h3 { font-size: 15px; font-weight: 600; color: #6264a7; margin-bottom: 4px; }
+    #previewCard .meta { font-size: 11px; color: #888; margin-bottom: 12px; }
+    #previewCard .content { font-size: 13px; line-height: 1.6; color: #242424; }
+    #previewCard .content h4 { font-size: 13px; font-weight: 600; margin: 10px 0 4px; }
+    #previewCard .content ul, #previewCard .content ol { padding-left: 18px; margin: 4px 0; }
+    #previewCard .content li { margin: 2px 0; }
+    #previewCard .content table { width:100%; border-collapse:collapse; margin:8px 0; font-size:12px; }
+    #previewCard .content th, #previewCard .content td { padding:5px 8px; border:1px solid #e0e0e0; text-align:left; }
+    #previewCard .content th { background:#f5f5f5; font-weight:600; }
+
+    .preview-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .preview-actions button {
+      flex: 1;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      border: 1px solid #d1d1d1;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .preview-actions button:hover { background: #f5f5f5; }
+    .preview-actions button.primary {
+      background: #6264a7; color: #fff; border-color: #6264a7;
+    }
+    .preview-actions button.primary:hover { background: #4f52b5; }
+
+    /* ── Toast ── */
     .toast {
       position: fixed;
-      bottom: 56px;
+      bottom: 12px;
       left: 10px; right: 10px;
       padding: 10px 14px;
       border-radius: 4px;
@@ -136,6 +242,17 @@
     .toast.show { transform:translateY(0); opacity:1; }
     .toast.success { background:#dff6dd; color:#107c10; border:1px solid #9ee09e; }
     .toast.error   { background:#fde7e9; color:#a4262c; border:1px solid #eeacb2; }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -162,54 +279,108 @@
     <span class="login-divider">— or enter your EDU email —</span>
     <input type="email" id="emailInput" placeholder="name@school.edu"/>
     <button class="login-btn secondary" id="emailBtn">Continue</button>
-    <div class="user-info" id="userInfo" style="display:none"></div>
   </div>
 
-  <!-- Copilot Teach iframe -->
-  <iframe id="teachFrame"
-          src="about:blank"
-          title="M365 Copilot Teach"
-          allow="clipboard-write"
-          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation">
-  </iframe>
+  <!-- Main content area -->
+  <div class="main">
 
-  <!-- Bottom action bar -->
-  <div class="bottom-bar">
-    <button class="primary" id="insertBtn" title="Insert generated content into the OneNote page">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+    <!-- Open Copilot Teach in dialog -->
+    <div class="copilot-banner" id="openCopilotBtn">
+      <div class="icon">✨</div>
+      <div class="text">
+        <h3>Open Copilot Teach</h3>
+        <p>Launch the full M365 Copilot Teach experience</p>
+      </div>
+      <span class="arrow">›</span>
+    </div>
+
+    <!-- Quick templates -->
+    <div class="section-title">Quick Templates</div>
+    <div class="templates">
+      <div class="tpl-card" data-tpl="lesson">
+        <div class="emoji">📝</div>
+        <div class="name">Lesson Plan</div>
+        <div class="desc">Standards-aligned lesson with objectives &amp; flow</div>
+      </div>
+      <div class="tpl-card" data-tpl="quiz">
+        <div class="emoji">❓</div>
+        <div class="name">Quiz</div>
+        <div class="desc">Multiple choice &amp; short answer assessment</div>
+      </div>
+      <div class="tpl-card" data-tpl="rubric">
+        <div class="emoji">📊</div>
+        <div class="name">Rubric</div>
+        <div class="desc">Scoring criteria with proficiency levels</div>
+      </div>
+      <div class="tpl-card" data-tpl="activity">
+        <div class="emoji">🎯</div>
+        <div class="name">Activity</div>
+        <div class="desc">Interactive classroom activity or project</div>
+      </div>
+      <div class="tpl-card" data-tpl="vocabulary">
+        <div class="emoji">📚</div>
+        <div class="name">Vocabulary</div>
+        <div class="desc">Word list with definitions &amp; context</div>
+      </div>
+      <div class="tpl-card" data-tpl="reading">
+        <div class="emoji">📖</div>
+        <div class="name">Reading Passage</div>
+        <div class="desc">Leveled text with comprehension questions</div>
+      </div>
+    </div>
+
+    <!-- Custom prompt -->
+    <div class="section-title">Or describe what you need</div>
+    <div class="prompt-area">
+      <textarea id="promptInput" placeholder="e.g. Create a 5th grade lesson plan about the water cycle with hands-on activities and a formative assessment..."></textarea>
+    </div>
+
+    <button class="gen-btn" id="generateBtn">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
         <path d="M8 1a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
       </svg>
-      Insert to Page
+      Generate &amp; Insert into Page
     </button>
-    <button id="embedBtn" title="Embed content as oEmbed rich card">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
-      </svg>
-      Embed
-    </button>
-    <button id="refreshBtn" title="Reload Copilot Teach">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 1 1 .908-.418A6 6 0 1 1 8 2v1z"/>
-        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-      </svg>
-    </button>
+
+    <!-- Preview card (shown after generation) -->
+    <div id="previewCard">
+      <h3 id="previewTitle"></h3>
+      <div class="meta" id="previewMeta"></div>
+      <div class="content" id="previewContent"></div>
+      <div class="preview-actions">
+        <button class="primary" id="insertPreviewBtn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
+          </svg>
+          Insert to Page
+        </button>
+        <button id="embedPreviewBtn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
+          </svg>
+          Embed Card
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- Toast notification -->
+  <!-- Toast -->
   <div class="toast" id="toast"></div>
 
-  <!-- All JS inlined — no external files needed -->
   <script>
   /* ============================================================
      Teach – M365 Copilot OneNote Add-in  (EDU)
-     Fully self-contained — no localhost required
+     No iframe — uses Office Dialog API for Copilot Teach,
+     plus native template generators for direct insertion.
      ============================================================ */
 
   var TEACH_URL      = 'https://copilot.cloud.microsoft/teach';
   var TEACH_FALLBACK = 'https://copilot.microsoft.com/?fromEducation=true';
 
-  var currentUser = null;
-  var officeReady = false;
+  var currentUser  = null;
+  var officeReady  = false;
+  var lastGenHtml  = '';
+  var selectedTpl  = null;
 
   // ── Bootstrap ──────────────────────────────────────────
   Office.onReady(function(info) {
@@ -219,7 +390,7 @@
     wireButtons();
   });
 
-  // ── SSO: try to pass through the signed-in user ───────
+  // ── SSO ────────────────────────────────────────────────
   async function trySSO() {
     try {
       var token = await Office.auth.getAccessTokenAsync({
@@ -227,108 +398,311 @@
         allowConsentPrompt: false,
         forMSGraphAccess: true
       });
-
       if (token && typeof token === 'string' && token.length > 10) {
         var payload = JSON.parse(atob(token.split('.')[1]));
         currentUser = {
           name:  payload.name || payload.preferred_username || 'Educator',
           email: payload.preferred_username || payload.upn || ''
         };
-        console.log('[Teach] SSO success:', currentUser.email);
         loginSuccess(currentUser);
         return;
       }
-    } catch (err) {
-      console.warn('[Teach] SSO unavailable, showing login:', err.message || err);
+    } catch (e) {
+      console.warn('[Teach] SSO unavailable:', e.message || e);
     }
-    showLoginOverlay();
-  }
-
-  // ── Login overlay ─────────────────────────────────────
-  function showLoginOverlay() {
     document.getElementById('loginOverlay').classList.remove('hidden');
   }
-  function hideLoginOverlay() {
+
+  function loginSuccess(user) {
+    currentUser = user;
     document.getElementById('loginOverlay').classList.add('hidden');
   }
 
-  // ── Login success → load Teach ────────────────────────
-  function loginSuccess(user) {
-    currentUser = user;
-    hideLoginOverlay();
-
-    var url = TEACH_URL;
-    if (user.email) {
-      var hint = encodeURIComponent(user.email);
-      url += (url.includes('?') ? '&' : '?') + 'login_hint=' + hint;
-    }
-    loadTeach(url);
-  }
-
-  // ── Load Copilot Teach in the iframe ──────────────────
-  function loadTeach(url) {
-    var frame = document.getElementById('teachFrame');
-    frame.src = url || TEACH_URL;
-    frame.onerror = function() {
-      console.warn('[Teach] Primary URL blocked, trying fallback');
-      frame.src = TEACH_FALLBACK;
-    };
-  }
-
-  // ── Wire up buttons ──────────────────────────────────
+  // ── Wire buttons ──────────────────────────────────────
   function wireButtons() {
     // SSO button
     document.getElementById('ssoBtn').addEventListener('click', async function() {
       try {
         var token = await Office.auth.getAccessTokenAsync({
-          allowSignInPrompt: true,
-          allowConsentPrompt: true,
-          forMSGraphAccess: true
+          allowSignInPrompt: true, allowConsentPrompt: true, forMSGraphAccess: true
         });
         var payload = JSON.parse(atob(token.split('.')[1]));
-        loginSuccess({
-          name:  payload.name || payload.preferred_username,
-          email: payload.preferred_username || payload.upn || ''
-        });
-      } catch (err) {
-        toast('SSO not available — please enter your EDU email below.', 'error');
-      }
+        loginSuccess({ name: payload.name || payload.preferred_username, email: payload.preferred_username || payload.upn || '' });
+      } catch (e) { toast('SSO not available — enter your EDU email below.', 'error'); }
     });
 
     // Email login
     document.getElementById('emailBtn').addEventListener('click', function() {
       var email = document.getElementById('emailInput').value.trim();
-      if (!email || !email.includes('@')) {
-        toast('Enter a valid EDU email address.', 'error');
-        return;
-      }
+      if (!email || !email.includes('@')) { toast('Enter a valid EDU email.', 'error'); return; }
       loginSuccess({ name: email.split('@')[0], email: email });
     });
 
-    // Insert to Page
-    document.getElementById('insertBtn').addEventListener('click', insertToPage);
+    // Open Copilot Teach in a dialog window (not iframe)
+    document.getElementById('openCopilotBtn').addEventListener('click', openCopilotDialog);
 
-    // oEmbed
-    document.getElementById('embedBtn').addEventListener('click', embedToPage);
-
-    // Refresh
-    document.getElementById('refreshBtn').addEventListener('click', function() {
-      var frame = document.getElementById('teachFrame');
-      if (frame.src && frame.src !== 'about:blank') {
-        frame.src = frame.src;
-        toast('Reloaded Copilot Teach.', 'success');
-      }
+    // Template cards
+    document.querySelectorAll('.tpl-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        selectedTpl = card.getAttribute('data-tpl');
+        // Highlight selected
+        document.querySelectorAll('.tpl-card').forEach(function(c) { c.style.borderColor = '#e0e0e0'; c.style.background = '#fff'; });
+        card.style.borderColor = '#6264a7';
+        card.style.background = '#f8f7ff';
+        // Pre-fill prompt
+        var prompts = {
+          lesson:     'Create a lesson plan with learning objectives, warm-up, instruction, practice, and closure.',
+          quiz:       'Create a quiz with 5 multiple choice questions and 2 short answer questions.',
+          rubric:     'Create a 4-level scoring rubric (Exceeds, Meets, Approaching, Below) with clear criteria.',
+          activity:   'Create an engaging classroom activity with materials list, steps, and extension ideas.',
+          vocabulary: 'Create a vocabulary list of 10 key terms with definitions, example sentences, and word origins.',
+          reading:    'Create a reading passage (grade-appropriate) with 5 comprehension questions.'
+        };
+        document.getElementById('promptInput').value = prompts[selectedTpl] || '';
+        document.getElementById('promptInput').focus();
+      });
     });
+
+    // Generate button
+    document.getElementById('generateBtn').addEventListener('click', generateContent);
+
+    // Preview actions
+    document.getElementById('insertPreviewBtn').addEventListener('click', function() { insertHtml(lastGenHtml); });
+    document.getElementById('embedPreviewBtn').addEventListener('click', function() { insertHtml(buildOEmbedCard()); });
   }
 
-  // ── Insert content into OneNote page ──────────────────
-  async function insertToPage() {
+  // ── Open Copilot Teach via Office Dialog API ──────────
+  function openCopilotDialog() {
+    var url = TEACH_URL;
+    if (currentUser && currentUser.email) {
+      url += '?login_hint=' + encodeURIComponent(currentUser.email);
+    }
+
+    Office.context.ui.displayDialogAsync(url,
+      { height: 80, width: 60, promptBeforeOpen: false },
+      function(result) {
+        if (result.status === Office.AsyncResultStatus.Failed) {
+          console.warn('[Teach] Dialog failed, trying fallback URL');
+          // Try fallback
+          var fallback = TEACH_FALLBACK;
+          if (currentUser && currentUser.email) {
+            fallback += '&login_hint=' + encodeURIComponent(currentUser.email);
+          }
+          Office.context.ui.displayDialogAsync(fallback,
+            { height: 80, width: 60, promptBeforeOpen: false },
+            function(r2) {
+              if (r2.status === Office.AsyncResultStatus.Failed) {
+                // Last resort: open in new browser tab
+                window.open(url, '_blank');
+                toast('Opened Copilot Teach in a new browser tab.', 'success');
+              }
+            }
+          );
+        } else {
+          var dialog = result.value;
+          dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(arg) {
+            toast('Content received from Copilot Teach!', 'success');
+            dialog.close();
+          });
+          dialog.addEventHandler(Office.EventType.DialogEventReceived, function(arg) {
+            console.log('[Teach] Dialog closed, event:', arg.error);
+          });
+        }
+      }
+    );
+  }
+
+  // ── Generate content from template ────────────────────
+  function generateContent() {
+    var prompt = document.getElementById('promptInput').value.trim();
+    var tpl = selectedTpl || 'lesson';
+
+    if (!prompt) {
+      toast('Describe what you need or pick a template above.', 'error');
+      return;
+    }
+
+    var btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating…';
+
+    // Simulate brief generation delay then produce rich template
+    setTimeout(function() {
+      var html = buildTemplate(tpl, prompt);
+      lastGenHtml = html;
+
+      // Show preview
+      var card = document.getElementById('previewCard');
+      var titles = { lesson:'Lesson Plan', quiz:'Quiz', rubric:'Rubric', activity:'Activity', vocabulary:'Vocabulary List', reading:'Reading Passage' };
+      document.getElementById('previewTitle').textContent = '🎓 ' + (titles[tpl] || 'Teaching Content');
+      document.getElementById('previewMeta').textContent = 'Created by ' + (currentUser ? currentUser.name : 'Teacher') + ' · ' + new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      document.getElementById('previewContent').innerHTML = html;
+      card.classList.add('visible');
+      card.scrollIntoView({ behavior: 'smooth' });
+
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/></svg> Generate &amp; Insert into Page';
+
+      // Also insert directly
+      insertHtml(wrapForOneNote(titles[tpl] || 'Teaching Content', html));
+    }, 800);
+  }
+
+  // ── Template builders ─────────────────────────────────
+  function buildTemplate(tpl, prompt) {
+    var user = currentUser ? currentUser.name : 'Teacher';
+    switch (tpl) {
+      case 'lesson': return buildLesson(prompt);
+      case 'quiz': return buildQuiz(prompt);
+      case 'rubric': return buildRubric(prompt);
+      case 'activity': return buildActivity(prompt);
+      case 'vocabulary': return buildVocabulary(prompt);
+      case 'reading': return buildReading(prompt);
+      default: return buildLesson(prompt);
+    }
+  }
+
+  function buildLesson(prompt) {
+    return '<h4>Subject &amp; Topic</h4>'
+      + '<p><em>' + escHtml(prompt) + '</em></p>'
+      + '<h4>Learning Objectives</h4>'
+      + '<ul><li>Students will be able to identify and explain key concepts</li>'
+      + '<li>Students will analyze and apply knowledge through practice</li>'
+      + '<li>Students will demonstrate understanding via assessment</li></ul>'
+      + '<h4>Lesson Flow</h4>'
+      + '<ol><li><strong>Warm-Up</strong> (5 min) — Activating prior knowledge with a discussion prompt</li>'
+      + '<li><strong>Direct Instruction</strong> (15 min) — Introduce core concepts with examples</li>'
+      + '<li><strong>Guided Practice</strong> (10 min) — Work through problems together</li>'
+      + '<li><strong>Independent Practice</strong> (10 min) — Students apply learning individually</li>'
+      + '<li><strong>Closure</strong> (5 min) — Exit ticket and reflection</li></ol>'
+      + '<h4>Materials</h4>'
+      + '<ul><li>Whiteboard / projector</li><li>Student handouts</li><li>Assessment worksheet</li></ul>'
+      + '<h4>Differentiation</h4>'
+      + '<table><tr><th>Group</th><th>Strategy</th></tr>'
+      + '<tr><td>Advanced</td><td>Extension challenges &amp; peer tutoring</td></tr>'
+      + '<tr><td>On Level</td><td>Standard lesson sequence</td></tr>'
+      + '<tr><td>Approaching</td><td>Graphic organizers &amp; scaffolded notes</td></tr>'
+      + '<tr><td>ELL</td><td>Visual aids, sentence frames, vocabulary pre-teach</td></tr></table>'
+      + '<h4>Assessment</h4>'
+      + '<p><strong>Formative:</strong> Exit ticket · <strong>Summative:</strong> End-of-unit test</p>';
+  }
+
+  function buildQuiz(prompt) {
+    return '<h4>Quiz</h4>'
+      + '<p><em>' + escHtml(prompt) + '</em></p>'
+      + '<h4>Multiple Choice</h4>'
+      + '<ol><li>What is the primary concept covered in this unit?<br/>'
+      + '  a) Option A&ensp; b) Option B&ensp; <strong>c) Option C ✓</strong>&ensp; d) Option D</li>'
+      + '<li>Which of the following best describes…?<br/>'
+      + '  a) Option A&ensp; <strong>b) Option B ✓</strong>&ensp; c) Option C&ensp; d) Option D</li>'
+      + '<li>Select the correct example of…<br/>'
+      + '  <strong>a) Option A ✓</strong>&ensp; b) Option B&ensp; c) Option C&ensp; d) Option D</li>'
+      + '<li>What happens when…?<br/>'
+      + '  a) Option A&ensp; b) Option B&ensp; c) Option C&ensp; <strong>d) Option D ✓</strong></li>'
+      + '<li>Which statement is true about…?<br/>'
+      + '  a) Option A&ensp; <strong>b) Option B ✓</strong>&ensp; c) Option C&ensp; d) Option D</li></ol>'
+      + '<h4>Short Answer</h4>'
+      + '<ol><li>Explain in your own words what you learned about this topic. (3-4 sentences)<br/><em>[answer space]</em></li>'
+      + '<li>Compare and contrast two key ideas from this unit. Provide examples.<br/><em>[answer space]</em></li></ol>';
+  }
+
+  function buildRubric(prompt) {
+    return '<h4>Scoring Rubric</h4>'
+      + '<p><em>' + escHtml(prompt) + '</em></p>'
+      + '<table><tr><th>Criteria</th><th>Exceeds (4)</th><th>Meets (3)</th><th>Approaching (2)</th><th>Below (1)</th></tr>'
+      + '<tr><td><strong>Content Knowledge</strong></td><td>Thorough, accurate, insightful understanding</td><td>Accurate understanding of key concepts</td><td>Partial understanding with some gaps</td><td>Significant misunderstanding</td></tr>'
+      + '<tr><td><strong>Critical Thinking</strong></td><td>Exceptional analysis and original connections</td><td>Sound analysis with clear reasoning</td><td>Some analysis but limited depth</td><td>Minimal analysis or reasoning</td></tr>'
+      + '<tr><td><strong>Communication</strong></td><td>Clear, organized, compelling presentation</td><td>Clear and organized</td><td>Somewhat unclear or disorganized</td><td>Unclear and disorganized</td></tr>'
+      + '<tr><td><strong>Effort &amp; Completion</strong></td><td>Exceeds all requirements</td><td>Meets all requirements</td><td>Missing some components</td><td>Incomplete</td></tr></table>';
+  }
+
+  function buildActivity(prompt) {
+    return '<h4>Classroom Activity</h4>'
+      + '<p><em>' + escHtml(prompt) + '</em></p>'
+      + '<h4>Overview</h4>'
+      + '<p>An engaging, hands-on activity designed to reinforce learning through collaboration and exploration.</p>'
+      + '<h4>Materials Needed</h4>'
+      + '<ul><li>Chart paper or whiteboards</li><li>Markers / colored pencils</li><li>Handout (provided)</li><li>Timer</li></ul>'
+      + '<h4>Instructions</h4>'
+      + '<ol><li><strong>Setup</strong> (3 min) — Arrange students in groups of 3-4</li>'
+      + '<li><strong>Explore</strong> (10 min) — Groups investigate the topic using provided materials</li>'
+      + '<li><strong>Create</strong> (10 min) — Groups produce a visual summary or model</li>'
+      + '<li><strong>Share</strong> (7 min) — Gallery walk: groups present to each other</li>'
+      + '<li><strong>Reflect</strong> (5 min) — Individual written reflection</li></ol>'
+      + '<h4>Extensions</h4>'
+      + '<ul><li>Advanced: Design their own investigation question</li>'
+      + '<li>Support: Provide partially completed graphic organizer</li></ul>';
+  }
+
+  function buildVocabulary(prompt) {
+    return '<h4>Vocabulary List</h4>'
+      + '<p><em>' + escHtml(prompt) + '</em></p>'
+      + '<table><tr><th>#</th><th>Term</th><th>Definition</th><th>Example Sentence</th></tr>'
+      + '<tr><td>1</td><td><strong>[Term 1]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
+      + '<tr><td>2</td><td><strong>[Term 2]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
+      + '<tr><td>3</td><td><strong>[Term 3]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
+      + '<tr><td>4</td><td><strong>[Term 4]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
+      + '<tr><td>5</td><td><strong>[Term 5]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
+      + '<tr><td>6</td><td><strong>[Term 6]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
+      + '<tr><td>7</td><td><strong>[Term 7]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
+      + '<tr><td>8</td><td><strong>[Term 8]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
+      + '<tr><td>9</td><td><strong>[Term 9]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
+      + '<tr><td>10</td><td><strong>[Term 10]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr></table>'
+      + '<h4>Practice</h4>'
+      + '<p>Use each word in a sentence. Then, create a word web connecting related terms.</p>';
+  }
+
+  function buildReading(prompt) {
+    return '<h4>Reading Passage</h4>'
+      + '<p><em>' + escHtml(prompt) + '</em></p>'
+      + '<div style="background:#f9f9f9; padding:12px; border-radius:4px; margin:8px 0; border-left:3px solid #6264a7;">'
+      + '<p>[Reading passage text goes here. Edit this section to add your grade-appropriate passage on the topic described above. Aim for 3-5 paragraphs.]</p>'
+      + '</div>'
+      + '<h4>Comprehension Questions</h4>'
+      + '<ol><li>What is the main idea of this passage?</li>'
+      + '<li>List two supporting details from the text.</li>'
+      + '<li>What does the word "[vocabulary word]" mean in context?</li>'
+      + '<li>How does the author support their argument? Give evidence.</li>'
+      + '<li>Write a brief summary (3-4 sentences) of the passage.</li></ol>'
+      + '<h4>Extension</h4>'
+      + '<p>Write a response paragraph agreeing or disagreeing with the author\'s point of view. Use evidence from the text.</p>';
+  }
+
+  // ── Wrap content for OneNote insertion ────────────────
+  function wrapForOneNote(title, bodyHtml) {
+    var user = currentUser ? currentUser.name : 'Teacher';
+    var ts = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+    return '<div style="font-family:Segoe UI,sans-serif; max-width:640px;">'
+      + '<h2 style="color:#6264a7; margin-bottom:2px;">&#127891; ' + escHtml(title) + '</h2>'
+      + '<p style="font-size:12px; color:#888; margin-bottom:12px;">Created by ' + escHtml(user) + ' via Copilot Teach &middot; ' + ts + '</p>'
+      + '<hr style="border:none;border-top:1px solid #e0e0e0;margin:8px 0 12px;"/>'
+      + bodyHtml
+      + '</div>';
+  }
+
+  // ── oEmbed card builder (link card) ───────────────────
+  function buildOEmbedCard() {
+    var ts   = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+    var user = currentUser ? currentUser.name : 'Teacher';
+    return '<div style="border:1px solid #d1d1d1; border-radius:8px; padding:16px; max-width:560px; font-family:Segoe UI,sans-serif;">'
+      + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">'
+      + '<div style="width:32px;height:32px;border-radius:4px;background:#6264a7;display:flex;align-items:center;justify-content:center;">'
+      + '<span style="color:#fff;font-weight:700;font-size:14px;">T</span></div>'
+      + '<div><div style="font-weight:600;font-size:14px;">M365 Copilot Teach</div>'
+      + '<div style="font-size:11px;color:#616161;">Created by ' + escHtml(user) + ' &middot; ' + ts + '</div></div></div>'
+      + '<div style="background:#f5f5f5;border-radius:4px;padding:12px;margin-bottom:12px;">'
+      + '<div style="font-weight:600;margin-bottom:4px;">&#128218; Teaching Content</div>'
+      + '<div style="font-size:13px;color:#424242;">This content was generated with M365 Copilot Teach for Education. Open the link below to view or edit in Copilot.</div></div>'
+      + '<a href="' + TEACH_URL + '" style="color:#6264a7;font-size:13px;font-weight:600;text-decoration:none;">&#128279; Open in Copilot Teach &rarr;</a></div>';
+  }
+
+  // ── Insert HTML into OneNote page ─────────────────────
+  async function insertHtml(html) {
     if (!officeReady) { toast('OneNote is not ready.', 'error'); return; }
-    var html = extractFrameContent();
     try {
       await OneNote.run(async function(ctx) {
-        var page    = ctx.application.getActivePage();
-        var outline = page.addOutline(40, 40, html);
+        var page = ctx.application.getActivePage();
+        page.addOutline(40, 40, html);
         await ctx.sync();
       });
       toast('Content inserted into page!', 'success');
@@ -338,89 +712,17 @@
     }
   }
 
-  // ── Embed via oEmbed card ─────────────────────────────
-  async function embedToPage() {
-    if (!officeReady) { toast('OneNote is not ready.', 'error'); return; }
-    var frame    = document.getElementById('teachFrame');
-    var embedUrl = frame.src || TEACH_URL;
-    var oembedHtml = buildOEmbedCard(embedUrl);
-    try {
-      await OneNote.run(async function(ctx) {
-        var page    = ctx.application.getActivePage();
-        var outline = page.addOutline(40, 40, oembedHtml);
-        await ctx.sync();
-      });
-      toast('Embedded content added to page!', 'success');
-    } catch (err) {
-      console.error('[Teach] Embed error:', err);
-      toast('Could not embed — ' + (err.message || err), 'error');
-    }
+  // ── Helpers ───────────────────────────────────────────
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(s));
+    return d.innerHTML;
   }
 
-  // ── Build an oEmbed-style rich card ───────────────────
-  function buildOEmbedCard(url) {
-    var ts   = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-    var user = currentUser ? currentUser.name : 'Teacher';
-    return '<div style="border:1px solid #d1d1d1; border-radius:8px; padding:16px; max-width:560px; font-family:Segoe UI,sans-serif;">'
-      + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">'
-      + '<div style="width:32px;height:32px;border-radius:4px;background:#6264a7;display:flex;align-items:center;justify-content:center;">'
-      + '<span style="color:#fff;font-weight:700;font-size:14px;">T</span></div>'
-      + '<div><div style="font-weight:600;font-size:14px;">M365 Copilot Teach</div>'
-      + '<div style="font-size:11px;color:#616161;">Created by ' + user + ' &middot; ' + ts + '</div></div></div>'
-      + '<div style="background:#f5f5f5;border-radius:4px;padding:12px;margin-bottom:12px;">'
-      + '<div style="font-weight:600;margin-bottom:4px;">&#128218; Teaching Content</div>'
-      + '<div style="font-size:13px;color:#424242;">This content was generated with M365 Copilot Teach for Education. Open the link below to view or edit in Copilot.</div></div>'
-      + '<a href="' + url + '" style="color:#6264a7;font-size:13px;font-weight:600;text-decoration:none;">&#128279; Open in Copilot Teach &rarr;</a></div>';
-  }
-
-  // ── Try to read iframe content ────────────────────────
-  function extractFrameContent() {
-    try {
-      var frame = document.getElementById('teachFrame');
-      if (frame && frame.contentDocument && frame.contentDocument.body) {
-        var sel = frame.contentWindow.getSelection();
-        if (sel && sel.toString().trim().length > 0) {
-          var range = sel.getRangeAt(0);
-          var div   = document.createElement('div');
-          div.appendChild(range.cloneContents());
-          return div.innerHTML;
-        }
-        return frame.contentDocument.body.innerHTML;
-      }
-    } catch (e) { /* cross-origin – expected */ }
-
-    // Fallback: rich HTML template
-    var user = currentUser ? currentUser.name : 'Teacher';
-    var ts   = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-    return '<div style="font-family:Segoe UI,sans-serif; max-width:600px;">'
-      + '<h2 style="color:#6264a7; margin-bottom:4px;">&#127891; Lesson Plan – Copilot Teach</h2>'
-      + '<p style="font-size:12px; color:#888;">Created by ' + user + ' on ' + ts + '</p>'
-      + '<hr style="border:none;border-top:1px solid #e0e0e0;margin:12px 0;"/>'
-      + '<h3>Subject &amp; Topic</h3>'
-      + '<p><em>[Edit this section in OneNote]</em></p>'
-      + '<h3>Learning Objectives</h3>'
-      + '<ul><li>Students will be able to&hellip;</li><li>Students will understand&hellip;</li><li>Students will demonstrate&hellip;</li></ul>'
-      + '<h3>Lesson Flow</h3>'
-      + '<ol><li><strong>Hook</strong> (5 min) – Engage curiosity</li>'
-      + '<li><strong>Instruction</strong> (15 min) – Deliver content</li>'
-      + '<li><strong>Practice</strong> (15 min) – Guided &amp; independent</li>'
-      + '<li><strong>Closure</strong> (5 min) – Reflect &amp; assess</li></ol>'
-      + '<h3>Assessment</h3>'
-      + '<p>Formative: <em>[method]</em> &middot; Summative: <em>[method]</em></p>'
-      + '<h3>Differentiation</h3>'
-      + '<table style="border-collapse:collapse;width:100%;font-size:13px;">'
-      + '<tr style="background:#f5f5f5;"><th style="text-align:left;padding:6px;border:1px solid #e0e0e0;">Learner Group</th><th style="text-align:left;padding:6px;border:1px solid #e0e0e0;">Strategy</th></tr>'
-      + '<tr><td style="padding:6px;border:1px solid #e0e0e0;">Advanced</td><td style="padding:6px;border:1px solid #e0e0e0;"><em>[enrichment]</em></td></tr>'
-      + '<tr><td style="padding:6px;border:1px solid #e0e0e0;">Struggling</td><td style="padding:6px;border:1px solid #e0e0e0;"><em>[scaffolding]</em></td></tr>'
-      + '<tr><td style="padding:6px;border:1px solid #e0e0e0;">ELL</td><td style="padding:6px;border:1px solid #e0e0e0;"><em>[language support]</em></td></tr>'
-      + '</table></div>';
-  }
-
-  // ── Toast helper ──────────────────────────────────────
   function toast(msg, type) {
     var el = document.getElementById('toast');
     el.textContent = msg;
-    el.className   = 'toast ' + type + ' show';
+    el.className = 'toast ' + type + ' show';
     clearTimeout(el._t);
     el._t = setTimeout(function() { el.classList.remove('show'); }, 4000);
   }
