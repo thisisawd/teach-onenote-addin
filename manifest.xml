@@ -34,6 +34,12 @@
     <SourceLocation DefaultValue="https://thisisawd.github.io/teach-onenote-addin/taskpane.html"/>
   </DefaultSettings>
 
+  <Requirements>
+    <Sets DefaultMinVersion="1.1">
+      <Set Name="IdentityAPI" MinVersion="1.3"/>
+    </Sets>
+  </Requirements>
+
   <Permissions>ReadWriteDocument</Permissions>
 
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
@@ -76,6 +82,16 @@
         </DesktopFormFactor>
       </Host>
     </Hosts>
+    <WebApplicationInfo>
+      <Id>00000000-0000-0000-0000-000000000000</Id>
+      <Resource>api://thisisawd.github.io/00000000-0000-0000-0000-000000000000</Resource>
+      <Scopes>
+        <Scope>openid</Scope>
+        <Scope>profile</Scope>
+        <Scope>offline_access</Scope>
+        <Scope>User.Read</Scope>
+      </Scopes>
+    </WebApplicationInfo>
     <Resources>
       <bt:Images>
         <bt:Image id="Icon.16x16" DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-16.png"/>

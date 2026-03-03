@@ -1018,6 +1018,9 @@
       throw new Error('No access token was returned by Office SSO.');
     } catch (e) {
       lastSsoError = e && (e.message || String(e)) ? (e.message || String(e)) : 'Unknown sign-in error.';
+      if (/13001|13007|13012|IdentityAPI|WebApplicationInfo|AADSTS/i.test(lastSsoError)) {
+        lastSsoError += ' — Office SSO is not fully configured. Add a real Entra app Client ID + Resource in manifest WebApplicationInfo.';
+      }
       console.warn('[Teach] SSO unavailable:', lastSsoError);
     }
     var errEl = document.getElementById('loginError');
