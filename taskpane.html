@@ -804,11 +804,9 @@
       <ellipse cx="57" cy="42" rx="5" ry="3" fill="#4CAF50" transform="rotate(-30 57 42)"/>
     </svg>
     <h2>Sign in to Teach</h2>
-    <p>Use your EDU Microsoft account to access Copilot Teach tools.</p>
+    <p>Sign in with your Microsoft EDU account to continue.</p>
     <button class="login-btn primary" id="ssoBtn">Sign in with Microsoft</button>
-    <span class="login-divider">&mdash; or enter your EDU email &mdash;</span>
-    <input type="email" id="emailInput" placeholder="name@school.edu"/>
-    <button class="login-btn secondary" id="emailBtn">Continue</button>
+    <button class="login-btn secondary" id="emailBtn">Try sign-in again</button>
   </div>
 
   <!-- ═══════════ MAIN CONTENT AREA ═══════════ -->
@@ -1335,21 +1333,17 @@
     console.log('[Teach] Office ready - host:', info.host);
     trySSO();
     wireButtons();
-    populateSettings();
-    updateAIStatus();
   });
 
   // ── SSO ────────────────────────────────────────────────
   async function trySSO() {
     try {
       var token = await Office.auth.getAccessTokenAsync({
-        allowSignInPrompt: false,
-        allowConsentPrompt: false,
+        allowSignInPrompt: true,
+        allowConsentPrompt: true,
         forMSGraphAccess: true
       });
       if (token && typeof token === 'string' && token.length > 10) {
-        // The Office SSO token can be exchanged for a Graph token via on-behalf-of flow.
-        // For now, decode the bootstrap token for user info, and store it for Graph calls.
         graphToken = token;
         var payload = JSON.parse(atob(token.split('.')[1]));
         currentUser = {
@@ -1368,6 +1362,7 @@
     } catch (e) {
       console.warn('[Teach] SSO unavailable:', e.message || e);
     }
+    toast('Microsoft sign-in is required to use Teach.', 'error');
     document.getElementById('loginOverlay').classList.remove('hidden');
   }
 
@@ -1460,25 +1455,12 @@
   function wireButtons() {
     // SSO button
     document.getElementById('ssoBtn').addEventListener('click', async function() {
-      try {
-        var token = await Office.auth.getAccessTokenAsync({
-          allowSignInPrompt: true, allowConsentPrompt: true, forMSGraphAccess: true
-        });
-        graphToken = token;
-        var payload = JSON.parse(atob(token.split('.')[1]));
-        var user = { name: payload.name || payload.preferred_username, email: payload.preferred_username || payload.upn || '' };
-        loginSuccess(user);
-        // Try Graph profile
-        var graphUser = await fetchGraphProfile();
-        if (graphUser) currentUser = Object.assign(currentUser, graphUser);
-      } catch (e) { toast('SSO not available - enter your EDU email below.', 'error'); }
+      await trySSO();
     });
 
-    // Email login
-    document.getElementById('emailBtn').addEventListener('click', function() {
-      var email = document.getElementById('emailInput').value.trim();
-      if (!email || !email.includes('@')) { toast('Enter a valid EDU email.', 'error'); return; }
-      loginSuccess({ name: email.split('@')[0], email: email });
+    // Retry sign-in
+    document.getElementById('emailBtn').addEventListener('click', async function() {
+      await trySSO();
     });
 
     // Open Copilot Teach in dialog
@@ -1501,16 +1483,30 @@
     document.getElementById('insertPreviewBtn').addEventListener('click', function() { insertHtml(lastGenHtml); });
     document.getElementById('embedPreviewBtn').addEventListener('click', function() { insertHtml(buildOEmbedCard()); });
 
-    // Settings panel
-    document.getElementById('openSettingsBtn').addEventListener('click', function() {
-      populateSettings();
-      updateAIStatus();
-      document.getElementById('settingsPanel').classList.add('visible');
+    // Keep settings hidden in direct-Copilot mode
+    var gear = document.getElementById('openSettingsBtn');
+    if (gear) gear.style.display = 'none';
+  }
+
+  function buildCopilotPrompt(tplKey, data) {
+    var tpl = TEMPLATES[tplKey] || TEMPLATES.lesson;
+    var labelById = {};
+    tpl.fields.forEach(function(f) { labelById[f.id] = f.label; });
+
+    var lines = [];
+    lines.push('You are M365 Copilot for Education. Create high-quality classroom-ready content.');
+    lines.push('Template: ' + (tpl.title || tplKey));
+    lines.push('');
+    Object.keys(data).forEach(function(key) {
+      var label = labelById[key] || key;
+      lines.push(label + ': ' + data[key]);
     });
-    document.getElementById('closeSettingsBtn').addEventListener('click', function() {
-      document.getElementById('settingsPanel').classList.remove('visible');
-    });
-    document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
+    lines.push('');
+    lines.push('Output requirements:');
+    lines.push('- Provide complete, specific educator-ready content (not placeholders).');
+    lines.push('- Keep language age-appropriate and standards-aligned if standards are provided.');
+    lines.push('- Use clear sections and concise formatting suitable to paste into OneNote.');
+    return lines.join('\n');
   }
 
   // ── Settings management ────────────────────────────────
@@ -1603,34 +1599,39 @@
   }
 
   // ── Generate content from form ────────────────────────
-  // Uses Azure OpenAI or GitHub Models for real AI generation.
-  // Falls back to local templates when AI is not configured.
+  // Uses direct authenticated Copilot web handoff (no custom API keys).
   async function generateContent() {
+    if (!currentUser) {
+      document.getElementById('loginOverlay').classList.remove('hidden');
+      toast('Please sign in with Microsoft first.', 'error');
+      return;
+    }
+
     var data = collectFormData();
     if (!data) return;
 
     var tpl = selectedTpl || 'lesson';
     var btn = document.getElementById('generateBtn');
     btn.disabled = true;
-
-    var usingAI = isAIConfigured();
-    btn.innerHTML = '<span class="spinner"></span> ' + (usingAI ? 'Generating with AI\u2026' : 'Generating\u2026');
+    btn.innerHTML = '<span class="spinner"></span> Opening Copilot…';
 
     try {
-      var html;
-      var source;
-      if (usingAI) {
-        // ── Real AI generation ──
-        html = await callAI(tpl, data);
-        source = (aiConfig.endpoint && aiConfig.apiKey) ? 'Azure OpenAI' : 'GitHub Models';
-        console.log('[Teach] AI-generated content via ' + source + ' (' + html.length + ' chars)');
-      } else {
-        // ── Fallback to local templates ──
-        await new Promise(function(r) { setTimeout(r, 600); }); // Brief delay for UX
-        html = buildTemplate(tpl, data);
-        source = 'Local Template';
-        console.log('[Teach] Using local template fallback');
+      var prompt = buildCopilotPrompt(tpl, data);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(prompt);
       }
+
+      var url = TEACH_URL;
+      if (currentUser && currentUser.email) {
+        url += '&login_hint=' + encodeURIComponent(currentUser.email);
+      }
+      window.open(url, '_blank');
+
+      var html = '<h4>Copilot opened</h4>'
+        + '<p>Your request has been prepared and copied to clipboard. Paste it into Copilot chat to generate the content.</p>'
+        + '<h4>Prompt</h4>'
+        + '<pre style="white-space:pre-wrap;background:#f5f5f5;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">'
+        + escHtml(prompt) + '</pre>';
 
       lastGenHtml = html;
 
@@ -1639,39 +1640,18 @@
       var titleText = TEMPLATES[tpl] ? TEMPLATES[tpl].title.replace('Create ','') : 'Teaching Content';
       titleText = titleText.charAt(0).toUpperCase() + titleText.slice(1);
       document.getElementById('previewTitle').textContent = '\uD83C\uDF93 ' + titleText;
-      var metaHtml = 'Created by '
+      var metaHtml = 'Signed in as '
         + escHtml(currentUser ? currentUser.name : 'Teacher')
         + ' \u00B7 ' + new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
-        + ' <span class="ai-badge ' + (usingAI ? 'live' : 'local') + '">'
-        + (usingAI ? '\u2728 ' + source : '\uD83D\uDCC4 Local') + '</span>';
+        + ' <span class="ai-badge live">\u2728 M365 Copilot</span>';
       document.getElementById('previewMeta').innerHTML = metaHtml;
       document.getElementById('previewContent').innerHTML = html;
       card.classList.add('visible');
       card.scrollIntoView({ behavior: 'smooth' });
-
-      // Insert directly into OneNote
-      insertHtml(wrapForOneNote(titleText, html));
+      toast('Copilot opened. Prompt copied to clipboard.', 'success');
     } catch (err) {
       console.error('[Teach] Generation error:', err);
-      if (err.message === 'NO_AI_CONFIGURED') {
-        toast('AI not configured. Open Settings (gear icon) to connect Azure OpenAI or GitHub Models.', 'error');
-      } else {
-        toast('AI error: ' + err.message, 'error');
-        // Fallback to local template on error
-        var html = buildTemplate(tpl, data);
-        lastGenHtml = html;
-        var card = document.getElementById('previewCard');
-        var titleText = TEMPLATES[tpl] ? TEMPLATES[tpl].title.replace('Create ','') : 'Teaching Content';
-        titleText = titleText.charAt(0).toUpperCase() + titleText.slice(1);
-        document.getElementById('previewTitle').textContent = '\uD83C\uDF93 ' + titleText;
-        document.getElementById('previewMeta').innerHTML = 'Created by '
-          + escHtml(currentUser ? currentUser.name : 'Teacher')
-          + ' \u00B7 ' + new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
-          + ' <span class="ai-badge local">\uD83D\uDCC4 Local (AI failed)</span>';
-        document.getElementById('previewContent').innerHTML = html;
-        card.classList.add('visible');
-        insertHtml(wrapForOneNote(titleText, html));
-      }
+      toast('Could not launch Copilot: ' + (err.message || err), 'error');
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<svg class="sparkle-svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">'

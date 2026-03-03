@@ -6,11 +6,11 @@
            xsi:type="TaskPaneApp">
 
   <Id>d698de84-7dd0-4c25-87c5-db5ac2847792</Id>
-  <Version>5.0.0.0</Version>
+  <Version>5.1.0.0</Version>
   <ProviderName>Microsoft Education</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Teach"/>
-  <Description DefaultValue="M365 Copilot Teach for Education — AI-powered generation of standards-aligned lesson plans, quizzes, rubrics, activities, vocabulary lists, and reading passages via Azure OpenAI. Inserts directly into OneNote."/>
+  <Description DefaultValue="M365 Copilot Teach for Education — Sign in with Microsoft and generate standards-aligned lesson plans, quizzes, rubrics, activities, vocabulary lists, and reading passages directly through M365 Copilot, then insert into OneNote."/>
   <IconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-80.png"/>
   <SupportUrl DefaultValue="https://support.microsoft.com/education"/>
