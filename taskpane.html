@@ -143,25 +143,100 @@
     .tpl-card .name { font-size: 13px; font-weight: 600; color: #242424; }
     .tpl-card .desc { font-size: 11px; color: #616161; margin-top: 2px; }
 
-    /* ── Custom prompt area ── */
-    .prompt-area {
+    /* ═══════════════════════════════════════════════════════
+       SUB-LEVEL CREATION VIEW  (Copilot Teach form style)
+       ═══════════════════════════════════════════════════════ */
+
+    /* -- Back button row -- */
+    .back-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      color: #6264a7;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .back-row:hover { color: #4f52b5; }
+    .back-row svg { flex-shrink: 0; }
+
+    /* -- Creation form title -- */
+    .create-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #242424;
+      margin-bottom: 4px;
+    }
+    .create-subtitle {
+      font-size: 13px;
+      color: #616161;
+      margin-bottom: 20px;
+    }
+
+    /* -- Form fields -- */
+    .form-group {
       margin-bottom: 16px;
     }
-    .prompt-area textarea {
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #242424;
+      margin-bottom: 5px;
+    }
+    .form-group label .req {
+      color: #a4262c;
+      margin-left: 2px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
       width: 100%;
-      min-height: 80px;
-      padding: 10px 12px;
+      padding: 8px 12px;
       border: 1px solid #d1d1d1;
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 14px;
       font-family: inherit;
+      color: #242424;
+      background: #fff;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #6264a7;
+      box-shadow: 0 0 0 1px #6264a7;
+    }
+    .form-group textarea {
+      min-height: 80px;
       resize: vertical;
       line-height: 1.5;
     }
-    .prompt-area textarea:focus { outline: none; border-color: #6264a7; }
-    .prompt-area textarea::placeholder { color: #999; }
+    .form-group .helper {
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+    }
+    .form-group .add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      padding: 5px 10px;
+      border: 1px dashed #b4b4b4;
+      border-radius: 4px;
+      background: transparent;
+      color: #6264a7;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .form-group .add-btn:hover { border-color: #6264a7; background: #f8f7ff; }
 
-    /* ── Generate button ── */
+    /* -- Generate button (in form) -- */
     .gen-btn {
       width: 100%;
       padding: 10px;
@@ -177,10 +252,14 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      margin-top: 8px;
       margin-bottom: 16px;
     }
     .gen-btn:hover { background: #4f52b5; }
     .gen-btn:disabled { opacity: 0.5; cursor: default; }
+
+    /* sparkle icon for generate */
+    .sparkle-svg { flex-shrink:0; }
 
     /* ── Preview card ── */
     #previewCard {
@@ -253,6 +332,24 @@
       animation: spin 0.6s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── View transitions ── */
+    .view { display: none; }
+    .view.active { display: block; }
+    .view-fade-in {
+      animation: fadeSlideIn 0.2s ease;
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateX(12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .view-fade-back {
+      animation: fadeSlideBack 0.2s ease;
+    }
+    @keyframes fadeSlideBack {
+      from { opacity: 0; transform: translateX(-12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
   </style>
 </head>
 <body>
@@ -267,7 +364,7 @@
     <span class="badge">EDU</span>
   </div>
 
-  <!-- Login overlay (shown if SSO fails) -->
+  <!-- Login overlay -->
   <div id="loginOverlay">
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
       <rect width="24" height="24" rx="4" fill="#6264a7"/>
@@ -276,102 +373,119 @@
     <h2>Sign in to Teach</h2>
     <p>Use your EDU Microsoft account to access Copilot Teach tools.</p>
     <button class="login-btn primary" id="ssoBtn">Sign in with Microsoft</button>
-    <span class="login-divider">— or enter your EDU email —</span>
+    <span class="login-divider">&mdash; or enter your EDU email &mdash;</span>
     <input type="email" id="emailInput" placeholder="name@school.edu"/>
     <button class="login-btn secondary" id="emailBtn">Continue</button>
   </div>
 
-  <!-- Main content area -->
+  <!-- ═══════════ MAIN CONTENT AREA ═══════════ -->
   <div class="main">
 
-    <!-- Open Copilot Teach in dialog -->
-    <div class="copilot-banner" id="openCopilotBtn">
-      <div class="icon">✨</div>
-      <div class="text">
-        <h3>Open Copilot Teach</h3>
-        <p>Launch the full M365 Copilot Teach experience</p>
+    <!-- ────── VIEW: HOME (template grid) ────── -->
+    <div id="viewHome" class="view active">
+
+      <!-- Open Copilot Teach in dialog -->
+      <div class="copilot-banner" id="openCopilotBtn">
+        <div class="icon">&#10024;</div>
+        <div class="text">
+          <h3>Open Copilot Teach</h3>
+          <p>Launch the full M365 Copilot Teach experience</p>
+        </div>
+        <span class="arrow">&#8250;</span>
       </div>
-      <span class="arrow">›</span>
+
+      <div class="section-title">Create with Copilot</div>
+      <div class="templates">
+        <div class="tpl-card" data-tpl="lesson">
+          <div class="emoji">&#128221;</div>
+          <div class="name">Lesson Plan</div>
+          <div class="desc">Standards-aligned lesson with objectives &amp; flow</div>
+        </div>
+        <div class="tpl-card" data-tpl="quiz">
+          <div class="emoji">&#10067;</div>
+          <div class="name">Quiz</div>
+          <div class="desc">Multiple choice &amp; short answer assessment</div>
+        </div>
+        <div class="tpl-card" data-tpl="rubric">
+          <div class="emoji">&#128202;</div>
+          <div class="name">Rubric</div>
+          <div class="desc">Scoring criteria with proficiency levels</div>
+        </div>
+        <div class="tpl-card" data-tpl="activity">
+          <div class="emoji">&#127919;</div>
+          <div class="name">Activity</div>
+          <div class="desc">Interactive classroom activity or project</div>
+        </div>
+        <div class="tpl-card" data-tpl="vocabulary">
+          <div class="emoji">&#128218;</div>
+          <div class="name">Vocabulary</div>
+          <div class="desc">Word list with definitions &amp; context</div>
+        </div>
+        <div class="tpl-card" data-tpl="reading">
+          <div class="emoji">&#128214;</div>
+          <div class="name">Reading Passage</div>
+          <div class="desc">Leveled text with comprehension questions</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Quick templates -->
-    <div class="section-title">Quick Templates</div>
-    <div class="templates">
-      <div class="tpl-card" data-tpl="lesson">
-        <div class="emoji">📝</div>
-        <div class="name">Lesson Plan</div>
-        <div class="desc">Standards-aligned lesson with objectives &amp; flow</div>
+    <!-- ────── VIEW: CREATE (sub-level form) ────── -->
+    <div id="viewCreate" class="view">
+
+      <!-- Back button -->
+      <div class="back-row" id="backBtn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M11 2.5a.5.5 0 0 0-.854-.354l-5 5a.5.5 0 0 0 0 .708l5 5A.5.5 0 0 0 11 12.5v-10z"/>
+        </svg>
+        Back
       </div>
-      <div class="tpl-card" data-tpl="quiz">
-        <div class="emoji">❓</div>
-        <div class="name">Quiz</div>
-        <div class="desc">Multiple choice &amp; short answer assessment</div>
-      </div>
-      <div class="tpl-card" data-tpl="rubric">
-        <div class="emoji">📊</div>
-        <div class="name">Rubric</div>
-        <div class="desc">Scoring criteria with proficiency levels</div>
-      </div>
-      <div class="tpl-card" data-tpl="activity">
-        <div class="emoji">🎯</div>
-        <div class="name">Activity</div>
-        <div class="desc">Interactive classroom activity or project</div>
-      </div>
-      <div class="tpl-card" data-tpl="vocabulary">
-        <div class="emoji">📚</div>
-        <div class="name">Vocabulary</div>
-        <div class="desc">Word list with definitions &amp; context</div>
-      </div>
-      <div class="tpl-card" data-tpl="reading">
-        <div class="emoji">📖</div>
-        <div class="name">Reading Passage</div>
-        <div class="desc">Leveled text with comprehension questions</div>
+
+      <!-- Form title -->
+      <div class="create-title" id="createTitle">Create lesson plan</div>
+      <div class="create-subtitle" id="createSubtitle">Fill in the details below and Copilot will generate your content.</div>
+
+      <!-- Dynamic form fields rendered here -->
+      <div id="formFields"></div>
+
+      <!-- Generate button -->
+      <button class="gen-btn" id="generateBtn">
+        <svg class="sparkle-svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 .75a.75.75 0 0 1 .694.468l1.264 3.073 3.073 1.264a.75.75 0 0 1 0 1.39l-3.073 1.264-1.264 3.073a.75.75 0 0 1-1.39 0L6.042 8.209 2.97 6.945a.75.75 0 0 1 0-1.39l3.073-1.264L7.306 1.218A.75.75 0 0 1 8 .75zM12.5 9.5a.5.5 0 0 1 .464.314l.61 1.526 1.526.61a.5.5 0 0 1 0 .928l-1.526.61-.61 1.526a.5.5 0 0 1-.928 0l-.61-1.526-1.526-.61a.5.5 0 0 1 0-.928l1.526-.61.61-1.526A.5.5 0 0 1 12.5 9.5z"/>
+        </svg>
+        Generate
+      </button>
+
+      <!-- Preview card (shown after generation) -->
+      <div id="previewCard">
+        <h3 id="previewTitle"></h3>
+        <div class="meta" id="previewMeta"></div>
+        <div class="content" id="previewContent"></div>
+        <div class="preview-actions">
+          <button class="primary" id="insertPreviewBtn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 1a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
+            </svg>
+            Insert to Page
+          </button>
+          <button id="embedPreviewBtn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
+            </svg>
+            Embed Card
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Custom prompt -->
-    <div class="section-title">Or describe what you need</div>
-    <div class="prompt-area">
-      <textarea id="promptInput" placeholder="e.g. Create a 5th grade lesson plan about the water cycle with hands-on activities and a formative assessment..."></textarea>
-    </div>
-
-    <button class="gen-btn" id="generateBtn">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M8 1a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
-      </svg>
-      Generate &amp; Insert into Page
-    </button>
-
-    <!-- Preview card (shown after generation) -->
-    <div id="previewCard">
-      <h3 id="previewTitle"></h3>
-      <div class="meta" id="previewMeta"></div>
-      <div class="content" id="previewContent"></div>
-      <div class="preview-actions">
-        <button class="primary" id="insertPreviewBtn">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 1a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/>
-          </svg>
-          Insert to Page
-        </button>
-        <button id="embedPreviewBtn">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
-          </svg>
-          Embed Card
-        </button>
-      </div>
-    </div>
-  </div>
+  </div><!-- /.main -->
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
   <script>
   /* ============================================================
-     Teach – M365 Copilot OneNote Add-in  (EDU)
-     No iframe — uses Office Dialog API for Copilot Teach,
-     plus native template generators for direct insertion.
+     Teach - M365 Copilot OneNote Add-in  (EDU)
+     Sub-level creation views matching Copilot Teach form UX.
      ============================================================ */
 
   var TEACH_URL      = 'https://copilot.cloud.microsoft/teach';
@@ -382,10 +496,88 @@
   var lastGenHtml  = '';
   var selectedTpl  = null;
 
+  /* ── Template definitions ─────────────────────────────
+     Each template defines its form fields and metadata.
+     field.type: 'text' | 'select' | 'textarea'
+     ──────────────────────────────────────────────────── */
+  var TEMPLATES = {
+    lesson: {
+      title: 'Create lesson plan',
+      subtitle: 'Design a standards-aligned lesson with learning objectives, instruction flow, and assessment.',
+      fields: [
+        { id:'subject',     label:'Subject',              type:'text',       placeholder:'e.g. Mathematics, Science, English',  required:true },
+        { id:'gradeLevel',  label:'Grade level',          type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
+        { id:'language',    label:'Language',              type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
+        { id:'description', label:'Description',          type:'textarea',   placeholder:'Describe the lesson topic, key concepts to cover, and any specific requirements...', required:true, maxlength:10000, addContent:true },
+        { id:'standards',   label:'Standards',            type:'text',       placeholder:'e.g. CCSS.MATH.CONTENT.5.NF.A.1', required:false, addBtn:'Add standards' },
+        { id:'duration',    label:'Lesson plan duration',  type:'select',     options:['15 minutes','30 minutes','45 minutes','60 minutes','90 minutes','2 hours','Full day'], required:true, defaultVal:'45 minutes' }
+      ]
+    },
+    quiz: {
+      title: 'Create quiz',
+      subtitle: 'Generate a quiz with multiple choice, short answer, or mixed question types.',
+      fields: [
+        { id:'subject',       label:'Subject',            type:'text',       placeholder:'e.g. Biology, World History, Literature',  required:true },
+        { id:'gradeLevel',    label:'Grade level',        type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
+        { id:'language',      label:'Language',            type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
+        { id:'numQuestions',  label:'Number of questions', type:'select',     options:['5','10','15','20','25'], required:true, defaultVal:'10' },
+        { id:'questionTypes', label:'Question types',      type:'select',     options:['Multiple choice only','Short answer only','Mixed (multiple choice + short answer)','True/False + multiple choice','Essay + short answer'], required:true, defaultVal:'Mixed (multiple choice + short answer)' },
+        { id:'description',   label:'Description',        type:'textarea',   placeholder:'Describe the topic, chapters, or concepts to assess...', required:true, maxlength:10000, addContent:true }
+      ]
+    },
+    rubric: {
+      title: 'Create rubric',
+      subtitle: 'Build a multi-level scoring rubric with clear criteria for any assignment type.',
+      fields: [
+        { id:'subject',        label:'Subject',           type:'text',       placeholder:'e.g. English Language Arts, Art, Computer Science',  required:true },
+        { id:'gradeLevel',     label:'Grade level',       type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
+        { id:'language',       label:'Language',           type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
+        { id:'assignmentType', label:'Assignment type',    type:'select',     options:['Essay','Presentation','Project','Lab Report','Portfolio','Creative Work','Group Work','Performance Task','Research Paper'], required:true },
+        { id:'rubricLevels',   label:'Rubric levels',     type:'select',     options:['3 levels (Meets, Approaching, Below)','4 levels (Exceeds, Meets, Approaching, Below)','5 levels (Exemplary, Proficient, Developing, Beginning, Incomplete)'], required:true, defaultVal:'4 levels (Exceeds, Meets, Approaching, Below)' },
+        { id:'description',    label:'Description',       type:'textarea',   placeholder:'Describe the assignment and what criteria should be evaluated...', required:true, maxlength:10000, addContent:true }
+      ]
+    },
+    activity: {
+      title: 'Create activity',
+      subtitle: 'Design an engaging, hands-on classroom activity with materials and step-by-step instructions.',
+      fields: [
+        { id:'subject',      label:'Subject',            type:'text',       placeholder:'e.g. Physics, Music, Social Studies',  required:true },
+        { id:'gradeLevel',   label:'Grade level',        type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
+        { id:'language',     label:'Language',            type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
+        { id:'activityType', label:'Activity type',       type:'select',     options:['Hands-on / Lab','Group discussion','Gallery walk','Stations / Rotation','Jigsaw','Simulation','Game-based','Project-based','Debate','Field work'], required:true },
+        { id:'duration',     label:'Duration',            type:'select',     options:['15 minutes','30 minutes','45 minutes','60 minutes','90 minutes','2 hours','Multiple sessions'], required:true, defaultVal:'45 minutes' },
+        { id:'description',  label:'Description',         type:'textarea',   placeholder:'Describe the topic, learning goals, and any materials or constraints...', required:true, maxlength:10000, addContent:true }
+      ]
+    },
+    vocabulary: {
+      title: 'Create vocabulary list',
+      subtitle: 'Generate a vocabulary list with definitions, example sentences, and practice activities.',
+      fields: [
+        { id:'subject',    label:'Subject',             type:'text',       placeholder:'e.g. Biology, Spanish, SAT Prep',  required:true },
+        { id:'gradeLevel', label:'Grade level',         type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
+        { id:'language',   label:'Language',             type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
+        { id:'numTerms',   label:'Number of terms',     type:'select',     options:['5','10','15','20','25','30'], required:true, defaultVal:'10' },
+        { id:'description',label:'Description',          type:'textarea',   placeholder:'Describe the unit, chapter, or theme for the vocabulary words...', required:true, maxlength:10000, addContent:true }
+      ]
+    },
+    reading: {
+      title: 'Create reading passage',
+      subtitle: 'Generate a grade-appropriate reading passage with comprehension questions.',
+      fields: [
+        { id:'subject',      label:'Subject',           type:'text',       placeholder:'e.g. American History, Climate Science, Fiction',  required:true },
+        { id:'gradeLevel',   label:'Grade level',       type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
+        { id:'language',     label:'Language',           type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
+        { id:'readingLevel', label:'Reading level',      type:'select',     options:['Below grade level','On grade level','Above grade level','Mixed / differentiated'], required:true, defaultVal:'On grade level' },
+        { id:'passageLength',label:'Passage length',     type:'select',     options:['Short (1-2 paragraphs)','Medium (3-4 paragraphs)','Long (5+ paragraphs)'], required:true, defaultVal:'Medium (3-4 paragraphs)' },
+        { id:'description',  label:'Description',        type:'textarea',   placeholder:'Describe the topic, text type (informational, narrative, persuasive), and any key vocabulary...', required:true, maxlength:10000, addContent:true }
+      ]
+    }
+  };
+
   // ── Bootstrap ──────────────────────────────────────────
   Office.onReady(function(info) {
     officeReady = true;
-    console.log('[Teach] Office ready – host:', info.host);
+    console.log('[Teach] Office ready - host:', info.host);
     trySSO();
     wireButtons();
   });
@@ -418,6 +610,76 @@
     document.getElementById('loginOverlay').classList.add('hidden');
   }
 
+  // ── View navigation ───────────────────────────────────
+  function showView(viewId, direction) {
+    document.querySelectorAll('.view').forEach(function(v) {
+      v.classList.remove('active','view-fade-in','view-fade-back');
+    });
+    var el = document.getElementById(viewId);
+    el.classList.add('active');
+    el.classList.add(direction === 'back' ? 'view-fade-back' : 'view-fade-in');
+    // Scroll to top
+    document.querySelector('.main').scrollTop = 0;
+  }
+
+  function navigateToCreate(tplKey) {
+    selectedTpl = tplKey;
+    var tpl = TEMPLATES[tplKey];
+    if (!tpl) return;
+
+    document.getElementById('createTitle').textContent = tpl.title;
+    document.getElementById('createSubtitle').textContent = tpl.subtitle;
+
+    // Build form HTML
+    var html = '';
+    tpl.fields.forEach(function(f) {
+      html += '<div class="form-group">';
+      html += '<label for="field_' + f.id + '">' + escHtml(f.label);
+      if (f.required) html += ' <span class="req">*</span>';
+      html += '</label>';
+
+      if (f.type === 'text') {
+        html += '<input type="text" id="field_' + f.id + '" placeholder="' + escAttr(f.placeholder || '') + '"/>';
+        if (f.addBtn) {
+          html += '<button class="add-btn" onclick="document.getElementById(\'field_' + f.id + '\').focus()">'
+            + '+ ' + escHtml(f.addBtn) + '</button>';
+        }
+      } else if (f.type === 'select') {
+        html += '<select id="field_' + f.id + '">';
+        html += '<option value="">Select...</option>';
+        f.options.forEach(function(opt) {
+          var sel = (f.defaultVal && f.defaultVal === opt) ? ' selected' : '';
+          html += '<option value="' + escAttr(opt) + '"' + sel + '>' + escHtml(opt) + '</option>';
+        });
+        html += '</select>';
+      } else if (f.type === 'textarea') {
+        html += '<textarea id="field_' + f.id + '" placeholder="' + escAttr(f.placeholder || '') + '"'
+          + (f.maxlength ? ' maxlength="' + f.maxlength + '"' : '') + '></textarea>';
+        if (f.maxlength) {
+          html += '<div class="helper">' + f.maxlength.toLocaleString() + ' character limit</div>';
+        }
+        if (f.addContent) {
+          html += '<button class="add-btn" onclick="document.getElementById(\'field_' + f.id + '\').focus()">'
+            + '+ Add content</button>';
+        }
+      }
+
+      html += '</div>';
+    });
+
+    document.getElementById('formFields').innerHTML = html;
+
+    // Hide preview card when entering creation view
+    document.getElementById('previewCard').classList.remove('visible');
+
+    showView('viewCreate', 'forward');
+  }
+
+  function navigateHome() {
+    showView('viewHome', 'back');
+    selectedTpl = null;
+  }
+
   // ── Wire buttons ──────────────────────────────────────
   function wireButtons() {
     // SSO button
@@ -428,7 +690,7 @@
         });
         var payload = JSON.parse(atob(token.split('.')[1]));
         loginSuccess({ name: payload.name || payload.preferred_username, email: payload.preferred_username || payload.upn || '' });
-      } catch (e) { toast('SSO not available — enter your EDU email below.', 'error'); }
+      } catch (e) { toast('SSO not available - enter your EDU email below.', 'error'); }
     });
 
     // Email login
@@ -438,30 +700,18 @@
       loginSuccess({ name: email.split('@')[0], email: email });
     });
 
-    // Open Copilot Teach in a dialog window (not iframe)
+    // Open Copilot Teach in dialog
     document.getElementById('openCopilotBtn').addEventListener('click', openCopilotDialog);
 
-    // Template cards
+    // Template cards -> drill into creation form
     document.querySelectorAll('.tpl-card').forEach(function(card) {
       card.addEventListener('click', function() {
-        selectedTpl = card.getAttribute('data-tpl');
-        // Highlight selected
-        document.querySelectorAll('.tpl-card').forEach(function(c) { c.style.borderColor = '#e0e0e0'; c.style.background = '#fff'; });
-        card.style.borderColor = '#6264a7';
-        card.style.background = '#f8f7ff';
-        // Pre-fill prompt
-        var prompts = {
-          lesson:     'Create a lesson plan with learning objectives, warm-up, instruction, practice, and closure.',
-          quiz:       'Create a quiz with 5 multiple choice questions and 2 short answer questions.',
-          rubric:     'Create a 4-level scoring rubric (Exceeds, Meets, Approaching, Below) with clear criteria.',
-          activity:   'Create an engaging classroom activity with materials list, steps, and extension ideas.',
-          vocabulary: 'Create a vocabulary list of 10 key terms with definitions, example sentences, and word origins.',
-          reading:    'Create a reading passage (grade-appropriate) with 5 comprehension questions.'
-        };
-        document.getElementById('promptInput').value = prompts[selectedTpl] || '';
-        document.getElementById('promptInput').focus();
+        navigateToCreate(card.getAttribute('data-tpl'));
       });
     });
+
+    // Back button
+    document.getElementById('backBtn').addEventListener('click', navigateHome);
 
     // Generate button
     document.getElementById('generateBtn').addEventListener('click', generateContent);
@@ -483,7 +733,6 @@
       function(result) {
         if (result.status === Office.AsyncResultStatus.Failed) {
           console.warn('[Teach] Dialog failed, trying fallback URL');
-          // Try fallback
           var fallback = TEACH_FALLBACK;
           if (currentUser && currentUser.email) {
             fallback += '&login_hint=' + encodeURIComponent(currentUser.email);
@@ -492,7 +741,6 @@
             { height: 80, width: 60, promptBeforeOpen: false },
             function(r2) {
               if (r2.status === Office.AsyncResultStatus.Failed) {
-                // Last resort: open in new browser tab
                 window.open(url, '_blank');
                 toast('Opened Copilot Teach in a new browser tab.', 'success');
               }
@@ -512,69 +760,99 @@
     );
   }
 
-  // ── Generate content from template ────────────────────
-  function generateContent() {
-    var prompt = document.getElementById('promptInput').value.trim();
-    var tpl = selectedTpl || 'lesson';
-
-    if (!prompt) {
-      toast('Describe what you need or pick a template above.', 'error');
-      return;
+  // ── Collect form data ─────────────────────────────────
+  function collectFormData() {
+    var tpl = TEMPLATES[selectedTpl];
+    if (!tpl) return null;
+    var data = {};
+    var valid = true;
+    tpl.fields.forEach(function(f) {
+      var el = document.getElementById('field_' + f.id);
+      if (!el) return;
+      var val = el.value.trim();
+      data[f.id] = val;
+      if (f.required && !val) {
+        el.style.borderColor = '#a4262c';
+        el.style.boxShadow = '0 0 0 1px #a4262c';
+        valid = false;
+      } else {
+        el.style.borderColor = '';
+        el.style.boxShadow = '';
+      }
+    });
+    if (!valid) {
+      toast('Please fill in all required fields.', 'error');
+      return null;
     }
+    return data;
+  }
 
+  // ── Generate content from form ────────────────────────
+  function generateContent() {
+    var data = collectFormData();
+    if (!data) return;
+
+    var tpl = selectedTpl || 'lesson';
     var btn = document.getElementById('generateBtn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Generating…';
+    btn.innerHTML = '<span class="spinner"></span> Generating\u2026';
 
-    // Simulate brief generation delay then produce rich template
     setTimeout(function() {
-      var html = buildTemplate(tpl, prompt);
+      var html = buildTemplate(tpl, data);
       lastGenHtml = html;
 
       // Show preview
       var card = document.getElementById('previewCard');
-      var titles = { lesson:'Lesson Plan', quiz:'Quiz', rubric:'Rubric', activity:'Activity', vocabulary:'Vocabulary List', reading:'Reading Passage' };
-      document.getElementById('previewTitle').textContent = '🎓 ' + (titles[tpl] || 'Teaching Content');
-      document.getElementById('previewMeta').textContent = 'Created by ' + (currentUser ? currentUser.name : 'Teacher') + ' · ' + new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      var titleText = TEMPLATES[tpl] ? TEMPLATES[tpl].title.replace('Create ','') : 'Teaching Content';
+      titleText = titleText.charAt(0).toUpperCase() + titleText.slice(1);
+      document.getElementById('previewTitle').textContent = '\uD83C\uDF93 ' + titleText;
+      document.getElementById('previewMeta').textContent = 'Created by '
+        + (currentUser ? currentUser.name : 'Teacher')
+        + ' \u00B7 ' + new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
       document.getElementById('previewContent').innerHTML = html;
       card.classList.add('visible');
       card.scrollIntoView({ behavior: 'smooth' });
 
       btn.disabled = false;
-      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z"/></svg> Generate &amp; Insert into Page';
+      btn.innerHTML = '<svg class="sparkle-svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">'
+        + '<path d="M8 .75a.75.75 0 0 1 .694.468l1.264 3.073 3.073 1.264a.75.75 0 0 1 0 1.39l-3.073 1.264-1.264 3.073a.75.75 0 0 1-1.39 0L6.042 8.209 2.97 6.945a.75.75 0 0 1 0-1.39l3.073-1.264L7.306 1.218A.75.75 0 0 1 8 .75zM12.5 9.5a.5.5 0 0 1 .464.314l.61 1.526 1.526.61a.5.5 0 0 1 0 .928l-1.526.61-.61 1.526a.5.5 0 0 1-.928 0l-.61-1.526-1.526-.61a.5.5 0 0 1 0-.928l1.526-.61.61-1.526A.5.5 0 0 1 12.5 9.5z"/>'
+        + '</svg> Generate';
 
-      // Also insert directly
-      insertHtml(wrapForOneNote(titles[tpl] || 'Teaching Content', html));
+      // Insert directly into OneNote
+      insertHtml(wrapForOneNote(titleText, html));
     }, 800);
   }
 
-  // ── Template builders ─────────────────────────────────
-  function buildTemplate(tpl, prompt) {
-    var user = currentUser ? currentUser.name : 'Teacher';
+  // ── Template builders (data-driven) ───────────────────
+  function buildTemplate(tpl, data) {
     switch (tpl) {
-      case 'lesson': return buildLesson(prompt);
-      case 'quiz': return buildQuiz(prompt);
-      case 'rubric': return buildRubric(prompt);
-      case 'activity': return buildActivity(prompt);
-      case 'vocabulary': return buildVocabulary(prompt);
-      case 'reading': return buildReading(prompt);
-      default: return buildLesson(prompt);
+      case 'lesson':     return buildLesson(data);
+      case 'quiz':       return buildQuiz(data);
+      case 'rubric':     return buildRubric(data);
+      case 'activity':   return buildActivity(data);
+      case 'vocabulary': return buildVocabulary(data);
+      case 'reading':    return buildReading(data);
+      default:           return buildLesson(data);
     }
   }
 
-  function buildLesson(prompt) {
-    return '<h4>Subject &amp; Topic</h4>'
-      + '<p><em>' + escHtml(prompt) + '</em></p>'
+  function buildLesson(d) {
+    return '<h4>' + escHtml(d.subject) + ' \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
+      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
+      + ' &middot; Duration: ' + escHtml(d.duration)
+      + (d.standards ? ' &middot; Standards: ' + escHtml(d.standards) : '') + '</p>'
+      + '<h4>Topic &amp; Description</h4>'
+      + '<p><em>' + escHtml(d.description) + '</em></p>'
       + '<h4>Learning Objectives</h4>'
-      + '<ul><li>Students will be able to identify and explain key concepts</li>'
-      + '<li>Students will analyze and apply knowledge through practice</li>'
-      + '<li>Students will demonstrate understanding via assessment</li></ul>'
-      + '<h4>Lesson Flow</h4>'
-      + '<ol><li><strong>Warm-Up</strong> (5 min) — Activating prior knowledge with a discussion prompt</li>'
-      + '<li><strong>Direct Instruction</strong> (15 min) — Introduce core concepts with examples</li>'
-      + '<li><strong>Guided Practice</strong> (10 min) — Work through problems together</li>'
-      + '<li><strong>Independent Practice</strong> (10 min) — Students apply learning individually</li>'
-      + '<li><strong>Closure</strong> (5 min) — Exit ticket and reflection</li></ol>'
+      + '<ul><li>Students will be able to identify and explain key concepts in ' + escHtml(d.subject) + '</li>'
+      + '<li>Students will analyze and apply knowledge through guided and independent practice</li>'
+      + '<li>Students will demonstrate understanding through formative assessment</li></ul>'
+      + '<h4>Lesson Flow (' + escHtml(d.duration) + ')</h4>'
+      + '<ol><li><strong>Warm-Up</strong> (5 min) \u2014 Activating prior knowledge with a discussion prompt</li>'
+      + '<li><strong>Direct Instruction</strong> (15 min) \u2014 Introduce core concepts with examples</li>'
+      + '<li><strong>Guided Practice</strong> (10 min) \u2014 Work through problems together as a class</li>'
+      + '<li><strong>Independent Practice</strong> (10 min) \u2014 Students apply learning individually</li>'
+      + '<li><strong>Closure</strong> (5 min) \u2014 Exit ticket and reflection</li></ol>'
       + '<h4>Materials</h4>'
       + '<ul><li>Whiteboard / projector</li><li>Student handouts</li><li>Assessment worksheet</li></ul>'
       + '<h4>Differentiation</h4>'
@@ -584,79 +862,125 @@
       + '<tr><td>Approaching</td><td>Graphic organizers &amp; scaffolded notes</td></tr>'
       + '<tr><td>ELL</td><td>Visual aids, sentence frames, vocabulary pre-teach</td></tr></table>'
       + '<h4>Assessment</h4>'
-      + '<p><strong>Formative:</strong> Exit ticket · <strong>Summative:</strong> End-of-unit test</p>';
+      + '<p><strong>Formative:</strong> Exit ticket &middot; <strong>Summative:</strong> End-of-unit test</p>';
   }
 
-  function buildQuiz(prompt) {
-    return '<h4>Quiz</h4>'
-      + '<p><em>' + escHtml(prompt) + '</em></p>'
-      + '<h4>Multiple Choice</h4>'
-      + '<ol><li>What is the primary concept covered in this unit?<br/>'
-      + '  a) Option A&ensp; b) Option B&ensp; <strong>c) Option C ✓</strong>&ensp; d) Option D</li>'
-      + '<li>Which of the following best describes…?<br/>'
-      + '  a) Option A&ensp; <strong>b) Option B ✓</strong>&ensp; c) Option C&ensp; d) Option D</li>'
-      + '<li>Select the correct example of…<br/>'
-      + '  <strong>a) Option A ✓</strong>&ensp; b) Option B&ensp; c) Option C&ensp; d) Option D</li>'
-      + '<li>What happens when…?<br/>'
-      + '  a) Option A&ensp; b) Option B&ensp; c) Option C&ensp; <strong>d) Option D ✓</strong></li>'
-      + '<li>Which statement is true about…?<br/>'
-      + '  a) Option A&ensp; <strong>b) Option B ✓</strong>&ensp; c) Option C&ensp; d) Option D</li></ol>'
-      + '<h4>Short Answer</h4>'
-      + '<ol><li>Explain in your own words what you learned about this topic. (3-4 sentences)<br/><em>[answer space]</em></li>'
-      + '<li>Compare and contrast two key ideas from this unit. Provide examples.<br/><em>[answer space]</em></li></ol>';
+  function buildQuiz(d) {
+    var numQ = parseInt(d.numQuestions) || 10;
+    var mcCount = Math.ceil(numQ * 0.7);
+    var saCount = numQ - mcCount;
+    if (d.questionTypes && d.questionTypes.indexOf('Multiple choice only') !== -1) { mcCount = numQ; saCount = 0; }
+    if (d.questionTypes && d.questionTypes.indexOf('Short answer only') !== -1)    { mcCount = 0; saCount = numQ; }
+
+    var html = '<h4>' + escHtml(d.subject) + ' Quiz \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
+      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
+      + ' &middot; ' + numQ + ' questions (' + escHtml(d.questionTypes) + ')</p>'
+      + '<p><em>' + escHtml(d.description) + '</em></p>';
+
+    if (mcCount > 0) {
+      html += '<h4>Multiple Choice</h4><ol>';
+      for (var i = 1; i <= Math.min(mcCount, 5); i++) {
+        html += '<li>Question ' + i + ' about ' + escHtml(d.subject) + '<br/>'
+          + '  a) Option A&ensp; b) Option B&ensp; <strong>c) Option C \u2713</strong>&ensp; d) Option D</li>';
+      }
+      if (mcCount > 5) html += '<li><em>(' + (mcCount - 5) + ' more questions\u2026)</em></li>';
+      html += '</ol>';
+    }
+    if (saCount > 0) {
+      html += '<h4>Short Answer</h4><ol>';
+      for (var j = 1; j <= Math.min(saCount, 3); j++) {
+        html += '<li>Explain ' + escHtml(d.subject) + ' concept ' + j + ' in your own words. (3-4 sentences)<br/><em>[answer space]</em></li>';
+      }
+      html += '</ol>';
+    }
+    return html;
   }
 
-  function buildRubric(prompt) {
-    return '<h4>Scoring Rubric</h4>'
-      + '<p><em>' + escHtml(prompt) + '</em></p>'
-      + '<table><tr><th>Criteria</th><th>Exceeds (4)</th><th>Meets (3)</th><th>Approaching (2)</th><th>Below (1)</th></tr>'
-      + '<tr><td><strong>Content Knowledge</strong></td><td>Thorough, accurate, insightful understanding</td><td>Accurate understanding of key concepts</td><td>Partial understanding with some gaps</td><td>Significant misunderstanding</td></tr>'
-      + '<tr><td><strong>Critical Thinking</strong></td><td>Exceptional analysis and original connections</td><td>Sound analysis with clear reasoning</td><td>Some analysis but limited depth</td><td>Minimal analysis or reasoning</td></tr>'
-      + '<tr><td><strong>Communication</strong></td><td>Clear, organized, compelling presentation</td><td>Clear and organized</td><td>Somewhat unclear or disorganized</td><td>Unclear and disorganized</td></tr>'
-      + '<tr><td><strong>Effort &amp; Completion</strong></td><td>Exceeds all requirements</td><td>Meets all requirements</td><td>Missing some components</td><td>Incomplete</td></tr></table>';
+  function buildRubric(d) {
+    var levels = d.rubricLevels || '4 levels';
+    var cols;
+    if (levels.indexOf('3 levels') !== -1) {
+      cols = ['Meets (3)','Approaching (2)','Below (1)'];
+    } else if (levels.indexOf('5 levels') !== -1) {
+      cols = ['Exemplary (5)','Proficient (4)','Developing (3)','Beginning (2)','Incomplete (1)'];
+    } else {
+      cols = ['Exceeds (4)','Meets (3)','Approaching (2)','Below (1)'];
+    }
+
+    var html = '<h4>' + escHtml(d.subject) + ' ' + escHtml(d.assignmentType) + ' Rubric \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
+      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
+      + ' &middot; ' + escHtml(d.rubricLevels) + '</p>'
+      + '<p><em>' + escHtml(d.description) + '</em></p>'
+      + '<table><tr><th>Criteria</th>';
+    cols.forEach(function(c) { html += '<th>' + escHtml(c) + '</th>'; });
+    html += '</tr>';
+
+    var criteria = ['Content Knowledge','Critical Thinking','Communication','Effort &amp; Completion'];
+    var descriptors = {
+      'Content Knowledge':       ['Thorough, accurate, insightful','Accurate understanding','Partial with gaps','Significant gaps','Incomplete'],
+      'Critical Thinking':       ['Exceptional analysis','Sound reasoning','Limited depth','Minimal analysis','No analysis'],
+      'Communication':           ['Clear and compelling','Clear and organized','Somewhat unclear','Unclear','Not communicated'],
+      'Effort &amp; Completion': ['Exceeds all requirements','Meets all requirements','Missing some parts','Incomplete','Not submitted']
+    };
+
+    criteria.forEach(function(crit) {
+      html += '<tr><td><strong>' + crit + '</strong></td>';
+      var descs = descriptors[crit] || [];
+      for (var i = 0; i < cols.length; i++) {
+        html += '<td>' + (descs[i] || '') + '</td>';
+      }
+      html += '</tr>';
+    });
+    html += '</table>';
+    return html;
   }
 
-  function buildActivity(prompt) {
-    return '<h4>Classroom Activity</h4>'
-      + '<p><em>' + escHtml(prompt) + '</em></p>'
+  function buildActivity(d) {
+    return '<h4>' + escHtml(d.subject) + ' ' + escHtml(d.activityType) + ' \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
+      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
+      + ' &middot; Duration: ' + escHtml(d.duration) + '</p>'
       + '<h4>Overview</h4>'
-      + '<p>An engaging, hands-on activity designed to reinforce learning through collaboration and exploration.</p>'
+      + '<p><em>' + escHtml(d.description) + '</em></p>'
+      + '<p>An engaging ' + escHtml(d.activityType.toLowerCase()) + ' activity designed to reinforce learning through collaboration and exploration.</p>'
       + '<h4>Materials Needed</h4>'
       + '<ul><li>Chart paper or whiteboards</li><li>Markers / colored pencils</li><li>Handout (provided)</li><li>Timer</li></ul>'
       + '<h4>Instructions</h4>'
-      + '<ol><li><strong>Setup</strong> (3 min) — Arrange students in groups of 3-4</li>'
-      + '<li><strong>Explore</strong> (10 min) — Groups investigate the topic using provided materials</li>'
-      + '<li><strong>Create</strong> (10 min) — Groups produce a visual summary or model</li>'
-      + '<li><strong>Share</strong> (7 min) — Gallery walk: groups present to each other</li>'
-      + '<li><strong>Reflect</strong> (5 min) — Individual written reflection</li></ol>'
+      + '<ol><li><strong>Setup</strong> (3 min) \u2014 Arrange students in groups of 3-4</li>'
+      + '<li><strong>Explore</strong> (10 min) \u2014 Groups investigate the topic using provided materials</li>'
+      + '<li><strong>Create</strong> (10 min) \u2014 Groups produce a visual summary or model</li>'
+      + '<li><strong>Share</strong> (7 min) \u2014 Gallery walk: groups present to each other</li>'
+      + '<li><strong>Reflect</strong> (5 min) \u2014 Individual written reflection</li></ol>'
       + '<h4>Extensions</h4>'
       + '<ul><li>Advanced: Design their own investigation question</li>'
       + '<li>Support: Provide partially completed graphic organizer</li></ul>';
   }
 
-  function buildVocabulary(prompt) {
-    return '<h4>Vocabulary List</h4>'
-      + '<p><em>' + escHtml(prompt) + '</em></p>'
-      + '<table><tr><th>#</th><th>Term</th><th>Definition</th><th>Example Sentence</th></tr>'
-      + '<tr><td>1</td><td><strong>[Term 1]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
-      + '<tr><td>2</td><td><strong>[Term 2]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
-      + '<tr><td>3</td><td><strong>[Term 3]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
-      + '<tr><td>4</td><td><strong>[Term 4]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
-      + '<tr><td>5</td><td><strong>[Term 5]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
-      + '<tr><td>6</td><td><strong>[Term 6]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
-      + '<tr><td>7</td><td><strong>[Term 7]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
-      + '<tr><td>8</td><td><strong>[Term 8]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
-      + '<tr><td>9</td><td><strong>[Term 9]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>'
-      + '<tr><td>10</td><td><strong>[Term 10]</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr></table>'
+  function buildVocabulary(d) {
+    var count = parseInt(d.numTerms) || 10;
+    var html = '<h4>' + escHtml(d.subject) + ' Vocabulary \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
+      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
+      + ' &middot; ' + count + ' terms</p>'
+      + '<p><em>' + escHtml(d.description) + '</em></p>'
+      + '<table><tr><th>#</th><th>Term</th><th>Definition</th><th>Example Sentence</th></tr>';
+    for (var i = 1; i <= count; i++) {
+      html += '<tr><td>' + i + '</td><td><strong>[Term ' + i + ']</strong></td><td>[Definition]</td><td><em>[Example]</em></td></tr>';
+    }
+    html += '</table>'
       + '<h4>Practice</h4>'
       + '<p>Use each word in a sentence. Then, create a word web connecting related terms.</p>';
+    return html;
   }
 
-  function buildReading(prompt) {
-    return '<h4>Reading Passage</h4>'
-      + '<p><em>' + escHtml(prompt) + '</em></p>'
+  function buildReading(d) {
+    return '<h4>' + escHtml(d.subject) + ' Reading Passage \u2014 ' + escHtml(d.gradeLevel) + '</h4>'
+      + '<p style="color:#616161;font-size:12px;">Language: ' + escHtml(d.language)
+      + ' &middot; Level: ' + escHtml(d.readingLevel)
+      + ' &middot; Length: ' + escHtml(d.passageLength) + '</p>'
+      + '<p><em>' + escHtml(d.description) + '</em></p>'
       + '<div style="background:#f9f9f9; padding:12px; border-radius:4px; margin:8px 0; border-left:3px solid #6264a7;">'
-      + '<p>[Reading passage text goes here. Edit this section to add your grade-appropriate passage on the topic described above. Aim for 3-5 paragraphs.]</p>'
+      + '<p>[Reading passage text goes here. Edit this section to add your grade-appropriate passage about '
+      + escHtml(d.subject) + '. The passage should be written at the '
+      + escHtml(d.readingLevel).toLowerCase() + ' reading level.]</p>'
       + '</div>'
       + '<h4>Comprehension Questions</h4>'
       + '<ol><li>What is the main idea of this passage?</li>'
@@ -680,7 +1004,7 @@
       + '</div>';
   }
 
-  // ── oEmbed card builder (link card) ───────────────────
+  // ── oEmbed card builder ───────────────────────────────
   function buildOEmbedCard() {
     var ts   = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
     var user = currentUser ? currentUser.name : 'Teacher';
@@ -708,15 +1032,20 @@
       toast('Content inserted into page!', 'success');
     } catch (err) {
       console.error('[Teach] Insert error:', err);
-      toast('Could not insert — ' + (err.message || err), 'error');
+      toast('Could not insert \u2014 ' + (err.message || err), 'error');
     }
   }
 
   // ── Helpers ───────────────────────────────────────────
   function escHtml(s) {
+    if (!s) return '';
     var d = document.createElement('div');
     d.appendChild(document.createTextNode(s));
     return d.innerHTML;
+  }
+
+  function escAttr(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   function toast(msg, type) {
