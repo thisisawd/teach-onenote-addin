@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Teach – OneNote Task Pane Add-in (Agave)
+  ─────────────────────────────────────────
+  • OneNote-specific: Host Name="Notebook", xsi:type="Notebook"
+  • No SSO / no WebApplicationInfo / no IdentityAPI
+  • Sideloadable by anyone – no tenant-specific values
+  • AI generation uses Azure OpenAI keys entered at runtime
+  • Regenerated manifest – March 2026
+-->
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
+
+  <!-- New GUID for this manifest -->
+  <Id>a3f1c8e2-5b74-4d09-9e6a-1f8c3d72b5e0</Id>
+  <Version>7.0.0.0</Version>
+  <ProviderName>Microsoft Education</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="Teach"/>
+  <Description DefaultValue="M365 Copilot Teach for Education – AI-powered lesson plans, quizzes, rubrics, activities, vocabulary, and reading passages via Azure OpenAI. Inserts directly into OneNote."/>
+  <IconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-80.png"/>
+  <SupportUrl DefaultValue="https://support.microsoft.com/education"/>
+
+  <!-- Domains the add-in may navigate to or fetch from -->
+  <AppDomains>
+    <AppDomain>https://thisisawd.github.io</AppDomain>
+    <AppDomain>https://m365.cloud.microsoft</AppDomain>
+    <AppDomain>https://copilot.microsoft.com</AppDomain>
+    <AppDomain>https://FHL-2026.cognitiveservices.azure.com</AppDomain>
+  </AppDomains>
+
+  <!-- OneNote-specific host declaration -->
+  <Hosts>
+    <Host Name="Notebook"/>
+  </Hosts>
+
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://thisisawd.github.io/teach-onenote-addin/taskpane.html"/>
+  </DefaultSettings>
+
+  <!-- ReadWriteDocument needed for OneNote.run / page.addOutline -->
+  <Permissions>ReadWriteDocument</Permissions>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+                    xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <!-- OneNote-specific: xsi:type="Notebook" -->
+      <Host xsi:type="Notebook">
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title resid="GetStarted.Title"/>
+            <Description resid="GetStarted.Description"/>
+            <LearnMoreUrl resid="GetStarted.LearnMoreUrl"/>
+          </GetStarted>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="TeachGroup">
+                <Label resid="TeachGroup.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16x16"/>
+                  <bt:Image size="32" resid="Icon.32x32"/>
+                  <bt:Image size="80" resid="Icon.80x80"/>
+                </Icon>
+                <Control xsi:type="Button" id="TeachButton">
+                  <Label resid="TeachButton.Label"/>
+                  <Supertip>
+                    <Title resid="TeachButton.Title"/>
+                    <Description resid="TeachButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>TeachPane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <!-- No WebApplicationInfo – no SSO, no Entra app registration needed -->
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16x16" DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-16.png"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-32.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://thisisawd.github.io/teach-onenote-addin/taskpane.html"/>
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://support.microsoft.com/education"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GetStarted.Title" DefaultValue="Teach is ready!"/>
+        <bt:String id="TeachGroup.Label" DefaultValue="Copilot Teach"/>
+        <bt:String id="TeachButton.Label" DefaultValue="Teach"/>
+        <bt:String id="TeachButton.Title" DefaultValue="Copilot Teach"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="GetStarted.Description" DefaultValue="Click the Teach button on the Home tab to create standards-aligned lesson plans, quizzes, rubrics, and more with AI."/>
+        <bt:String id="TeachButton.Tooltip" DefaultValue="Open Copilot Teach to create standards-aligned lesson plans, quizzes, rubrics, activities, vocabulary lists, and reading passages for your students."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

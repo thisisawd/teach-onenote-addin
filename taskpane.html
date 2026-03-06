@@ -266,14 +266,12 @@
 
     /* ── Preview card ── */
     #previewCard {
-      display: none;
       background: #fff;
       border: 1px solid #e0e0e0;
       border-radius: 8px;
       padding: 16px;
       margin-bottom: 16px;
     }
-    #previewCard.visible { display: block; }
     #previewCard h3 { font-size: 15px; font-weight: 600; color: #6264a7; margin-bottom: 4px; }
     #previewCard .meta { font-size: 11px; color: #888; margin-bottom: 12px; }
     #previewCard .content { font-size: 13px; line-height: 1.6; color: #242424; }
@@ -631,55 +629,6 @@
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="header">
-    <svg width="24" height="24" viewBox="0 0 80 80" fill="none">
-      <defs>
-        <linearGradient id="hdrNb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#B44AFF"/><stop offset="50%" stop-color="#9C5AFF"/><stop offset="100%" stop-color="#FF6B9D"/></linearGradient>
-        <linearGradient id="hdrAp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF6B9D"/><stop offset="50%" stop-color="#FF8A65"/><stop offset="100%" stop-color="#FFB74D"/></linearGradient>
-      </defs>
-      <rect x="14" y="8" width="52" height="64" rx="6" fill="url(#hdrNb)"/>
-      <rect x="22" y="14" width="40" height="52" rx="3" fill="#fff" opacity="0.92"/>
-      <line x1="28" y1="26" x2="56" y2="26" stroke="#E0D4F5" stroke-width="1.5"/>
-      <line x1="28" y1="34" x2="56" y2="34" stroke="#E0D4F5" stroke-width="1.5"/>
-      <line x1="28" y1="42" x2="56" y2="42" stroke="#E0D4F5" stroke-width="1.5"/>
-      <line x1="28" y1="50" x2="56" y2="50" stroke="#E0D4F5" stroke-width="1.5"/>
-      <circle cx="14" cy="22" r="3" fill="url(#hdrNb)"/><circle cx="14" cy="32" r="3" fill="url(#hdrNb)"/><circle cx="14" cy="42" r="3" fill="url(#hdrNb)"/><circle cx="14" cy="52" r="3" fill="url(#hdrNb)"/><circle cx="14" cy="62" r="3" fill="url(#hdrNb)"/>
-      <ellipse cx="52" cy="56" rx="14" ry="15" fill="url(#hdrAp)"/>
-      <rect x="50" y="40" width="3" height="8" rx="1.5" fill="#8B4513"/>
-      <ellipse cx="57" cy="42" rx="5" ry="3" fill="#4CAF50" transform="rotate(-30 57 42)"/>
-    </svg>
-    <h1>Teach</h1>
-    <span class="badge">EDU</span>
-  </div>
-
-  <!-- Setup overlay – Azure OpenAI key entry (no SSO, no tenant secrets) -->
-  <div id="loginOverlay">
-    <svg width="48" height="48" viewBox="0 0 80 80" fill="none">
-      <defs>
-        <linearGradient id="lgNb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#B44AFF"/><stop offset="50%" stop-color="#9C5AFF"/><stop offset="100%" stop-color="#FF6B9D"/></linearGradient>
-        <linearGradient id="lgAp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF6B9D"/><stop offset="50%" stop-color="#FF8A65"/><stop offset="100%" stop-color="#FFB74D"/></linearGradient>
-      </defs>
-      <rect x="14" y="8" width="52" height="64" rx="6" fill="url(#lgNb)"/>
-      <rect x="22" y="14" width="40" height="52" rx="3" fill="#fff" opacity="0.92"/>
-      <line x1="28" y1="26" x2="56" y2="26" stroke="#E0D4F5" stroke-width="1.5"/>
-      <line x1="28" y1="34" x2="56" y2="34" stroke="#E0D4F5" stroke-width="1.5"/>
-      <line x1="28" y1="42" x2="56" y2="42" stroke="#E0D4F5" stroke-width="1.5"/>
-      <line x1="28" y1="50" x2="56" y2="50" stroke="#E0D4F5" stroke-width="1.5"/>
-      <circle cx="14" cy="22" r="3" fill="url(#lgNb)"/><circle cx="14" cy="32" r="3" fill="url(#lgNb)"/><circle cx="14" cy="42" r="3" fill="url(#lgNb)"/><circle cx="14" cy="52" r="3" fill="url(#lgNb)"/><circle cx="14" cy="62" r="3" fill="url(#lgNb)"/>
-      <ellipse cx="52" cy="56" rx="14" ry="15" fill="url(#lgAp)"/>
-      <rect x="50" y="40" width="3" height="8" rx="1.5" fill="#8B4513"/>
-      <ellipse cx="57" cy="42" rx="5" ry="3" fill="#4CAF50" transform="rotate(-30 57 42)"/>
-    </svg>
-    <h2>Connect to Azure OpenAI</h2>
-    <p>Enter your Azure OpenAI endpoint and key to enable AI content generation. Keys are stored in your browser only.</p>
-    <input type="url" id="setupEndpoint" placeholder="https://your-resource.openai.azure.com" style="max-width:320px;"/>
-    <input type="password" id="setupApiKey" placeholder="API Key" style="max-width:320px;"/>
-    <input type="text" id="setupDeployment" placeholder="Deployment name (e.g. gpt-4o)" value="gpt-4o" style="max-width:320px;"/>
-    <button class="login-btn primary" id="setupSaveBtn">Connect</button>
-    <p id="setupError" style="font-size:12px;color:#a4262c;max-width:320px;display:none;"></p>
-  </div>
-
   <!-- ═══════════ MAIN CONTENT AREA ═══════════ -->
   <div class="main">
 
@@ -757,7 +706,19 @@
         Generate
       </button>
 
-      <!-- Preview card (shown after generation) -->
+    </div>
+
+    <!-- ────── VIEW: RESULTS (AI-generated content) ────── -->
+    <div id="viewResults" class="view">
+
+      <!-- Back button -->
+      <div class="back-row" id="resultsBackBtn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M11 2.5a.5.5 0 0 0-.854-.354l-5 5a.5.5 0 0 0 0 .708l5 5A.5.5 0 0 0 11 12.5v-10z"/>
+        </svg>
+        Back
+      </div>
+
       <div id="previewCard">
         <h3 id="previewTitle"></h3>
         <div class="meta" id="previewMeta"></div>
@@ -774,6 +735,13 @@
               <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
             </svg>
             Embed Card
+          </button>
+          <button id="regenerateBtn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+              <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+            </svg>
+            Regenerate
           </button>
         </div>
       </div>
@@ -832,16 +800,15 @@
   var lastGenHtml = '';
   var selectedTpl = null;
 
-  /* ── Azure OpenAI config (persisted in localStorage) ── */
-  var aoaiConfig = loadAoaiConfig();
-
-  function loadAoaiConfig() {
-    try { var s = localStorage.getItem('teach_aoai'); if (s) return JSON.parse(s); } catch(e) {}
-    return { endpoint:'', apiKey:'', deployment:'gpt-4o', apiVersion:'2024-12-01-preview' };
-  }
-  function saveAoaiConfig() {
-    try { localStorage.setItem('teach_aoai', JSON.stringify(aoaiConfig)); } catch(e) {}
-  }
+  /* ── Azure OpenAI config (hardcoded) ── */
+  var aoaiConfig = {
+    endpoint: 'https://FHL-2026.cognitiveservices.azure.com',
+    apiKey: '7mwAGJDSbmtIhMB16dDm6pJvpi0ZS0S6FLwUoM9MtKIxsl9DZ9meJQQJ99CCACYeBjFXJ3w3AAABACOG845N',
+    deployment: 'gpt-4.1-mini',
+    apiVersion: '2024-05-01-preview'
+  };
+  // Clear any stale localStorage config
+  try { localStorage.removeItem('teach_aoai'); } catch(e) {}
   function isAoaiConfigured() { return !!(aoaiConfig.endpoint && aoaiConfig.apiKey); }
 
   /* ── Education system prompts per template ──────────── */
@@ -869,13 +836,14 @@
   }
 
   /* ── Azure OpenAI Chat Completions call ────────────── */
+  /* Routes through /api/chat on the same origin so the    */
+  /* Office Add-in webview CSP does not block the request. */
   async function callAzureOpenAI(systemPrompt, userPrompt) {
-    var url = aoaiConfig.endpoint.replace(/\/+$/, '')
-      + '/openai/deployments/' + encodeURIComponent(aoaiConfig.deployment)
-      + '/chat/completions?api-version=' + aoaiConfig.apiVersion;
+    var url = '/api/chat';   // same-origin proxy → Azure OpenAI
+    console.log('[Teach] Calling Azure OpenAI via proxy:', url);
     var resp = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'api-key': aoaiConfig.apiKey },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         messages: [
           { role: 'system', content: systemPrompt },
@@ -974,10 +942,6 @@
   window.onTeachReady = function(info) {
     officeReady = true;
     console.log('[Teach] Office ready - host:', info.host);
-    // If Azure OpenAI is already configured, skip setup overlay
-    if (isAoaiConfigured()) {
-      document.getElementById('loginOverlay').classList.add('hidden');
-    }
     wireButtons();
   };
 
@@ -1032,7 +996,6 @@
     document.getElementById('formFields').innerHTML = html;
     var openStdBtn = document.getElementById('openStandardsBtn');
     if (openStdBtn) openStdBtn.addEventListener('click', function() { openStandardsModal(); });
-    document.getElementById('previewCard').classList.remove('visible');
     showView('viewCreate', 'forward');
   }
 
@@ -1040,41 +1003,6 @@
 
   // ── Wire buttons ──────────────────────────────────────
   function wireButtons() {
-    // Setup overlay – save AOAI config
-    document.getElementById('setupSaveBtn').addEventListener('click', async function() {
-      var ep = document.getElementById('setupEndpoint').value.trim();
-      var key = document.getElementById('setupApiKey').value.trim();
-      var dep = document.getElementById('setupDeployment').value.trim() || 'gpt-4o';
-      var errEl = document.getElementById('setupError');
-      if (!ep || !key) {
-        errEl.textContent = 'Endpoint and API Key are required.';
-        errEl.style.display = 'block';
-        return;
-      }
-      aoaiConfig.endpoint = ep;
-      aoaiConfig.apiKey = key;
-      aoaiConfig.deployment = dep;
-      saveAoaiConfig();
-      // Test connection
-      errEl.textContent = 'Testing connection…';
-      errEl.style.display = 'block';
-      errEl.style.color = '#616161';
-      try {
-        await callAzureOpenAI('You are a test assistant.', 'Reply with OK.');
-        errEl.style.display = 'none';
-        document.getElementById('loginOverlay').classList.add('hidden');
-        toast('Connected to Azure OpenAI!', 'success');
-      } catch(e) {
-        errEl.style.color = '#a4262c';
-        errEl.textContent = 'Connection failed: ' + e.message;
-      }
-    });
-
-    // Populate saved config into fields
-    document.getElementById('setupEndpoint').value = aoaiConfig.endpoint || '';
-    document.getElementById('setupApiKey').value = aoaiConfig.apiKey || '';
-    document.getElementById('setupDeployment').value = aoaiConfig.deployment || 'gpt-4o';
-
     // Open Copilot Teach in new tab
     document.getElementById('openCopilotBtn').addEventListener('click', function() {
       window.open(TEACH_URL, '_blank');
@@ -1090,6 +1018,8 @@
     document.getElementById('generateBtn').addEventListener('click', generateContent);
     document.getElementById('insertPreviewBtn').addEventListener('click', function() { insertHtml(lastGenHtml); });
     document.getElementById('embedPreviewBtn').addEventListener('click', function() { insertHtml(buildOEmbedCard()); });
+    document.getElementById('resultsBackBtn').addEventListener('click', function() { showView('viewCreate', 'back'); });
+    document.getElementById('regenerateBtn').addEventListener('click', function() { showView('viewCreate', 'back'); setTimeout(generateContent, 300); });
   }
 
   // ── Collect form data ─────────────────────────────────
@@ -1113,8 +1043,7 @@
   // ── Generate content ──────────────────────────────────
   async function generateContent() {
     if (!isAoaiConfigured()) {
-      document.getElementById('loginOverlay').classList.remove('hidden');
-      toast('Set up Azure OpenAI first.', 'error');
+      toast('Azure OpenAI is not configured. Check endpoint and API key in code.', 'error');
       return;
     }
     var data = collectFormData();
@@ -1131,15 +1060,13 @@
       var html = await callAzureOpenAI(sysPrompt, userPrompt);
       lastGenHtml = html;
 
-      var card = document.getElementById('previewCard');
       var titleText = TEMPLATES[tpl] ? TEMPLATES[tpl].title.replace('Create ','') : 'Content';
       titleText = titleText.charAt(0).toUpperCase() + titleText.slice(1);
       document.getElementById('previewTitle').textContent = '\uD83C\uDF93 ' + titleText;
       document.getElementById('previewMeta').innerHTML = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
         + ' <span class="ai-badge live">\u2728 Azure OpenAI</span>';
       document.getElementById('previewContent').innerHTML = html;
-      card.classList.add('visible');
-      card.scrollIntoView({ behavior: 'smooth' });
+      showView('viewResults', 'forward');
       toast('Content generated!', 'success');
 
       // Auto-insert into OneNote page

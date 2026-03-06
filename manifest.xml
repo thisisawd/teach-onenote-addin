@@ -29,6 +29,7 @@
     <AppDomain>https://thisisawd.github.io</AppDomain>
     <AppDomain>https://m365.cloud.microsoft</AppDomain>
     <AppDomain>https://copilot.microsoft.com</AppDomain>
+    <AppDomain>https://FHL-2026.cognitiveservices.azure.com</AppDomain>
   </AppDomains>
 
   <!-- OneNote-specific host declaration -->
