@@ -836,14 +836,23 @@
   }
 
   /* ── Azure OpenAI Chat Completions call ────────────── */
-  /* Routes through /api/chat on the same origin so the    */
-  /* Office Add-in webview CSP does not block the request. */
+  /* When running on localhost, routes through /api/chat    */
+  /* proxy. On GitHub Pages, calls Azure OpenAI directly.  */
   async function callAzureOpenAI(systemPrompt, userPrompt) {
-    var url = '/api/chat';   // same-origin proxy → Azure OpenAI
-    console.log('[Teach] Calling Azure OpenAI via proxy:', url);
+    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    var url, headers;
+    if (isLocal) {
+      url = '/api/chat';
+      headers = { 'Content-Type': 'application/json' };
+    } else {
+      url = aoaiConfig.endpoint + '/openai/deployments/' + aoaiConfig.deployment
+            + '/chat/completions?api-version=' + aoaiConfig.apiVersion;
+      headers = { 'Content-Type': 'application/json', 'api-key': aoaiConfig.apiKey };
+    }
+    console.log('[Teach] Calling Azure OpenAI:', isLocal ? 'proxy' : 'direct', url);
     var resp = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers,
       body: JSON.stringify({
         messages: [
           { role: 'system', content: systemPrompt },
