@@ -960,12 +960,6 @@
             </svg>
             Insert to Page
           </button>
-          <button id="embedPreviewBtn">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
-            </svg>
-            Embed Card
-          </button>
           <button id="regenerateBtn">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
               <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
@@ -1630,7 +1624,6 @@
     document.getElementById('backBtn').addEventListener('click', navigateHome);
     document.getElementById('generateBtn').addEventListener('click', generateContent);
     document.getElementById('insertPreviewBtn').addEventListener('click', function() { insertHtml(lastGenHtml); });
-    document.getElementById('embedPreviewBtn').addEventListener('click', function() { insertHtml(buildOEmbedCard()); });
     document.getElementById('resultsBackBtn').addEventListener('click', function() { showView('viewCreate', 'back'); });
     document.getElementById('regenerateBtn').addEventListener('click', function() { showView('viewCreate', 'back'); setTimeout(generateContent, 300); });
   }
@@ -1681,9 +1674,6 @@
       document.getElementById('previewContent').innerHTML = html;
       showView('viewResults', 'forward');
       toast('Content generated!', 'success');
-
-      // Auto-insert into OneNote page
-      insertHtml(wrapForOneNote(titleText, html));
     } catch(err) {
       console.error('[Teach] AI error:', err);
       toast('AI error: ' + err.message, 'error');
