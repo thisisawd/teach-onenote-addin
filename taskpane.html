@@ -238,6 +238,10 @@
       font-family: inherit;
     }
     .form-group .add-btn:hover { border-color: #6264a7; background: #f8f7ff; }
+    .file-upload-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
+    .file-upload-row .file-name { font-size:12px; color:#555; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .file-upload-row .remove-file { background:none; border:none; color:#c44; font-size:14px; cursor:pointer; padding:0 4px; }
+    .file-upload-row .remove-file:hover { color:#a00; }
 
     /* -- Generate button (in form) -- */
     .gen-btn {
@@ -821,6 +825,221 @@
     reading: 'You are an expert at creating grade-appropriate reading passages. Write an original, engaging passage at the specified level. Include 5-8 comprehension questions (recall, inference, vocabulary, author\'s purpose). Include answer key. Format as clean HTML. No markdown.'
   };
 
+  /* ── Uploaded file text storage ─────────────────────── */
+  var uploadedFileText = {};   // keyed by field id
+
+  /* ── Handle file upload from the form ───────────────── */
+  async function handleFileUpload(input, fieldId) {
+    var file = input.files && input.files[0];
+    if (!file) return;
+    var nameEl  = document.getElementById('fileName_' + fieldId);
+    var rowEl   = document.getElementById('fileRow_' + fieldId);
+    nameEl.textContent = '⏳ Reading ' + file.name + '…';
+    try {
+      var text = await extractTextFromFile(file);
+      if (!text || !text.trim()) throw new Error('No readable text found in file.');
+      uploadedFileText[fieldId] = text.trim();
+      nameEl.innerHTML = '📄 ' + escHtml(file.name) + ' <button class="remove-file" onclick="removeUploadedFile(\'' + fieldId + '\')" title="Remove">✕</button>';
+      toast('File loaded: ' + file.name, 'success');
+    } catch(e) {
+      console.error('[Teach] File read error:', e);
+      nameEl.textContent = '';
+      delete uploadedFileText[fieldId];
+      toast('Could not read file: ' + e.message, 'error');
+    }
+    input.value = '';  // reset so same file can be re-picked
+  }
+
+  function removeUploadedFile(fieldId) {
+    delete uploadedFileText[fieldId];
+    var nameEl = document.getElementById('fileName_' + fieldId);
+    if (nameEl) nameEl.textContent = '';
+    toast('File removed.', 'success');
+  }
+
+  /* ── PDF text extraction via pdf.js CDN ────────────── */
+  var pdfjsLoaded = false;
+  async function loadPdfJs() {
+    if (pdfjsLoaded) return;
+    await new Promise(function(resolve, reject) {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload = function() {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        pdfjsLoaded = true;
+        resolve();
+      };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  async function extractTextFromPdf(file) {
+    await loadPdfJs();
+    var buf = await file.arrayBuffer();
+    var pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    var pages = [];
+    for (var i = 1; i <= pdf.numPages; i++) {
+      var page = await pdf.getPage(i);
+      var tc = await page.getTextContent();
+      pages.push(tc.items.map(function(it) { return it.str; }).join(' '));
+    }
+    return pages.join('\n\n');
+  }
+
+  /* ── DOCX text extraction (basic ZIP + XML parse) ───── */
+  async function extractTextFromDocx(file) {
+    var buf = await file.arrayBuffer();
+    var blob = new Blob([buf]);
+    // Use JSZip-like approach: find document.xml in the ZIP
+    // Minimal ZIP parsing for PK archives
+    var bytes = new Uint8Array(buf);
+    var entries = parseZipEntries(bytes);
+    var docXml = entries['word/document.xml'];
+    if (!docXml) throw new Error('Not a valid DOCX file.');
+    var xmlStr = new TextDecoder().decode(docXml);
+    // Extract text from <w:t> elements
+    var texts = [];
+    xmlStr.replace(/<w:t[^>]*>([^<]*)<\/w:t>/g, function(m, t) { texts.push(t); });
+    return texts.join(' ');
+  }
+
+  /* ── PPTX text extraction (basic ZIP + XML parse) ──── */
+  async function extractTextFromPptx(file) {
+    var buf = await file.arrayBuffer();
+    var bytes = new Uint8Array(buf);
+    var entries = parseZipEntries(bytes);
+    var texts = [];
+    var slideKeys = Object.keys(entries).filter(function(k) {
+      return /^ppt\/slides\/slide\d+\.xml$/i.test(k);
+    }).sort();
+    slideKeys.forEach(function(key) {
+      var xmlStr = new TextDecoder().decode(entries[key]);
+      xmlStr.replace(/<a:t>([^<]*)<\/a:t>/g, function(m, t) { texts.push(t); });
+      texts.push('\n');
+    });
+    return texts.join(' ').trim();
+  }
+
+  /* ── Minimal ZIP entry parser (deflate-stored only) ── */
+  function parseZipEntries(bytes) {
+    var entries = {};
+    var i = 0;
+    while (i < bytes.length - 4) {
+      // Local file header signature
+      if (bytes[i]===0x50 && bytes[i+1]===0x4B && bytes[i+2]===0x03 && bytes[i+3]===0x04) {
+        var method    = bytes[i+8] | (bytes[i+9]<<8);
+        var compSize  = bytes[i+18] | (bytes[i+19]<<8) | (bytes[i+20]<<16) | (bytes[i+21]<<24);
+        var uncompSz  = bytes[i+22] | (bytes[i+23]<<8) | (bytes[i+24]<<16) | (bytes[i+25]<<24);
+        var nameLen   = bytes[i+26] | (bytes[i+27]<<8);
+        var extraLen  = bytes[i+28] | (bytes[i+29]<<8);
+        var name      = new TextDecoder().decode(bytes.subarray(i+30, i+30+nameLen));
+        var dataStart = i + 30 + nameLen + extraLen;
+        if (method === 0 && compSize > 0) {
+          entries[name] = bytes.subarray(dataStart, dataStart + compSize);
+        } else if (method === 8 && compSize > 0) {
+          // Deflate — use DecompressionStream if available
+          try {
+            var raw = bytes.subarray(dataStart, dataStart + compSize);
+            entries[name] = inflateRawSync(raw);
+          } catch(e) { /* skip entry */ }
+        }
+        i = dataStart + compSize;
+      } else {
+        i++;
+      }
+    }
+    return entries;
+  }
+
+  /* ── Inflate raw deflate data using DecompressionStream ── */
+  function inflateRawSync(compressedBytes) {
+    // Wrap raw deflate in a minimal zlib wrapper so DecompressionStream can handle it
+    // Actually use synchronous approach via Response + DecompressionStream
+    // This returns a promise; callers that need sync must await
+    return new Response(
+      new Blob([compressedBytes]).stream().pipeThrough(new DecompressionStream('raw'))
+    ).arrayBuffer().then(function(ab) { return new Uint8Array(ab); });
+  }
+
+  // Make parseZipEntries async-aware for deflated content
+  async function parseZipEntriesAsync(bytes) {
+    var entries = {};
+    var i = 0;
+    while (i < bytes.length - 4) {
+      if (bytes[i]===0x50 && bytes[i+1]===0x4B && bytes[i+2]===0x03 && bytes[i+3]===0x04) {
+        var method    = bytes[i+8] | (bytes[i+9]<<8);
+        var compSize  = bytes[i+18] | (bytes[i+19]<<8) | (bytes[i+20]<<16) | (bytes[i+21]<<24);
+        var uncompSz  = bytes[i+22] | (bytes[i+23]<<8) | (bytes[i+24]<<16) | (bytes[i+25]<<24);
+        var nameLen   = bytes[i+26] | (bytes[i+27]<<8);
+        var extraLen  = bytes[i+28] | (bytes[i+29]<<8);
+        var name      = new TextDecoder().decode(bytes.subarray(i+30, i+30+nameLen));
+        var dataStart = i + 30 + nameLen + extraLen;
+        if (method === 0 && compSize > 0) {
+          entries[name] = bytes.subarray(dataStart, dataStart + compSize);
+        } else if (method === 8 && compSize > 0) {
+          try {
+            var raw = bytes.subarray(dataStart, dataStart + compSize);
+            entries[name] = await inflateRawSync(raw);
+          } catch(e) { /* skip entry */ }
+        }
+        i = dataStart + compSize;
+      } else {
+        i++;
+      }
+    }
+    return entries;
+  }
+
+  // Override the sync version to use async for DOCX/PPTX
+  async function extractTextFromDocxAsync(file) {
+    var buf = await file.arrayBuffer();
+    var bytes = new Uint8Array(buf);
+    var entries = await parseZipEntriesAsync(bytes);
+    var docXml = entries['word/document.xml'];
+    if (!docXml) throw new Error('Not a valid DOCX file.');
+    var xmlStr = new TextDecoder().decode(docXml);
+    var texts = [];
+    xmlStr.replace(/<w:t[^>]*>([^<]*)<\/w:t>/g, function(m, t) { texts.push(t); });
+    return texts.join(' ');
+  }
+  async function extractTextFromPptxAsync(file) {
+    var buf = await file.arrayBuffer();
+    var bytes = new Uint8Array(buf);
+    var entries = await parseZipEntriesAsync(bytes);
+    var texts = [];
+    var slideKeys = Object.keys(entries).filter(function(k) {
+      return /^ppt\/slides\/slide\d+\.xml$/i.test(k);
+    }).sort();
+    slideKeys.forEach(function(key) {
+      var xmlStr = new TextDecoder().decode(entries[key]);
+      xmlStr.replace(/<a:t>([^<]*)<\/a:t>/g, function(m, t) { texts.push(t); });
+      texts.push('\n');
+    });
+    return texts.join(' ').trim();
+  }
+
+  // Replace extractFromFile to use async versions for Office formats
+  async function extractTextFromFile(file) {
+    var ext = file.name.split('.').pop().toLowerCase();
+    if (ext === 'txt' || ext === 'md' || ext === 'csv') {
+      return await file.text();
+    }
+    if (ext === 'pdf') {
+      return await extractTextFromPdf(file);
+    }
+    if (ext === 'docx' || ext === 'doc') {
+      return await extractTextFromDocxAsync(file);
+    }
+    if (ext === 'pptx') {
+      return await extractTextFromPptxAsync(file);
+    }
+    if (ext === 'rtf') {
+      var raw = await file.text();
+      return raw.replace(/\\[a-z]+[\d]*\s?|[{}]/gi, ' ').replace(/\s+/g, ' ').trim();
+    }
+    return await file.text();
+  }
+
   /* ── Build user prompt from form data ──────────────── */
   function buildUserPrompt(tplKey, data) {
     var tpl = TEMPLATES[tplKey] || TEMPLATES.lesson;
@@ -829,6 +1048,17 @@
     var lines = ['Create the following education content:'];
     Object.keys(data).forEach(function(k) {
       if (data[k]) lines.push((labelById[k] || k) + ': ' + data[k]);
+    });
+    // Append uploaded file content if present
+    Object.keys(uploadedFileText).forEach(function(fieldId) {
+      var txt = uploadedFileText[fieldId];
+      if (txt) {
+        // Truncate to ~8000 chars to fit token limits
+        if (txt.length > 8000) txt = txt.substring(0, 8000) + '\n[...document truncated...]';
+        lines.push('');
+        lines.push('SOURCE DOCUMENT CONTENT (use this as the primary basis for generating content):');
+        lines.push(txt);
+      }
     });
     lines.push('');
     lines.push('Provide complete, specific, educator-ready content. No placeholders.');
@@ -997,7 +1227,13 @@
         html += '<textarea id="field_' + f.id + '" placeholder="' + escAttr(f.placeholder || '') + '"'
           + (f.maxlength ? ' maxlength="' + f.maxlength + '"' : '') + '></textarea>';
         if (f.maxlength) html += '<div class="helper">' + f.maxlength.toLocaleString() + ' character limit</div>';
-        if (f.addContent) html += '<button class="add-btn" onclick="document.getElementById(\'field_' + f.id + '\').focus()">+ Add content</button>';
+        if (f.addContent) {
+          html += '<input type="file" id="fileInput_' + f.id + '" accept=".txt,.pdf,.docx,.doc,.pptx,.md,.csv,.rtf" style="display:none" onchange="handleFileUpload(this,\'' + f.id + '\')" />';
+          html += '<div class="file-upload-row" id="fileRow_' + f.id + '">';
+          html += '<button class="add-btn" onclick="document.getElementById(\'fileInput_' + f.id + '\').click()">&#128206; Add content from file</button>';
+          html += '<span class="file-name" id="fileName_' + f.id + '"></span>';
+          html += '</div>';
+        }
       }
       html += '</div>';
     });
@@ -1008,7 +1244,7 @@
     showView('viewCreate', 'forward');
   }
 
-  function navigateHome() { showView('viewHome', 'back'); selectedTpl = null; }
+  function navigateHome() { showView('viewHome', 'back'); selectedTpl = null; uploadedFileText = {}; }
 
   // ── Wire buttons ──────────────────────────────────────
   function wireButtons() {
