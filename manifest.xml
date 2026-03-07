@@ -15,11 +15,11 @@
 
   <!-- Stable GUID – same for every sideloader -->
   <Id>d698de84-7dd0-4c25-87c5-db5ac2847792</Id>
-  <Version>6.0.0.0</Version>
+  <Version>8.0.0.0</Version>
   <ProviderName>Microsoft Education</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Teach"/>
-  <Description DefaultValue="M365 Copilot Teach for Education – AI-powered lesson plans, quizzes, rubrics, activities, vocabulary, and reading passages via Azure OpenAI. Inserts directly into OneNote."/>
+  <Description DefaultValue="M365 Copilot Teach for Education – AI-powered lesson plans, quizzes, rubrics, activities, vocabulary, reading passages, flashcards, fill in the blanks, and matching exercises via Azure OpenAI. Inserts directly into OneNote."/>
   <IconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://thisisawd.github.io/teach-onenote-addin/assets/icon-80.png"/>
   <SupportUrl DefaultValue="https://support.microsoft.com/education"/>
@@ -104,8 +104,8 @@
         <bt:String id="TeachButton.Title" DefaultValue="Copilot Teach"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="GetStarted.Description" DefaultValue="Click the Teach button on the Home tab to create standards-aligned lesson plans, quizzes, rubrics, and more with AI."/>
-        <bt:String id="TeachButton.Tooltip" DefaultValue="Open Copilot Teach to create standards-aligned lesson plans, quizzes, rubrics, activities, vocabulary lists, and reading passages for your students."/>
+        <bt:String id="GetStarted.Description" DefaultValue="Click the Teach button on the Home tab to create standards-aligned lesson plans, quizzes, rubrics, flashcards, matching exercises, and more with AI."/>
+        <bt:String id="TeachButton.Tooltip" DefaultValue="Open Copilot Teach to create standards-aligned lesson plans, quizzes, rubrics, activities, vocabulary lists, reading passages, flashcards, fill in the blanks, and matching exercises for your students."/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

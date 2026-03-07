@@ -89,6 +89,66 @@
     .login-btn.secondary:hover { background:#e8e8e8; }
     .login-divider { font-size:12px; color:#999; }
 
+    /* ── Teaching tools header ── */
+    .teaching-tools-header {
+      font-size: 20px;
+      font-weight: 700;
+      color: #242424;
+      margin-bottom: 12px;
+    }
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-bar .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid #d1d1d1;
+      background: #fff;
+      color: #424242;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .filter-bar .filter-pill:hover { border-color: #6264a7; background: #f8f7ff; }
+    .filter-bar .filter-pill.active {
+      background: #6264a7;
+      color: #fff;
+      border-color: #6264a7;
+    }
+    .filter-bar .filter-pill svg { flex-shrink: 0; }
+    .filter-search {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #d1d1d1;
+      border-radius: 20px;
+      padding: 6px 12px;
+      background: #fff;
+      min-width: 120px;
+    }
+    .filter-search svg { flex-shrink: 0; color: #999; }
+    .filter-search input {
+      border: none;
+      outline: none;
+      font-size: 13px;
+      font-family: inherit;
+      color: #242424;
+      background: transparent;
+      width: 100%;
+    }
+    .filter-search input::placeholder { color: #999; }
+
     /* ── Open Copilot banner ── */
     .copilot-banner {
       display: flex;
@@ -133,6 +193,10 @@
       margin-bottom: 16px;
     }
     .tpl-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       padding: 12px;
       background: #fff;
       border: 1px solid #e0e0e0;
@@ -142,9 +206,38 @@
       text-align: left;
     }
     .tpl-card:hover { border-color: #6264a7; background: #f8f7ff; }
-    .tpl-card .emoji { font-size: 22px; margin-bottom: 6px; }
+    .tpl-card .emoji { font-size: 22px; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: #f5f5ff; border-radius: 8px; }
+    .tpl-card .tpl-info { flex: 1; min-width: 0; }
     .tpl-card .name { font-size: 13px; font-weight: 600; color: #242424; }
     .tpl-card .desc { font-size: 11px; color: #616161; margin-top: 2px; }
+    .tpl-card .fav-star {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      cursor: pointer;
+      color: #c8c8c8;
+      transition: color 0.15s, transform 0.15s;
+    }
+    .tpl-card .fav-star:hover { color: #8b5cf6; transform: scale(1.15); }
+    .tpl-card .fav-star.active { fill: url(#starGradient); stroke: url(#starGradient); color: #7b5ea7; }
+    .tpl-card.hidden-fav { display: none; }
+
+    /* ── Empty state for filters ── */
+    .empty-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      gap: 12px;
+    }
+    .empty-state.visible { display: flex; }
+    .empty-state h3 { font-size: 18px; font-weight: 700; color: #242424; }
+    .empty-state p { font-size: 13px; color: #616161; max-width: 260px; }
+    .empty-state .empty-star-icon {
+      width: 100px; height: 100px;
+      position: relative;
+    }
 
     /* ═══════════════════════════════════════════════════════
        SUB-LEVEL CREATION VIEW  (Copilot Teach form style)
@@ -157,11 +250,11 @@
       gap: 6px;
       margin-bottom: 16px;
       cursor: pointer;
-      color: #6264a7;
+      color: #242424;
       font-size: 14px;
       font-weight: 600;
     }
-    .back-row:hover { color: #4f52b5; }
+    .back-row:hover { color: #444; }
     .back-row svg { flex-shrink: 0; }
 
     /* -- Creation form title -- */
@@ -245,25 +338,26 @@
 
     /* -- Generate button (in form) -- */
     .gen-btn {
-      width: 100%;
-      padding: 10px;
-      background: #6264a7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 28px;
+      background: linear-gradient(135deg, #7b5ea7 0%, #6366f1 50%, #8b5cf6 100%);
       color: #fff;
       border: none;
-      border-radius: 6px;
-      font-size: 14px;
+      border-radius: 24px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       font-family: inherit;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin-top: 8px;
-      margin-bottom: 16px;
+      margin: 12px auto 16px;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
     }
-    .gen-btn:hover { background: #4f52b5; }
-    .gen-btn:disabled { opacity: 0.5; cursor: default; }
+    .gen-btn:hover { background: linear-gradient(135deg, #6d4f9c 0%, #5558e6 50%, #7c4feb 100%); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45); transform: translateY(-1px); }
+    .gen-btn:active { transform: translateY(0); }
+    .gen-btn:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
 
     /* sparkle icon for generate */
     .sparkle-svg { flex-shrink:0; }
@@ -633,14 +727,138 @@
 </head>
 <body>
 
+  <!-- Shared SVG gradient definition for favorite stars -->
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#7b5ea7"/>
+        <stop offset="50%" stop-color="#6366f1"/>
+        <stop offset="100%" stop-color="#8b5cf6"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
   <!-- ═══════════ MAIN CONTENT AREA ═══════════ -->
   <div class="main">
 
     <!-- ────── VIEW: HOME (template grid) ────── -->
     <div id="viewHome" class="view active">
 
-      <!-- Open Copilot Teach in dialog -->
-      <div class="copilot-banner" id="openCopilotBtn">
+      <!-- Teaching tools header -->
+      <div class="teaching-tools-header">Teaching tools</div>
+      <div class="filter-bar">
+        <button class="filter-pill active" data-filter="all">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          All
+        </button>
+        <button class="filter-pill" data-filter="recent">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+          Recent
+        </button>
+        <button class="filter-pill" data-filter="favorites">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+          Favorites
+        </button>
+        <button class="filter-pill" data-filter="new">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 12l4-8 4 8"/></svg>
+          New (8)
+        </button>
+        <div class="filter-search">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+          <input type="text" placeholder="Search" id="templateSearch"/>
+        </div>
+      </div>
+
+      <div class="section-title">Curriculum planning</div>
+      <div class="templates">
+        <div class="tpl-card" data-tpl="lesson">
+          <div class="emoji">&#128221;</div>
+          <div class="tpl-info">
+            <div class="name">Lesson Plan</div>
+            <div class="desc">Standards-aligned lesson with objectives &amp; flow</div>
+          </div>
+          <svg class="fav-star" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+        </div>
+      </div>
+
+      <div class="section-title">Homework and assessments</div>
+      <div class="templates">
+        <div class="tpl-card" data-tpl="rubric">
+          <div class="emoji">&#128202;</div>
+          <div class="tpl-info">
+            <div class="name">Rubric</div>
+            <div class="desc">Scoring criteria with proficiency levels</div>
+          </div>
+          <svg class="fav-star" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+        </div>
+        <div class="tpl-card" data-tpl="quiz">
+          <div class="emoji">&#10067;</div>
+          <div class="tpl-info">
+            <div class="name">Quiz</div>
+            <div class="desc">Multiple choice &amp; short answer assessment</div>
+          </div>
+          <svg class="fav-star" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+        </div>
+      </div>
+
+      <div class="section-title">Activities &amp; practice</div>
+      <div class="templates">
+        <div class="tpl-card" data-tpl="activity">
+          <div class="emoji">&#127919;</div>
+          <div class="tpl-info">
+            <div class="name">Activity</div>
+            <div class="desc">Interactive classroom activity or project</div>
+          </div>
+          <svg class="fav-star" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+        </div>
+        <div class="tpl-card" data-tpl="vocabulary">
+          <div class="emoji">&#128218;</div>
+          <div class="tpl-info">
+            <div class="name">Vocabulary</div>
+            <div class="desc">Word list with definitions &amp; context</div>
+          </div>
+          <svg class="fav-star" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+        </div>
+        <div class="tpl-card" data-tpl="reading">
+          <div class="emoji">&#128214;</div>
+          <div class="tpl-info">
+            <div class="name">Reading Passage</div>
+            <div class="desc">Leveled text with comprehension questions</div>
+          </div>
+          <svg class="fav-star" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+        </div>
+      </div>
+
+      <div class="section-title">Study aids &amp; more</div>
+      <div class="templates">
+        <div class="tpl-card" data-tpl="flashcards">
+          <div class="emoji">🃏</div>
+          <div class="tpl-info">
+            <div class="name">Flashcards</div>
+            <div class="desc">Study concepts until mastery</div>
+          </div>
+          <svg class="fav-star" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+        </div>
+        <div class="tpl-card" data-tpl="fillblanks">
+          <div class="emoji">&#9999;&#65039;</div>
+          <div class="tpl-info">
+            <div class="name">Fill in the Blanks</div>
+            <div class="desc">Complete sentences with the correct words</div>
+          </div>
+          <svg class="fav-star" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+        </div>
+        <div class="tpl-card" data-tpl="matching">
+          <div class="emoji">&#129513;</div>
+          <div class="tpl-info">
+            <div class="name">Matching</div>
+            <div class="desc">Match items to their correct pairs</div>
+          </div>
+          <svg class="fav-star" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M8 1.5l2 4 4.5.7-3.3 3.1.8 4.5L8 11.5l-4 2.3.8-4.5L1.5 6.2 6 5.5z"/></svg>
+        </div>
+      </div>
+
+      <!-- Open Copilot Teach banner (moved to bottom) -->
+      <div class="copilot-banner" id="openCopilotBtn" style="margin-top:8px;">
         <div class="icon">&#10024;</div>
         <div class="text">
           <h3>Open Copilot Teach</h3>
@@ -649,39 +867,42 @@
         <span class="arrow">&#8250;</span>
       </div>
 
-      <div class="section-title">Create with Copilot</div>
-      <div class="templates">
-        <div class="tpl-card" data-tpl="lesson">
-          <div class="emoji">&#128221;</div>
-          <div class="name">Lesson Plan</div>
-          <div class="desc">Standards-aligned lesson with objectives &amp; flow</div>
+      <!-- Empty state for favorites -->
+      <div class="empty-state" id="emptyFavorites">
+        <div class="empty-star-icon">
+          <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+            <defs>
+              <linearGradient id="emptyStarBg" x1="0" y1="100" x2="100" y2="0">
+                <stop offset="0%" stop-color="#f0a030"/>
+                <stop offset="50%" stop-color="#c060d0"/>
+                <stop offset="100%" stop-color="#6366f1"/>
+              </linearGradient>
+              <linearGradient id="emptyHeartGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#c060d0"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+            <rect x="20" y="35" width="60" height="50" rx="4" fill="url(#emptyStarBg)" opacity="0.25"/>
+            <path d="M50 10 L58 34 L83 37 L64 54 L69 78 L50 66 L31 78 L36 54 L17 37 L42 34 Z" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+            <path d="M50 45 C50 40, 42 36, 42 43 C42 48, 50 54, 50 54 C50 54, 58 48, 58 43 C58 36, 50 40, 50 45Z" fill="url(#emptyHeartGrad)"/>
+          </svg>
         </div>
-        <div class="tpl-card" data-tpl="quiz">
-          <div class="emoji">&#10067;</div>
-          <div class="name">Quiz</div>
-          <div class="desc">Multiple choice &amp; short answer assessment</div>
-        </div>
-        <div class="tpl-card" data-tpl="rubric">
-          <div class="emoji">&#128202;</div>
-          <div class="name">Rubric</div>
-          <div class="desc">Scoring criteria with proficiency levels</div>
-        </div>
-        <div class="tpl-card" data-tpl="activity">
-          <div class="emoji">&#127919;</div>
-          <div class="name">Activity</div>
-          <div class="desc">Interactive classroom activity or project</div>
-        </div>
-        <div class="tpl-card" data-tpl="vocabulary">
-          <div class="emoji">&#128218;</div>
-          <div class="name">Vocabulary</div>
-          <div class="desc">Word list with definitions &amp; context</div>
-        </div>
-        <div class="tpl-card" data-tpl="reading">
-          <div class="emoji">&#128214;</div>
-          <div class="name">Reading Passage</div>
-          <div class="desc">Leveled text with comprehension questions</div>
-        </div>
+        <h3>No favorites yet</h3>
+        <p>No favorites yet. Favorite tools to find them quickly.</p>
       </div>
+
+      <!-- Empty state for recent -->
+      <div class="empty-state" id="emptyRecent">
+        <div class="empty-star-icon">
+          <svg width="80" height="80" viewBox="0 0 16 16" fill="none" stroke="#c8c8c8" stroke-width="0.8" stroke-linecap="round">
+            <circle cx="8" cy="8" r="6.5"/>
+            <path d="M8 4.5v3.5l2.5 2.5"/>
+          </svg>
+        </div>
+        <h3>No recent tools</h3>
+        <p>Tools you use will appear here for quick access.</p>
+      </div>
+
     </div>
 
     <!-- ────── VIEW: CREATE (sub-level form) ────── -->
@@ -689,8 +910,8 @@
 
       <!-- Back button -->
       <div class="back-row" id="backBtn">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M11 2.5a.5.5 0 0 0-.854-.354l-5 5a.5.5 0 0 0 0 .708l5 5A.5.5 0 0 0 11 12.5v-10z"/>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 3 L5 8 L10 13"/>
         </svg>
         Back
       </div>
@@ -703,12 +924,14 @@
       <div id="formFields"></div>
 
       <!-- Generate button -->
+      <div style="text-align:center;">
       <button class="gen-btn" id="generateBtn">
         <svg class="sparkle-svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 .75a.75.75 0 0 1 .694.468l1.264 3.073 3.073 1.264a.75.75 0 0 1 0 1.39l-3.073 1.264-1.264 3.073a.75.75 0 0 1-1.39 0L6.042 8.209 2.97 6.945a.75.75 0 0 1 0-1.39l3.073-1.264L7.306 1.218A.75.75 0 0 1 8 .75zM12.5 9.5a.5.5 0 0 1 .464.314l.61 1.526 1.526.61a.5.5 0 0 1 0 .928l-1.526.61-.61 1.526a.5.5 0 0 1-.928 0l-.61-1.526-1.526-.61a.5.5 0 0 1 0-.928l1.526-.61.61-1.526A.5.5 0 0 1 12.5 9.5z"/>
         </svg>
         Generate
       </button>
+      </div>
 
     </div>
 
@@ -717,8 +940,8 @@
 
       <!-- Back button -->
       <div class="back-row" id="resultsBackBtn">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M11 2.5a.5.5 0 0 0-.854-.354l-5 5a.5.5 0 0 0 0 .708l5 5A.5.5 0 0 0 11 12.5v-10z"/>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 3 L5 8 L10 13"/>
         </svg>
         Back
       </div>
@@ -1173,6 +1396,42 @@
         { id:'passageLength',label:'Passage length',     type:'select',     options:['Short (1-2 paragraphs)','Medium (3-4 paragraphs)','Long (5+ paragraphs)'], required:true, defaultVal:'Medium (3-4 paragraphs)' },
         { id:'description',  label:'Description',        type:'textarea',   placeholder:'Describe the topic, text type (informational, narrative, persuasive), and any key vocabulary...', required:true, maxlength:10000, addContent:true }
       ]
+    },
+    flashcards: {
+      title: 'Create flashcards',
+      subtitle: 'Generate a set of flashcards to help students study concepts until mastery.',
+      fields: [
+        { id:'subject',    label:'Subject',             type:'text',       placeholder:'e.g. Biology, U.S. History, Chemistry',  required:true },
+        { id:'gradeLevel', label:'Grade level',         type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
+        { id:'language',   label:'Language',             type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
+        { id:'numCards',   label:'Number of cards',     type:'select',     options:['5','10','15','20','25','30'], required:true, defaultVal:'10' },
+        { id:'cardFormat', label:'Card format',         type:'select',     options:['Term → Definition','Question → Answer','Concept → Example','Mixed'], required:true, defaultVal:'Term → Definition' },
+        { id:'description',label:'Description',          type:'textarea',   placeholder:'Describe the topic, chapter, or concepts for the flashcards...', required:true, maxlength:10000, addContent:true }
+      ]
+    },
+    fillblanks: {
+      title: 'Create fill in the blanks',
+      subtitle: 'Generate sentences with missing words for students to complete.',
+      fields: [
+        { id:'subject',       label:'Subject',            type:'text',       placeholder:'e.g. Grammar, Science, Social Studies',  required:true },
+        { id:'gradeLevel',    label:'Grade level',        type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
+        { id:'language',      label:'Language',            type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
+        { id:'numSentences',  label:'Number of sentences', type:'select',     options:['5','10','15','20'], required:true, defaultVal:'10' },
+        { id:'includeWordBank',label:'Include word bank',  type:'select',     options:['Yes','No'], required:true, defaultVal:'Yes' },
+        { id:'description',   label:'Description',        type:'textarea',   placeholder:'Describe the topic or vocabulary to focus on...', required:true, maxlength:10000, addContent:true }
+      ]
+    },
+    matching: {
+      title: 'Create matching exercise',
+      subtitle: 'Generate a matching activity where students pair related items.',
+      fields: [
+        { id:'subject',    label:'Subject',             type:'text',       placeholder:'e.g. Vocabulary, Geography, Biology',  required:true },
+        { id:'gradeLevel', label:'Grade level',         type:'select',     options:['Pre-K','Kindergarten','1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade','7th Grade','8th Grade','9th Grade','10th Grade','11th Grade','12th Grade','Higher Education'], required:true },
+        { id:'language',   label:'Language',             type:'select',     options:['English','Spanish','French','German','Mandarin','Arabic','Portuguese','Japanese','Korean','Hindi','Other'], required:true },
+        { id:'numPairs',   label:'Number of pairs',     type:'select',     options:['5','8','10','12','15'], required:true, defaultVal:'10' },
+        { id:'matchType',  label:'Match type',          type:'select',     options:['Term → Definition','Cause → Effect','Image description → Concept','Date → Event','Symbol → Meaning'], required:true, defaultVal:'Term → Definition' },
+        { id:'description',label:'Description',          type:'textarea',   placeholder:'Describe the topic and what items should be matched...', required:true, maxlength:10000, addContent:true }
+      ]
     }
   };
 
@@ -1199,6 +1458,13 @@
     selectedTpl = tplKey;
     var tpl = TEMPLATES[tplKey];
     if (!tpl) return;
+
+    // Track recent usage
+    var recents = JSON.parse(localStorage.getItem('teach_recents') || '[]');
+    recents = recents.filter(function(r) { return r !== tplKey; });
+    recents.unshift(tplKey);
+    if (recents.length > 10) recents = recents.slice(0, 10);
+    localStorage.setItem('teach_recents', JSON.stringify(recents));
 
     document.getElementById('createTitle').textContent = tpl.title;
     document.getElementById('createSubtitle').textContent = tpl.subtitle;
@@ -1246,6 +1512,52 @@
 
   function navigateHome() { showView('viewHome', 'back'); selectedTpl = null; uploadedFileText = {}; }
 
+  // ── Filter logic ──────────────────────────────────────
+  function applyFilter(filterType) {
+    var searchVal = (document.getElementById('templateSearch').value || '').trim().toLowerCase();
+    var favorites = JSON.parse(localStorage.getItem('teach_favorites') || '[]');
+    var allCards = document.querySelectorAll('.tpl-card');
+    var allSections = document.querySelectorAll('#viewHome .section-title');
+
+    allCards.forEach(function(card) {
+      var tpl = card.getAttribute('data-tpl');
+      var name = (card.querySelector('.name') || {}).textContent || '';
+      var desc = (card.querySelector('.desc') || {}).textContent || '';
+      var matchSearch = !searchVal || name.toLowerCase().indexOf(searchVal) !== -1 || desc.toLowerCase().indexOf(searchVal) !== -1;
+      var show = true;
+
+      if (filterType === 'favorites') {
+        show = favorites.indexOf(tpl) !== -1;
+      } else if (filterType === 'recent') {
+        var recents = JSON.parse(localStorage.getItem('teach_recents') || '[]');
+        show = recents.indexOf(tpl) !== -1;
+      }
+      // 'all' and other filters show everything
+
+      card.style.display = (show && matchSearch) ? '' : 'none';
+    });
+
+    // Hide section titles if all their cards are hidden
+    allSections.forEach(function(title) {
+      var grid = title.nextElementSibling;
+      if (!grid || !grid.classList.contains('templates')) return;
+      var visibleCards = grid.querySelectorAll('.tpl-card:not([style*="display: none"])');
+      title.style.display = visibleCards.length ? '' : 'none';
+      grid.style.display = visibleCards.length ? '' : 'none';
+    });
+
+    // Show empty state if no visible cards
+    var totalVisible = document.querySelectorAll('#viewHome .tpl-card:not([style*="display: none"])').length;
+    var emptyFav = document.getElementById('emptyFavorites');
+    var emptyRec = document.getElementById('emptyRecent');
+    emptyFav.classList.remove('visible');
+    emptyRec.classList.remove('visible');
+    if (totalVisible === 0) {
+      if (filterType === 'favorites') emptyFav.classList.add('visible');
+      else if (filterType === 'recent') emptyRec.classList.add('visible');
+    }
+  }
+
   // ── Wire buttons ──────────────────────────────────────
   function wireButtons() {
     // Open Copilot Teach in new tab
@@ -1254,9 +1566,62 @@
       toast('Opened M365 Copilot in a new tab.', 'success');
     });
 
-    // Template cards
+    // Template cards — click card to navigate, click star to toggle favorite
     document.querySelectorAll('.tpl-card').forEach(function(card) {
-      card.addEventListener('click', function() { navigateToCreate(card.getAttribute('data-tpl')); });
+      card.addEventListener('click', function(e) {
+        // If the star was clicked, toggle favorite instead of navigating
+        if (e.target.closest('.fav-star')) return;
+        navigateToCreate(card.getAttribute('data-tpl'));
+      });
+    });
+
+    // Favorite star toggle
+    var favorites = JSON.parse(localStorage.getItem('teach_favorites') || '[]');
+    // Restore saved favorites on load
+    document.querySelectorAll('.fav-star').forEach(function(star) {
+      var tpl = star.closest('.tpl-card').getAttribute('data-tpl');
+      if (favorites.indexOf(tpl) !== -1) {
+        star.classList.add('active');
+        star.setAttribute('fill', 'url(#starGradient)');
+        star.setAttribute('stroke', 'url(#starGradient)');
+      }
+      star.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var tplKey = star.closest('.tpl-card').getAttribute('data-tpl');
+        var idx = favorites.indexOf(tplKey);
+        if (idx === -1) {
+          favorites.push(tplKey);
+          star.classList.add('active');
+          star.setAttribute('fill', 'url(#starGradient)');
+          star.setAttribute('stroke', 'url(#starGradient)');
+        } else {
+          favorites.splice(idx, 1);
+          star.classList.remove('active');
+          star.setAttribute('fill', 'none');
+          star.setAttribute('stroke', 'currentColor');
+        }
+        localStorage.setItem('teach_favorites', JSON.stringify(favorites));
+        // Re-apply filter if currently on favorites
+        var activeFilter = document.querySelector('.filter-pill.active');
+        if (activeFilter && activeFilter.getAttribute('data-filter') === 'favorites') {
+          applyFilter('favorites');
+        }
+      });
+    });
+
+    // Filter pills
+    document.querySelectorAll('.filter-pill').forEach(function(pill) {
+      pill.addEventListener('click', function() {
+        document.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
+        pill.classList.add('active');
+        applyFilter(pill.getAttribute('data-filter'));
+      });
+    });
+
+    // Search filter
+    document.getElementById('templateSearch').addEventListener('input', function() {
+      var activeFilter = document.querySelector('.filter-pill.active');
+      applyFilter(activeFilter ? activeFilter.getAttribute('data-filter') : 'all');
     });
 
     document.getElementById('backBtn').addEventListener('click', navigateHome);
