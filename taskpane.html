@@ -99,25 +99,26 @@
     .filter-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 16px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
     .filter-bar .filter-pill {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 6px 14px;
+      gap: 4px;
+      padding: 5px 10px;
       border-radius: 20px;
       border: 1px solid #d1d1d1;
       background: #fff;
       color: #424242;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       cursor: pointer;
       font-family: inherit;
       transition: background 0.15s, border-color 0.15s;
       white-space: nowrap;
+      flex-shrink: 0;
     }
     .filter-bar .filter-pill:hover { border-color: #6264a7; background: #f8f7ff; }
     .filter-bar .filter-pill.active {
@@ -130,18 +131,20 @@
       margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       border: 1px solid #d1d1d1;
       border-radius: 20px;
-      padding: 6px 12px;
+      padding: 5px 8px;
       background: #fff;
-      min-width: 120px;
+      min-width: 0;
+      flex: 1 1 60px;
+      max-width: 100px;
     }
     .filter-search svg { flex-shrink: 0; color: #999; }
     .filter-search input {
       border: none;
       outline: none;
-      font-size: 13px;
+      font-size: 12px;
       font-family: inherit;
       color: #242424;
       background: transparent;
