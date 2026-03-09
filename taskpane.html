@@ -2027,23 +2027,26 @@
   async function insertHtml(html) {
     if (!officeReady) { toast('OneNote is not ready.', 'error'); return; }
     if (!html) { toast('Nothing to insert — generate content first.', 'error'); return; }
+
+    var safeHtml = sanitizeForOneNote(html);
+    // Fallback: if sanitizer produced empty output, use raw HTML
+    if (!safeHtml || !safeHtml.trim()) {
+      console.warn('[Teach] Sanitizer returned empty — using raw HTML');
+      safeHtml = html;
+    }
+
+    console.log('[Teach] insertHtml called, HTML length:', safeHtml.length);
+
     try {
-      var safeHtml = sanitizeForOneNote(html);
-      var titleText = document.getElementById('previewTitle').textContent || 'Teaching Content';
-      var wrapped = wrapForOneNote(titleText, safeHtml);
-
-      console.log('[Teach] Inserting HTML length:', wrapped.length);
-      console.log('[Teach] First 500 chars:', wrapped.substring(0, 500));
-
       await OneNote.run(async function(ctx) {
         var page = ctx.application.getActivePage();
-        page.addOutline(40, 40, wrapped);
+        var outline = page.addOutline(40, 40, safeHtml);
         await ctx.sync();
+        console.log('[Teach] addOutline + sync succeeded');
       });
       toast('Content inserted into page!', 'success');
     } catch(err) {
       console.error('[Teach] Insert error:', err);
-      console.error('[Teach] HTML that failed:', html.substring(0, 1000));
       toast('Could not insert \u2014 ' + (err.message || err), 'error');
     }
   }
