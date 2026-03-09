@@ -1061,11 +1061,11 @@
   /* ── Education system prompts per template ──────────── */
   var SYSTEM_PROMPTS = {
     lesson: 'You are an expert K-12 curriculum designer. Create a detailed, standards-aligned lesson plan. Include: learning objectives (Bloom\'s taxonomy verbs), timed lesson flow (warm-up/instruction/guided practice/independent practice/closure), differentiation strategies, materials, and assessment ideas. If standards are provided, explicitly align to them. Format as clean HTML with <h4> headings, <ul>/<ol> lists, <table> for differentiation. No markdown.',
-    quiz: 'You are an expert K-12 assessment designer. Create a high-quality quiz with real, grade-appropriate questions and plausible distractors for MC. Include an answer key. Vary difficulty per Bloom\'s taxonomy. Format as clean HTML. No markdown.',
+    quiz: 'You are an expert K-12 assessment designer. Create a high-quality quiz with real, grade-appropriate questions and plausible distractors for MC. Include an answer key at the end. Vary difficulty per Bloom\'s taxonomy. Format as clean, STATIC, print-friendly HTML. Use numbered <ol> for questions, lettered lists or paragraphs with circle characters (○) for multiple-choice options, and blank underlines (______) for fill-in-the-blank. Do NOT use <input>, <form>, <button>, <select>, <textarea>, <radio>, <checkbox>, or any interactive/form elements. No markdown.',
     rubric: 'You are an expert rubric designer for K-12. Create a criteria-based rubric with clear, specific performance descriptors at each level. 4-6 relevant criteria. Format as HTML <table> with criteria as rows and levels as columns. No markdown.',
     activity: 'You are an expert at designing engaging K-12 classroom activities. Include: overview, learning goals, step-by-step instructions with time estimates, materials, grouping strategy, differentiation, reflection questions. Format as clean HTML. No markdown.',
     vocabulary: 'You are an expert vocabulary instruction specialist. For each term: word, student-friendly definition, example sentence in context, related terms. Add practice activities. Format as HTML <table> + <h4>/<ol> for practice. No markdown.',
-    reading: 'You are an expert at creating grade-appropriate reading passages. Write an original, engaging passage at the specified level. Include 5-8 comprehension questions (recall, inference, vocabulary, author\'s purpose). Include answer key. Format as clean HTML. No markdown.'
+    reading: 'You are an expert at creating grade-appropriate reading passages. Write an original, engaging passage at the specified level. Include 5-8 comprehension questions (recall, inference, vocabulary, author\'s purpose). Include answer key. Format as clean, STATIC, print-friendly HTML. Use numbered lists for questions, lettered options with circle characters (○) for multiple-choice, and blank underlines (______) for short-answer. Do NOT use <input>, <form>, <button>, <select>, <textarea>, or any interactive/form elements. No markdown.'
   };
 
   /* ── Uploaded file text storage ─────────────────────── */
@@ -1751,18 +1751,105 @@
       + '<a href="' + TEACH_URL + '" style="color:#6264a7;font-size:13px;font-weight:600;text-decoration:none;">Open in Copilot Teach &rarr;</a></div>';
   }
 
+  // ── Sanitize HTML for OneNote (strip unsupported elements) ──
+  // OneNote addOutline only supports: p, h1-h6, table/tr/td/th,
+  // ul/ol/li, a, img, br, span, b, i, u, strong, em.
+  // Everything else (div, form, input, hr, section, etc.) must
+  // be converted or unwrapped.
+  function sanitizeForOneNote(html) {
+    var div = document.createElement('div');
+    div.innerHTML = html;
+
+    // 1. Remove <script>, <style>, <link>, <meta> entirely
+    div.querySelectorAll('script, style, link, meta').forEach(function(el) {
+      el.parentNode.removeChild(el);
+    });
+
+    // 2. Replace <input type="radio"> and <input type="checkbox"> with text marker
+    div.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(function(el) {
+      var marker = document.createTextNode(el.type === 'checkbox' ? '\u2610 ' : '\u25CB ');
+      el.parentNode.replaceChild(marker, el);
+    });
+
+    // 3. Replace <input type="text"> / <input> with underline blank
+    div.querySelectorAll('input').forEach(function(el) {
+      var placeholder = el.getAttribute('placeholder') || '';
+      var blank = document.createElement('span');
+      blank.textContent = placeholder ? ' ' + placeholder + ' ' : ' ______________ ';
+      el.parentNode.replaceChild(blank, el);
+    });
+
+    // 4. Replace <textarea> with blank text
+    div.querySelectorAll('textarea').forEach(function(el) {
+      var p = document.createElement('p');
+      p.textContent = el.getAttribute('placeholder') || '(write here)';
+      el.parentNode.replaceChild(p, el);
+    });
+
+    // 5. Remove <select>, <button> entirely
+    div.querySelectorAll('select, button').forEach(function(el) {
+      el.parentNode.removeChild(el);
+    });
+
+    // 6. Replace <hr> with a text separator
+    div.querySelectorAll('hr').forEach(function(el) {
+      var p = document.createElement('p');
+      p.textContent = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
+      el.parentNode.replaceChild(p, el);
+    });
+
+    // 7. Unwrap ALL unsupported block/container elements (div, section, article,
+    //    header, footer, main, nav, aside, form, fieldset, label, details, summary, figure, figcaption)
+    //    Keep their children, remove the wrapper tag.
+    //    Must loop until none remain because of nesting.
+    var unsupported = 'div, section, article, header, footer, main, nav, aside, form, fieldset, label, details, summary, figure, figcaption';
+    var el;
+    var safety = 0;
+    while ((el = div.querySelector(unsupported)) && safety++ < 5000) {
+      while (el.firstChild) {
+        el.parentNode.insertBefore(el.firstChild, el);
+      }
+      el.parentNode.removeChild(el);
+    }
+
+    // 8. Strip all inline styles (OneNote handles basic formatting via tags, not CSS)
+    div.querySelectorAll('[style]').forEach(function(el) {
+      el.removeAttribute('style');
+    });
+
+    // 9. Strip class attributes
+    div.querySelectorAll('[class]').forEach(function(el) {
+      el.removeAttribute('class');
+    });
+
+    return div.innerHTML;
+  }
+
   // ── OneNote-specific: Insert HTML into current page ───
   async function insertHtml(html) {
     if (!officeReady) { toast('OneNote is not ready.', 'error'); return; }
+    if (!html) { toast('Nothing to insert — generate content first.', 'error'); return; }
     try {
+      // Build a simple OneNote-safe header + body
+      var titleText = document.getElementById('previewTitle').textContent || 'Teaching Content';
+      var ts = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      var safeBody = sanitizeForOneNote(html);
+      var finalHtml = '<h2>' + escHtml(titleText) + '</h2>'
+        + '<p><em>Generated by Copilot Teach \u00b7 ' + ts + '</em></p>'
+        + safeBody;
+
+      console.log('[Teach] Inserting HTML length:', finalHtml.length);
+      console.log('[Teach] First 500 chars:', finalHtml.substring(0, 500));
+
       await OneNote.run(async function(ctx) {
         var page = ctx.application.getActivePage();
-        page.addOutline(40, 40, html);
+        page.addOutline(40, 40, finalHtml);
         await ctx.sync();
       });
       toast('Content inserted into page!', 'success');
     } catch(err) {
       console.error('[Teach] Insert error:', err);
+      console.error('[Teach] HTML that failed:', html.substring(0, 1000));
       toast('Could not insert \u2014 ' + (err.message || err), 'error');
     }
   }

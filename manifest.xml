@@ -15,7 +15,7 @@
 
   <!-- Stable GUID – same for every sideloader -->
   <Id>d698de84-7dd0-4c25-87c5-db5ac2847792</Id>
-  <Version>8.0.0.0</Version>
+  <Version>9.0.0.0</Version>
   <ProviderName>Microsoft Education</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Teach"/>
