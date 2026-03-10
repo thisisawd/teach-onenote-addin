@@ -241,8 +241,8 @@
     .tpl-card.hidden-fav { display: none; }
 
     /* ── History / recent content items ── */
-    #historyContainer { display: none; }
-    #historyContainer.visible { display: block; }
+    #historyContainer { display: none; pointer-events: none; }
+    #historyContainer.visible { display: block; pointer-events: auto; }
     .history-item {
       display: flex;
       align-items: flex-start;
@@ -1152,13 +1152,17 @@
   function isAoaiConfigured() { return !!(aoaiConfig.endpoint && aoaiConfig.apiKey); }
 
   /* ── Education system prompts per template ──────────── */
+  var NOFORMS = ' CRITICAL: output ONLY static print-friendly HTML. Do NOT use <input>, <form>, <button>, <select>, <textarea>, or any interactive/form elements. Use ○ for radio options, ______ for blanks. No markdown fences.';
   var SYSTEM_PROMPTS = {
-    lesson: 'You are an expert K-12 curriculum designer. Create a detailed, standards-aligned lesson plan. Include: learning objectives (Bloom\'s taxonomy verbs), timed lesson flow (warm-up/instruction/guided practice/independent practice/closure), differentiation strategies, materials, and assessment ideas. If standards are provided, explicitly align to them. Format as clean HTML with <h4> headings, <ul>/<ol> lists, <table> for differentiation. No markdown.',
-    quiz: 'You are an expert K-12 assessment designer. Create a high-quality quiz with real, grade-appropriate questions and plausible distractors for MC. Include an answer key at the end. Vary difficulty per Bloom\'s taxonomy. Format as clean, STATIC, print-friendly HTML. Use numbered <ol> for questions, lettered lists or paragraphs with circle characters (○) for multiple-choice options, and blank underlines (______) for fill-in-the-blank. Do NOT use <input>, <form>, <button>, <select>, <textarea>, <radio>, <checkbox>, or any interactive/form elements. No markdown.',
-    rubric: 'You are an expert rubric designer for K-12. Create a criteria-based rubric with clear, specific performance descriptors at each level. 4-6 relevant criteria. Format as HTML <table> with criteria as rows and levels as columns. No markdown.',
-    activity: 'You are an expert at designing engaging K-12 classroom activities. Include: overview, learning goals, step-by-step instructions with time estimates, materials, grouping strategy, differentiation, reflection questions. Format as clean HTML. No markdown.',
-    vocabulary: 'You are an expert vocabulary instruction specialist. For each term: word, student-friendly definition, example sentence in context, related terms. Add practice activities. Format as HTML <table> + <h4>/<ol> for practice. No markdown.',
-    reading: 'You are an expert at creating grade-appropriate reading passages. Write an original, engaging passage at the specified level. Include 5-8 comprehension questions (recall, inference, vocabulary, author\'s purpose). Include answer key. Format as clean, STATIC, print-friendly HTML. Use numbered lists for questions, lettered options with circle characters (○) for multiple-choice, and blank underlines (______) for short-answer. Do NOT use <input>, <form>, <button>, <select>, <textarea>, or any interactive/form elements. No markdown.'
+    lesson: 'You are an expert K-12 curriculum designer. Create a detailed, standards-aligned lesson plan. Include: learning objectives (Bloom\'s taxonomy verbs), timed lesson flow (warm-up/instruction/guided practice/independent practice/closure), differentiation strategies, materials, and assessment ideas. If standards are provided, explicitly align to them. Format as clean HTML with <h4> headings, <ul>/<ol> lists, <table> for differentiation.' + NOFORMS,
+    quiz: 'You are an expert K-12 assessment designer. Create a high-quality quiz with real, grade-appropriate questions and plausible distractors for MC. Include an answer key at the end. Vary difficulty per Bloom\'s taxonomy. Format as clean static HTML. Use numbered <ol> for questions, lettered lists or paragraphs with circle characters (○) for multiple-choice options, and blank underlines (______) for fill-in-the-blank.' + NOFORMS,
+    rubric: 'You are an expert rubric designer for K-12. Create a criteria-based rubric with clear, specific performance descriptors at each level. 4-6 relevant criteria. Format as HTML <table> with criteria as rows and levels as columns.' + NOFORMS,
+    activity: 'You are an expert at designing engaging K-12 classroom activities. Include: overview, learning goals, step-by-step instructions with time estimates, materials, grouping strategy, differentiation, reflection questions. Format as clean HTML.' + NOFORMS,
+    vocabulary: 'You are an expert vocabulary instruction specialist. For each term: word, student-friendly definition, example sentence in context, related terms. Add practice activities. Format as HTML <table> + <h4>/<ol> for practice.' + NOFORMS,
+    reading: 'You are an expert at creating grade-appropriate reading passages. Write an original, engaging passage at the specified level. Include 5-8 comprehension questions (recall, inference, vocabulary, author\'s purpose). Include answer key. Format as clean static HTML. Use numbered lists for questions, lettered options with circle characters (○) for multiple-choice, and blank underlines (______) for short-answer.' + NOFORMS,
+    flashcards: 'You are an expert at creating educational flashcards. Create a set of flashcards presented as an HTML <table> with two columns: Front and Back. Each row is one card.' + NOFORMS,
+    fillblanks: 'You are an expert at creating fill-in-the-blank exercises. Create sentences with key words replaced by blank underlines (______). Include an answer key at the end. Format as numbered <ol> list.' + NOFORMS,
+    matching: 'You are an expert at creating matching exercises. Create two columns of items for students to match. Format as HTML <table>. Include an answer key at the end.' + NOFORMS
   };
 
   /* ── Uploaded file text storage ─────────────────────── */
@@ -1652,6 +1656,13 @@
     historyContainer.classList.remove('visible');
     historyContainer.innerHTML = '';
 
+    // Reset all section titles and grids to visible first
+    allSections.forEach(function(title) {
+      title.style.display = '';
+      var grid = title.nextElementSibling;
+      if (grid && grid.classList.contains('templates')) grid.style.display = '';
+    });
+
     allCards.forEach(function(card) {
       var tpl = card.getAttribute('data-tpl');
       var name = (card.querySelector('.name') || {}).textContent || '';
@@ -1783,6 +1794,9 @@
 
   // ── Wire buttons ──────────────────────────────────────
   function wireButtons() {
+    try { _wireButtonsInner(); } catch(e) { console.error('[Teach] wireButtons error:', e); }
+  }
+  function _wireButtonsInner() {
     // Open Copilot Teach in new tab
     document.getElementById('openCopilotBtn').addEventListener('click', function() {
       window.open(TEACH_URL, '_blank');
@@ -2027,22 +2041,11 @@
   async function insertHtml(html) {
     if (!officeReady) { toast('OneNote is not ready.', 'error'); return; }
     if (!html) { toast('Nothing to insert — generate content first.', 'error'); return; }
-
-    var safeHtml = sanitizeForOneNote(html);
-    // Fallback: if sanitizer produced empty output, use raw HTML
-    if (!safeHtml || !safeHtml.trim()) {
-      console.warn('[Teach] Sanitizer returned empty — using raw HTML');
-      safeHtml = html;
-    }
-
-    console.log('[Teach] insertHtml called, HTML length:', safeHtml.length);
-
     try {
       await OneNote.run(async function(ctx) {
         var page = ctx.application.getActivePage();
-        var outline = page.addOutline(40, 40, safeHtml);
+        page.addOutline(40, 40, html);
         await ctx.sync();
-        console.log('[Teach] addOutline + sync succeeded');
       });
       toast('Content inserted into page!', 'success');
     } catch(err) {
